@@ -1,0 +1,53 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Reset Password</title>
+
+		<link rel="stylesheet" href="/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/login.css">
+  </head>
+  <body>
+    <nav class="navbar navbar-default navbar-fixed-top"><!-- navbar navbar-default navbar-fixed-top -->
+      <div class="container">
+        <div class="navbar-left justified">
+          <div class="navbar-brand">Employee Login</div>
+        </div>
+        <div class="nav navbar-nav navbar-right">
+          <a href="/" id="btn-logout" class="navbar-btn btn btn-primary">Back to Home</a>
+        </div>
+
+      </div>
+    </nav>
+    <div id="set-password" class="modal show">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4>Reset Password</h4>
+          </div>
+          <div class="modal-body">
+            <form method="post" id="set-password-form" class="well">
+              <div class="alert alert-danger hide"></div>
+              <div class="form-group">
+                <label>Please enter your new password</label>
+                <input type="password" name="pass" id="pass-tf" class="form-control required">
+              </div>
+              <div class="form-group">
+                <label>Confirm password</label>
+                <input type="password" name="pass-conf" id="pass-conf" class="form-control required">
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="submit" form="set-password-form" id="set-password-submit" class="btn btn-primary">Submit</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="/js/jquery-2.2.3.min.js"></script>
+    <script src="/js/jquery.form.min.js"></script>
+    <script src="/js/bootstrap.min.js"></script>
+		<script src="/js/views/reset.js"></script>
+    <script src="/js/form-validators/resetValidator.js"></script>
+  </body>
+</html>

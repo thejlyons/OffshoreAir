@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<!--
+  <head>
+    <title>Employee Portal</title>
+  </head>
+  <body>
+    <h1>Employee Portal</h1>
+    <h3>Welcome, <%= user.name %> (<%= user.username %>)</h3>
+
+    <a href="/employee/accreditations">Accreditations</a>
+    <a href="/employee/files">Files</a>
+    <% if (user.admin) { %>
+      <a href="/admin">Admin</a>
+    <% } %>
+    <a href="/logout">Logout</a>
+  </body>
+-->
+  <head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="landing page for employees after logging in">
+    <meta name="author" content="Scott Corbitt">
+
+    <title>Employee Portal</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="/css/employee.css" rel="stylesheet">
+
+    <!-- Custom fonts for this template -->
+    <link href="//fonts.googleapis.com/css?family=Lato:300,400,700,300italic,400italic,700italic" rel="stylesheet" type="text/css">
+
+    <!-- Plugin CSS -->
+    <link href="vendor/magnific-popup/magnific-popup.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="/css/landing-page.css" rel="stylesheet">
+    <link href="/css/creative.css" rel="stylesheet">
+
+  </head>
+
+  <body id="page-top">
+
+    <% include ./partials/emp-nav.ejs %>
+    <nav>
+    </nav>
+
+<!--Code for navbar-duplicate
+    <nav id="mainNav" class="navbar navbar-default navbar-fixed-top">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+            <span class="sr-only">Toggle navigation</span> Menu <i class="fa fa-bars"></i>
+          </button>
+          <a class="navbar-brand" href="#">Welcome, <%= user.name %> (<%= user.username%>) </a>
+        </div>
+
+         Collect the nav links, forms, and other content for toggling
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+          <ul class="nav navbar-nav navbar-right">
+            <li>
+              <a class="page-scroll" href="/">Home</a>
+            </li>
+            <li>
+              <a class="page-scroll" href="/employee/files">Files</a>
+            </li>
+            <% if (user.admin) { %>
+            <li>
+              <a class="page-scroll" href="/admin">Admin</a>
+            </li>
+            <% } %>
+          </ul>
+        </div>
+        (/.navbar-collapse)
+      </div>
+    </nav>
+  -->
+
+    <!-- Header -->
+    <header class="intro-header">
+      <div class="container">
+        <div class="intro-message">
+          <h1>Employee Portal</h1>
+          <hr class="intro-divider">
+          <ul class="list-inline intro-social-buttons">
+            <% for(var i = 0; i < accreditations.length; i++) { %>
+              <li class="list-inline-item">
+                <a href="/employee/accreditation/<%= accreditations[i].id %>" class="btn btn-secondary btn-lg">
+                  <i class="fa"></i>
+                  <span class="network-name"><%= accreditations[i].title %></span>
+                </a>
+              </li>
+            <% } %>
+            <% for(var i = 0; i < accreditations.length; i++) { %>
+              <% if(user.roles.indexOf(accreditations[i].id) >= 0) { %>
+              <li class="list-inline-item">
+                <a href="/employee/supervisor/<%= accreditations[i].id %>" class="btn btn-secondary btn-lg">
+                  <i class="fa"></i>
+                  <span class="network-name">Supervisor: <%= accreditations[i].title %></span>
+                </a>
+              </li>
+              <% } %>
+            <% } %>
+          </ul>
+        </div>
+      </div>
+    </header>
+
+
+    <!-- jQuery -->
+    <!-- <script src="/js/jquery-2.2.3.min.js"></script> -->
+    <script src="/vendor/jquery/jquery.min.js"></script>
+    <!-- Bootstrap Core JavaScript -->
+    <script src="public/vendor/bootstrap/js/bootstrap.min.js"></script>
+
+    <!-- Plugin JavaScript -->
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.3/jquery.easing.min.js"></script>
+    <script src="/vendor/scrollreveal/scrollreveal.min.js"></script>
+    <script src="/vendor/magnific-popup/jquery.magnific-popup.min.js"></script>
+
+    <!-- Theme JavaScript -->
+    <script src="public/js/creative.js"></script>
+
+  </body>
+  </html>

@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Admin Portal | Manage Accreditations</title>
+
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/bootstrap-switch.css">
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+    <style>
+      .fa-trash-o, .fa-plus-square, .fa-chevron-up, .fa-chevron-down {
+        cursor: pointer;
+        display: none;
+      }
+
+      .fa-trash-o {
+        background: #CA2525;
+        border-radius: 3px;
+        color: #F3D2D2;
+        font-size: 12pt;
+        padding: 3px 6px;
+      }
+
+      .fa-plus-square {
+        color: #428bca;
+      }
+
+      .fa-plus-square:hover {
+        color: #3276b1
+      }
+
+      .fa-trash-o:hover {
+        background: #9D1515;
+      }
+
+      .right-corner {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+      }
+
+      .fa-trash-o.large {
+        padding: 5px 8px;
+        font-size: 16pt;
+      }
+
+      .fa-chevron-up, .fa-chevron-down {
+        font-size: 20pt;
+        color: #428bca;
+      }
+
+      .fa-chevron-up:hover, .fa-chevron-down:hover {
+        color: #3276b1
+      }
+
+      .edit {
+        -webkit-transition: border-color 1s; /* Safari */
+        transition: border-color 1s;
+        -webkit-transition: background 1s; /* Safari */
+        transition: background 1s;
+        -webkit-transition: color 1s; /* Safari */
+        transition: color 1s;
+        border: 1px solid #FFF;
+      }
+
+      .edit-border {
+        /*background: #428bca;
+        color: #FFF;*/
+        border-color: #428bca !important;
+      }
+    </style>
+
+    <script src="/js/jquery-2.2.3.min.js"></script>
+    <script src="/js/bootstrap-switch.js"></script>
+  </head>
+  <body>
+    <div id='manager' class='jumbotron' style='position: relative; width: 75%; margin: 15px auto; padding-bottom: 90px;'>
+      <span style='position: absolute; top: 30px; right: 30px;'>
+        <input id='edit-switch' type="checkbox" data-on-text='View' data-off-text='Edit' data-on-color='default' data-off-color='primary' checked>
+      </span>
+
+      <h1 class="display-4">Accreditations Manager</h1>
+
+      <p class="lead">To edit the accreditations, toggle the switch to edit then save your changes.</p>
+
+      <h2>Accreditations&nbsp;<i class="fa fa-plus-square" aria-hidden="true" data-type='accreditations'></i></h2>
+      <div id='accred-list' class="list-group">
+        <!-- Filled by EJS dump to accred_save and then method revert called once document.ready() -->
+      </div>
+
+      <h2>Steps&nbsp;<i class="fa fa-plus-square" aria-hidden="true" data-type='steps'></i></h2>
+      <div id='step-list' class="list-group">
+        <!-- Filled by EJS dump to steps_save and then method revert called once document.ready() -->
+      </div>
+
+      <div id='controls' style='position: absolute; bottom: 30px; right: 30px; display: none;'>
+        <button id='revert' type="button" class="btn btn-info">Revert Changes</button>
+        <button id='save' type="button" class="btn btn-primary">Save Changes</button>
+      </div>
+    </div>
+
+    <br>
+    <a href="/employee">Employee Home</a>
+    <a href="/employee/accreditations">Accreditations</a>
+    <a href="/admin">Admin</a>
+    <a href="/logout">Logout</a>
+
+    <br>
+    <h3>Admin tools</h3>
+    <a href="/admin/manage/accreditations">Accreditations</a>
+
+    <script>
+      var accred_save = [
+        <% for(var i=0; i<accreditations.length; i++) {%>
+          {
+            "id": "<%= accreditations[i].id %>",
+            "title": "<%= accreditations[i].title %>",
+            "skills": [
+              <% for(var j=0; j<accreditations[i].skills.length; j++) {%>
+                "<%= accreditations[i].skills[j] %>",
+              <% } %>
+            ]
+          },
+        <% } %>
+      ];
+      var accred_dels = [];
+
+      var steps_save = [
+        <% for(var i=0; i<steps.length; i++) {%>
+          {
+            "id": "<%= steps[i].id %>",
+            "content": "<%= steps[i].content %>"
+          },
+        <% } %>
+      ];;
+      var steps_dels = [];
+      var an = 0;
+      var sn = 0;
+
+      $(document).ready(function() {
+        revert(false);
+
+        $("#edit-switch").bootstrapSwitch();
+
+        $('#edit-switch').on('switchChange.bootstrapSwitch', function(event, state) {
+          toggleEdit(state);
+        });
+
+
+        $('#save').on('click', function() {
+          $('#save').prop('disabled', true);
+
+          accred_save = getAccreditations();
+          steps_save = getSteps();
+
+          save();
+
+          $('#save').prop('disabled', false);
+          $("#edit-switch").bootstrapSwitch('state', true);
+        });
+
+        $('#revert').on('click', function() {
+          revert(true);
+        });
+
+      });
+
+      function save() {
+        $.each(accred_save, function(i, val) {
+          if(val.id.includes("new")) {
+            $.post("/admin/manage/accreditations/insert", {"accreditation": val}, function(result) {
+              $("[data-accred-id='" + val.id + "']").attr("data-accred-id", result.id);
+            });
+          } else {
+            $.post("/admin/manage/accreditations/update", {"accreditation": val}, function(result) {});
+          }
+        });
+
+        if(accred_dels.length > 0) {
+          $.post("/admin/manage/accreditations/delete", {"accreditations": accred_dels}, function(result) {});
+        }
+
+        $.each(steps_save, function(i, val) {
+          if(val.id.includes("new")) {
+            $.post("/admin/manage/steps/insert", {"step": val}, function(result) {
+              $("[data-step-id='" + val.id + "']").attr("data-step-id", result.id);
+            });
+          } else {
+            $.post("/admin/manage/steps/update", {"step": val}, function(result) {});
+          }
+        });
+
+        if(steps_dels.length > 0) {
+          $.post("/admin/manage/steps/delete", {"steps": steps_dels}, function(result) {});
+        }
+      }
+
+      function getAccreditations() {
+        var accreditations = [];
+        $('[data-id="accreditation"]').each(function() {
+          var id = $(this).attr('data-accred-id');
+          var title = $.trim($(this).find('[data-id="title"]').html());
+          var skills = [];
+          $(this).find('[data-id="skill"]').each(function() {
+            skills.push($.trim($(this).html()));
+          });
+
+          var accred = {
+            'title': title,
+            'skills': skills
+          };
+
+          if(id != 'new') {
+            accred['id'] = id;
+          }
+          accreditations.push(accred);
+        });
+
+        return accreditations;
+      }
+
+      function newAccred(id, title, skills) {
+        $('#accred-list').append(
+          '<li class="list-group-item list-group-item-action flex-column align-items-start" data-id="accreditation" data-accred-id=' + id + '>'
+            + '<i class="fa fa-trash-o large right-corner" aria-hidden="true"></i>'
+            + '<div class="d-flex w-100 justify-content-between">'
+              + '<h3 class="mb-1"><span class="edit" data-id="title">' + title + '</span>&nbsp;<i class="fa fa-plus-square" aria-hidden="true" data-type="skill"></i></h3>'
+            + '</div>'
+            + newSkills(skills)
+          + '</li>'
+        );
+      }
+
+      function newSkills(skills) {
+        var ret = "";
+        $.each(skills, function(i, value) {
+          ret += '<p class="mb-1" style="padding-left:18px;">'
+              + '<i class="fa fa-trash-o" aria-hidden="true"></i>&nbsp;<span class="edit" data-id="skill">' + value + '</span>'
+            + '</p>';
+        });
+
+        return ret;
+      }
+
+      function getSteps() {
+        var steps = [];
+        $('[data-id="step"]').each(function(i) {
+          var id = $(this).attr('data-step-id');
+          var content = $.trim($(this).find('[data-id="content"]').html());
+          var place = i+1;
+
+          var step = {
+            'content': content,
+            'place': place
+          };
+
+          if(id != 'new') {
+            step['id'] = id;
+          }
+          steps.push(step);
+        });
+
+        return steps;
+      }
+
+      function newStep(id, content) {
+        $('#step-list').append(
+          '<li class="list-group-item list-group-item-action flex-column align-items-start" data-id="step" data-step-id=' + id + '>'
+            + '<span class="right-corner"><span class="fa-stack fa-lg" style="position: relative; top: -8px; margin-right: 11px;">'
+              + '<i class="fa fa-chevron-up fa-stack-2x" style="margin-bottom: 18px;"></i>'
+              + '<i class="fa fa-chevron-down fa-stack-2x" style="margin-top: 18px;"></i>'
+            + '</span>'
+            + '<i class="fa fa-trash-o large" aria-hidden="true"></i></span>'
+            + '<div class="d-flex w-100 justify-content-between">'
+              + '<h3 class="mb-1" style="padding-right: 100px;">'
+                + '<span class="edit" data-id="content" style="padding: 2px; line-height: 24pt;">' + content + '</span>'
+              + '</h3>'
+            + '</div>'
+          + '</li>'
+        );
+      }
+
+      function toggleEdit(state) {
+        if(!state) {
+          setClicks();
+          $('.edit').attr('contenteditable', true);
+          $('.edit').addClass('edit-border');
+          $('.fa-trash-o').attr('contenteditable', false);
+          $('.fa-plus-square').attr('contenteditable', false);
+          $('#controls').fadeIn();
+          $('.fa-plus-square').fadeIn();
+          $('.fa-trash-o').fadeIn();
+          $('.fa-chevron-up').fadeIn();
+          $('.fa-chevron-down').fadeIn();
+        } else {
+          revert(false);
+          $('.edit').attr('contenteditable', false);
+          $('.edit').removeClass('edit-border');
+          $('.fa-trash-o').attr('contenteditable', false);
+          $('#controls').fadeOut();
+          $('.fa-plus-square').fadeOut();
+          $('.fa-trash-o').fadeOut();
+          $('.fa-chevron-up').fadeOut();
+          $('.fa-chevron-down').fadeOut();
+        }
+      }
+
+      function setClicks() {
+        $('.fa-plus-square[data-type="steps"]').off('click');
+        $('.fa-plus-square[data-type="steps"]').on('click', function() {
+          console.log("Here");
+          newStep('new' + sn, 'New Step');
+          sn++;
+          toggleEdit(false);
+        });
+
+        $('.fa-plus-square[data-type="skill"]').off('click');
+        $('.fa-plus-square[data-type="skill"]').on('click', function() {
+          $(this).closest('[data-id="accreditation"]').append(newSkills(['New Skill']));
+          toggleEdit(false);
+        });
+
+        $('.fa-plus-square[data-type="accreditations"]').off('click');
+        $('.fa-plus-square[data-type="accreditations"]').on('click', function() {
+          newAccred('new' + an, 'New Accreditation', ['New Skill']);
+          an++;
+          toggleEdit(false);
+        });
+
+        $('.fa-chevron-up').off('click');
+        $('.fa-chevron-up').on('click', function() {
+          $(this).closest('[data-id="step"]').moveUp();
+        });
+
+        $('.fa-chevron-down').off('click');
+        $('.fa-chevron-down').on('click', function() {
+          $(this).closest('[data-id="step"]').moveDown();
+        });
+
+        $('.fa-trash-o').off('click');
+        $('.fa-trash-o').on('click', function() {
+          var for_skill = $(this).siblings();
+          console.log(for_skill);
+          if(for_skill && for_skill.attr('data-id') && for_skill.attr('data-id') == 'skill') {
+            $(this).parent().fadeOut(300, function() {$(this).remove();});
+          } else {
+            var parent = $(this).closest('li');
+            var aattr = parent.attr('data-accred-id');
+            var sattr = parent.attr('data-step-id');
+
+            if (typeof aattr !== typeof undefined && aattr !== false && !aattr.includes("new")) {
+              accred_dels.push(aattr);
+            }
+            if (typeof sattr !== typeof undefined && sattr !== false && !sattr.includes("new")) {
+              steps_dels.push(sattr);
+            }
+
+            parent.fadeOut(300, function() {$(this).remove();});
+          }
+        });
+
+      }
+
+      function revert(toggle) {
+        $('#accred-list').html('');
+        $('#step-list').html('');
+
+        $.each(accred_save, function(i, value) {
+          newAccred(value.id, value.title, value.skills);
+        });
+
+
+        $.each(steps_save, function(i, value) {
+          newStep(value.id, value.content);
+        });
+
+        setClicks();
+        if(toggle) {
+          toggleEdit(false);
+        }
+      }
+
+      $.fn.moveUp = function() {
+        before = $(this).prev();
+        $(this).insertBefore(before);
+      }
+
+      $.fn.moveDown = function() {
+        after = $(this).next();
+        $(this).insertAfter(after);
+      }
+    </script>
+  </body>
+</html>

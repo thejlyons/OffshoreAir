@@ -1,0 +1,46 @@
+{
+  "name": "offshore-air",
+  "version": "0.1.1",
+  "description": "Offshore Air Website",
+  "engines": {
+    "node": "6.11.1"
+  },
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node test.js"
+  },
+  "dependencies": {
+    "auth0-js": "^8.8.0",
+    "body-parser": "^1.17.2",
+    "connect-ensure-login": "^0.1.1",
+    "connect-pg-simple": "^4.2.0",
+    "cookie-parser": "^1.4.3",
+    "cool-ascii-faces": "1.3.4",
+    "crypto": "0.0.3",
+    "ejs": "2.5.6",
+    "emailjs": "^1.0.11",
+    "es5-async-await": "^1.0.0",
+    "express": "4.15.2",
+    "express-session": "^1.15.4",
+    "moment": "^2.18.1",
+    "passport": "^0.3.2",
+    "passport-auth0": "^0.6.0",
+    "pg": "6.x",
+    "pg-promise": "^6.3.6"
+  },
+  "devDependencies": {
+    "request": "^2.81.0",
+    "tape": "^4.7.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/heroku/node-js-getting-started"
+  },
+  "keywords": [
+    "node",
+    "heroku",
+    "express"
+  ],
+  "license": "MIT"
+}

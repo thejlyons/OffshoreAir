@@ -1,0 +1,14 @@
+<h1><%= title %></h1>
+<div id='data'>
+  <ul>
+  <% for(var i=0; i<data.length; i++) {%>
+     <li><%= data[i].name %>
+       <ul>
+         <% for(var j=0; j<data[i].steps.length; j++) {%>
+           <li><%= data[i].steps[j].name %>
+          <% } %>
+       </ul>
+     </li>
+  <% } %>
+  </ul>
+</div>

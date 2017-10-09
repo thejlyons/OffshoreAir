@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Admin Portal | Users</title>
+
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/v/bs/jq-2.2.4/dt-1.10.15/r-2.1.1/datatables.min.css"/>
+    <style>
+    html, body {
+      width: 100%;
+      margin: 0px;
+      padding: 0px;
+      overflow-x: hidden;
+    }
+
+      .fa-trash-o, .fa-square-o, .fa-pencil, .fa-check-square-o {
+        cursor: pointer;
+      }
+
+      .fa-trash-o {
+        background: #CA2525;
+        border-radius: 3px;
+        color: #F3D2D2;
+        font-size: 12pt;
+        padding: 3px 6px;
+      }
+
+      .fa-trash-o:hover {
+        background: #9D1515;
+      }
+
+      .fa-pencil {
+        background: #56C68E;
+        border-radius: 3px;
+        color: #D2F3D2;
+        font-size: 12pt;
+        padding: 3px 5px;
+      }
+
+      .fa-pencil:hover {
+        background: #289960;
+      }
+
+      .screen {
+        display: none;
+        position: fixed;
+        top: 0px;
+        bottom: 0px;
+        right: 0px;
+        left: 0px;
+        max-width: vw;
+        max-height: vh;
+        z-index: 10;
+        background: #333;
+        opacity: 0.5;
+      }
+
+      #editor {
+        display: none;
+        position: fixed;
+        top: -600px;
+        left: 0;
+        right: 0;
+        width: 50%;
+        max-width: 700px;
+        margin: auto;
+        background: white;
+        padding: 20px 30px;
+        border-radius: 5px;
+        z-index: 15;
+        -webkit-transition: top 0.4s; /* Safari */
+        transition: top 0.4s;
+      }
+
+      .btn {
+        float: right;
+        margin-left: 12px;
+      }
+
+      .input-group-addon {
+        cursor: pointer;
+        padding-left: 13px;
+        padding-right: 13px;
+        background: #428bca;
+      }
+
+      .input-group-addon:hover {
+        background: #3276b1;
+      }
+
+      .fa-plus {
+        color: #F3F3F3;
+      }
+
+      .dropdown {
+        position: relative;
+        z-index: 20;
+      }
+
+      .dropdown .dropdown-list {
+        position: relative;
+        margin-top: 5px;
+        padding: 0px;
+        width: 100%;
+        background: white;
+        list-style: none;
+      }
+
+      .dropdown .dropdown-list li {
+        position: relative;
+        background: white;
+        z-index: 25;
+        display: none;
+        border-left: 1px solid #CCC;
+        border-right: 1px solid #CCC;
+        padding: 7px 0px 7px 7px;
+        cursor: pointer;
+        overflow: hidden;
+        margin: 0;
+        width: 100%;
+      }
+
+      .dropdown .dropdown-list li:hover {
+        background: #428bca;
+        color: white;
+      }
+
+      .dropdown-list li.selected {
+        background: #428bca;
+        color: white;
+      }
+
+      .dropdown .dropdown-list li:first-child {
+        border-top: 1px solid #CCC;
+        border-radius: 4px 4px 0px 0px;
+      }
+
+      .dropdown .dropdown-list li:last-child {
+        border-bottom: 1px solid #CCC;
+        border-radius: 0px 0px 4px 4px;
+      }
+    </style>
+
+    <script src="/js/jquery-2.2.3.min.js"></script>
+    <script type="text/javascript" src="//cdn.datatables.net/v/bs/jq-2.2.4/dt-1.10.15/r-2.1.1/datatables.min.js"></script>
+  </head>
+  <body>
+    <h1>Admin Portal | Manage Users</h1>
+
+    <h2>Welcome, admin.</h2>
+
+    <a href="/employee">Employee Home</a>
+    <a href="/employee/accreditations">Accreditations</a>
+    <a href="/admin">Admin</a>
+    <a href="/logout">Logout</a>
+
+    <br>
+    <h3>Admin tools</h3>
+    <a href="/admin/manage/accreditations">Accreditations</a>
+    <a href="/admin/manage/files">Files</a>
+    <a href="/admin/manage/users">Users</a>
+
+    <br><br>
+    <h3>Add User</h3>
+    <form id="new-user">
+      <input type="text" name="name" value="Jane Doe">
+      <input type="text" name="email" value="Jane.Doe@gmail.com">
+      <input type="submit" value="Give Access">
+    </form>
+
+    <table id="users-table" class="display">
+      <thead>
+        <tr>
+          <th>Employee</th>
+          <th>Email</th>
+          <th>Roles</th>
+          <th>Admin</th>
+          <th>Edit</th>
+          <th>Delete</th>
+        </tr>
+      </thead>
+    </table>
+
+    <form id="editor" method="POST">
+      <input type="number" name="id" hidden>
+      <div class="form-group">
+        <label>Name</label>
+        <input type="text" class="form-control" name="name">
+      </div>
+      <div class="form-group">
+        <label>Email address</label>
+        <input type="email" class="form-control" name="email">
+      </div>
+      <div class="form-group">
+        <label>Roles</label>
+        <div class="input-group">
+          <span class="input-group-addon"><i class="fa fa-plus" aria-hidden="true"></i></span>
+          <input type="text" class="form-control" name="roles" disabled>
+        </div>
+        <span class="dropdown">
+          <ul class="dropdown-list">
+            <% for(var i = 0; i < accreditations.length; i++) { %>
+              <li data-accred-id="<%= accreditations[i].id %>"><%= accreditations[i].title %></li>
+            <% } %>
+          </ul>
+        </span>
+      </div>
+      <div class="form-check">
+        <label class="form-check-label">
+          <input type="checkbox" name="admin" class="form-check-input">
+          Admin
+        </label>
+      </div>
+      <button class="btn btn-primary">Submit</button>
+      <span class="btn btn-info">Cancel</span>
+    </form>
+    <div class="screen"></div>
+
+    <script>
+      var accreds = [
+        <% for(var i = 0; i < accreditations.length; i++) { %>
+          {
+            "id": <%= accreditations[i].id %>,
+            "title": "<%= accreditations[i].title %>"
+          },
+        <% } %>
+      ];
+
+      var employees = [
+        <% for (var i = 0; i < employees.length; i++) { %>
+          new Employee(<%= employees[i].id %>, "<%= employees[i].name %>", "<%= employees[i].email %>", [<%= employees[i].roles %>], <%= employees[i].admin %>, <%= i %>),
+        <% } %>
+      ];
+
+      var current_list = {};
+
+      function Employee(id, name, email, roles, admin, index) {
+        this.id    = id;
+        this.name  = name;
+        this.email = email;
+        this.accreds = [];
+        this.roles = [];
+        for(var i = 0; i < accreds.length; i++) {
+          if(roles.indexOf(accreds[i].id) >= 0) {
+            this.roles.push(accreds[i].title);
+            this.accreds.push(accreds[i]);
+          }
+        }
+        console.log(this.roles);
+        this.admin = admin;
+        this.index = index;
+      };
+
+      $(document).ready(function() {
+        $("#new-user").on("submit", function() {
+          $.post("/admin/manage/users/new", {"email": $(this).find("input[name='email']").val(), "name": $(this).find("input[name='name']").val()}, function(result) {
+            alert("Email sent.");
+          });
+
+          return false;
+        });
+
+        $('#users-table').DataTable( {
+          data: employees,
+          columns: [
+            { data: 'name' },
+            { data: 'email' },
+            {
+              data: 'roles',
+              render: function(data, type, row) {
+                return data.join(", ").substring(0, 40);
+              }
+            },
+            {
+              data: 'admin',
+              render: function(data, type, row) {
+                var c = "fa-square-o";
+                if(data) {
+                  c = "fa-check-square-o";
+                }
+
+                return '<i class="fa ' + c + '" aria-hidden="true" data-user-id="' + row.id + '"></i>';
+              }
+            },
+            {
+              data: 'edit',
+              orderable: false,
+              searchable: false,
+              defaultContent: '',
+              render: function(data, type, row) {
+                return '<i class="fa fa-pencil" aria-hidden="true" data-user-index="' + row.index + '"></i>';
+              }
+            },
+            {
+              data: 'delete',
+              orderable: false,
+              searchable: false,
+              defaultContent: '',
+              render: function(data, type, row) {
+                return '<i class="fa fa-trash-o" aria-hidden="true" data-user-id="' + row.id + '"></i>';
+              }
+            }
+          ]
+        });
+
+        $(".screen").on('click', function() {
+          $(".screen").fadeOut();
+          $("#editor").fadeOut();
+          $("#editor").css("top", "-600px");
+        });
+
+        $("span.btn-info").on('click', function() {
+          $(".screen").fadeOut();
+          $("#editor").fadeOut();
+          $("#editor").css("top", "-600px");
+        });
+
+        $('.input-group-addon').on('click', function() {
+          $('.dropdown-list li').slideToggle(300);
+        });
+
+        $('.dropdown-list li').on('click', function() {
+          var id = $(this).attr('data-accred-id');
+          var input = $("#editor").find('input[name="accred[]"][value="' + id + '"]');
+          if($(this).hasClass('selected')) {
+            if(input.length > 0) {
+              input.remove();
+            }
+            delete current_list[id];
+          } else {
+            if(input.length == 0) {
+              $('<input>').attr({
+                type: 'hidden',
+                name: 'accred[]',
+                value: id
+              }).appendTo('#editor');
+            }
+            current_list[id] = $(this).html();
+          }
+          var value = "";
+          for(var item in current_list) {
+            value += current_list[item] + ", ";
+          }
+          $("#editor input[name='roles']").val(value.substring(0, value.length - 2));
+          $(this).toggleClass('selected');
+        });
+        setClicks();
+      });
+
+      function setClicks() {
+        $(".fa-square-o").off('click');
+        $(".fa-square-o").on('click', function() {
+          var icon = $(this);
+          icon.removeClass('fa-square-o');
+          icon.addClass('fa-circle-o-notch');
+          icon.addClass('fa-spin');
+
+          var step_id = icon.attr('data-step-id');
+          var user_id = icon.attr('data-user-id');
+          $.getJSON("/admin/manage/users/admin?user=" + user_id + "&set=t", function(result){
+            if(result.success) {
+              icon.removeClass('fa-circle-o-notch');
+              icon.removeClass('fa-spin');
+              icon.removeClass('fa-square-o');
+              icon.addClass('fa-check-square-o');
+            }
+            setClicks();
+          });
+        });
+
+        $(".fa-check-square-o").off('click');
+        $(".fa-check-square-o").on('click', function() {
+          var icon = $(this);
+          icon.removeClass('fa-square-o');
+          icon.addClass('fa-circle-o-notch');
+          icon.addClass('fa-spin');
+
+          var step_id = icon.attr('data-step-id');
+          var user_id = icon.attr('data-user-id');
+          $.getJSON("/admin/manage/users/admin?user=" + user_id + "&set=f", function(result){
+            if(result.success) {
+              icon.removeClass('fa-circle-o-notch');
+              icon.removeClass('fa-spin');
+              icon.removeClass('fa-check-square-o');
+              icon.addClass('fa-square-o');
+            }
+            setClicks();
+          });
+        });
+
+        $(".fa-trash-o").off('click');
+        $(".fa-trash-o").on('click', function() {
+          var icon = $(this);
+          var user_id = icon.attr('data-user-id');
+          $.getJSON("/admin/manage/users/delete?user=" + user_id, function(result){
+            if(result.success) {
+              icon.closest('tr').fadeOut(400, function() { $(this).remove(); });
+            }
+            setClicks();
+          });
+        });
+
+        $(".fa-pencil").off('click');
+        $(".fa-pencil").on('click', function() {
+          current_list = {};
+          var employee = employees[$(this).attr('data-user-index')];
+          $("#editor input[name='id']").val(employee.id);
+          $("#editor input[name='name']").val(employee.name);
+          $("#editor input[name='email']").val(employee.email);
+          $("#editor input[name='roles']").val(employee.roles.join(", "));
+          if(employee.admin) {
+            $("#editor input[name='admin']").prop('checked', true);
+          } else {
+            $("#editor input[name='admin']").prop('checked', false);
+          }
+          $('#editor').find('input[name="accred[]"]').each(function(i, val) {
+            val.remove();
+          });
+          $('#editor').find('input[name="original_role[]"]').each(function(i, val) {
+            val.remove();
+          });
+          $(".dropdown-list li").each(function(i, val) {
+            $(val).removeClass("selected");
+            for(var i = 0; i < employee.accreds.length; i++) {
+              if(employee.accreds[i].id == parseInt($(val).attr('data-accred-id'))) {
+                current_list[employee.accreds[i].id] = employee.accreds[i].title;
+                $(val).addClass("selected");
+                break;
+              }
+            }
+          });
+          for(var i = 0; i < employee.accreds.length; i++) {
+            $('<input>').attr({
+              type: 'hidden',
+              name: 'accred[]',
+              value: employee.accreds[i].id
+            }).appendTo('#editor');
+            $('<input>').attr({
+              type: 'hidden',
+              name: 'original_role[]',
+              value: employee.accreds[i].id
+            }).appendTo('#editor');
+          }
+          $(".screen").fadeIn();
+          $("#editor").fadeIn();
+          $("#editor").css("top", "20vh");
+        });
+      }
+    </script>
+  </body>
+</html>
