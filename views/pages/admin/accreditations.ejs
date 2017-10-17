@@ -307,7 +307,6 @@
       function setClicks() {
         $('.fa-plus-square[data-type="steps"]').off('click');
         $('.fa-plus-square[data-type="steps"]').on('click', function() {
-          console.log("Here");
           newStep('new' + sn, 'New Step');
           sn++;
           toggleEdit(false);
@@ -355,6 +354,40 @@
             }
 
             parent.fadeOut(300, function() {$(this).remove();});
+          }
+        });
+
+        $('[data-id="accreditation"]').off('keypress')
+        $('[data-id="accreditation"]').on('keypress', function(e) {
+          console.log($(this));
+          var key = e.which;
+          if(key == 13) {
+            e.preventDefault();
+            newAccred('new' + an, 'New Accreditation', ['New Skill']);
+            an++;
+            toggleEdit(false);
+          }
+        });
+
+        $('[data-id="skill"]').off('keypress')
+        $('[data-id="skill"]').on('keypress', function(e) {
+          var key = e.which;
+          if(key == 13) {
+            e.preventDefault();
+            e.stopPropagation();
+            $(this).closest('[data-id="accreditation"]').append(newSkills(['New Skill']));
+            toggleEdit(false);
+          }
+        });
+
+        $('#step-list').off('keypress')
+        $('#step-list').on('keypress', function(e) {
+          var key = e.which;
+          if(key == 13) {
+            e.preventDefault();
+            newStep('new' + sn, 'New Step');
+            sn++;
+            toggleEdit(false);
           }
         });
 

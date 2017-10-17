@@ -33,7 +33,6 @@ EM.composeEmail = function(account){
 	var link = process.env.BASE_URL + 'reset-password?e=' + account.email+'&p=' + account.password;
 	var html = "<html><body>";
 		html += "Hi " + account.name + ",<br><br>";
-		html += "Your username is <b>" + account.username + "</b><br><br>";
 		html += "<a href='" + link + "'>Click here to reset your password</a><br><br>";
 		html += "</body></html>";
 	return  [{data:html, alternative:true}];

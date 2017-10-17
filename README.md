@@ -24,13 +24,22 @@ You will need to set up PostgresSQL tables. Syntax for creating the necessary ta
 app/module/* file that requires tables.
 
 You will also need to set up the following environmental variables
+Most systems:
 ```sh
 $ export ENV_VAR=value
+```
+Windows:
+```sh
+$ set ENV_VAR=value
+```
+Powershell:
+```sh
+$ $env:ENV_VAR="value"
 ```
 - EMAIL_HOST (usually smtp.gmail.com)
 - EMAIL_USER
 - EMAIL_PASS
-- BASE_URL
+- BASE_URL (include trailing slash. i.e. 'http://localhost:5000/')
 
 Optional environmental variables:
 - DATABASE_URL (ex. postgres://postgres:dev@localhost:5432/postgres)
