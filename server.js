@@ -41,6 +41,5 @@ require("fs").readdirSync(normalizedPath).forEach(function(file) {
 });
 
 app.listen(app.get('port'), function() {
-  console.log(process.env.DATABASE_URL);
   console.log('Node app is running on port', app.get('port'));
 });
