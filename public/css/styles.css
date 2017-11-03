@@ -93,7 +93,8 @@ Embedded content
 * 2. Improves image quality when scaled in IE 7. */
 
 img { border: 0; /* 1 */
--ms-interpolation-mode: bicubic; /* 2 */ }
+-ms-interpolation-mode: bicubic; /* 2 */
+border-radius: 15px;}
 /* * Corrects overflow displayed oddly in IE 9. */
 svg:not(:root) { overflow: hidden; }
 /* ==========================================================================
@@ -191,9 +192,9 @@ Custom Styles
 p { font-weight: 300; }
 .navigation { background-color: #1F1F1F; }
 .nav-last { margin-bottom: 50px; }
-nav { padding: 0 200px; background: rgba(0, 0, 0, 0.25); border-radius: 0px; border: 0px; }
+/*nav { padding: 0 200px; background: rgba(0, 0, 0, 0.25); border-radius: 0px; border: 0px; }*/
 nav li { margin: 11px 10px; }
-nav li:not(:last-child)::after { padding-left: 10px; color: #FFF; content: "|"; }
+/*nav li:not(:last-child)::after { padding-left: 10px; color: #FFF; content: "|"; }*/
 nav a { text-decoration: none; }
 nav a:hover { text-decoration: none; color: #DDD; }
 /*nav ul { list-style: none; padding: 0; }*/
