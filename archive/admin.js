@@ -2,6 +2,8 @@ var formidable = require('formidable');
 var fs = require('fs');
 
 var ATM = require('../modules/account-manager');
+var ACM = require('../modules/accreditation-manager');
+var EMD = require('../modules/email-dispatcher.js');
 var FIM = require('../modules/file-manager');
 
 module.exports = function(app) {
@@ -9,7 +11,7 @@ module.exports = function(app) {
     if (req.session.user == null || !req.session.user.admin){
   		res.redirect('/employee');
   	}	else {
-      res.render('pages/admin/test', {user: req.session.user});
+      res.render('pages/admin/admin', {user: req.session.user});
     }
   });
 
