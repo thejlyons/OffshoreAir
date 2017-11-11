@@ -19,18 +19,18 @@ module.exports = function(app) {
   });
 
   app.post('/login', function(req, res){
-		ACM.manualLogin(req.body['email'], req.body['pass'], function(e, o){
-			if (!o){
-				res.status(400).send(e);
-			}	else{
-				req.session.user = o;
-				if (req.body['remember-me'] == 'true'){
-					res.cookie('email', o.email,    { maxAge: 900000 });
-					res.cookie('pass',  o.password, { maxAge: 900000 });
-				}
-        res.redirect('/employee');
-			}
-		});
+		// ACM.manualLogin(req.body['email'], req.body['pass'], function(e, o){
+		// 	if (!o){
+		// 		res.status(400).send(e);
+		// 	}	else{
+		// 		req.session.user = o;
+		// 		if (req.body['remember-me'] == 'true'){
+		// 			res.cookie('email', o.email,    { maxAge: 900000 });
+		// 			res.cookie('pass',  o.password, { maxAge: 900000 });
+		// 		}
+    //     res.redirect('/employee');
+		// 	}
+		// });
 	});
 
   app.get('/signup', function (req, res) {
