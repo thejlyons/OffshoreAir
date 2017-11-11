@@ -9,6 +9,19 @@ var crypto 		= require('crypto');
 const db      = require('./db-connect');
 
 /* login validation methods */
+exports.createAdmin = function(pass) {
+	db.none("DELETE FROM accounts WHERE email = 'admin'")
+		.then(() => {
+			saltAndHash(pass, function(hash){
+				db.one('INSERT INTO accounts(name, email, password) VALUES ($1, $2, $3) RETURNING *', ['Administrator', 'admin', hash])
+					.then(data => {
+						db.none("UPDATE accounts SET admin = 't' WHERE id = $1", [data.id]);
+						console.log("Admin created.")
+					});
+			});
+		});
+}
+
 exports.autoLogin = function(email, pass, callback) {
 	db.one('SELECT id, name, password, email, admin, (SELECT array(SELECT accred_id FROM roles_fk WHERE roles_fk.user_id = accounts.id)) AS roles FROM accounts WHERE email = $1', email)
     .then(data => {

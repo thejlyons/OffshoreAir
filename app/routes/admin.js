@@ -7,7 +7,7 @@ var FIM = require('../modules/file-manager');
 module.exports = function(app) {
   app.get('/admin', function(req, res) {
     if (req.session.user == null || !req.session.user.admin){
-  		res.redirect('/employee');
+  		res.redirect('/login');
   	}	else {
       res.render('pages/admin/test', {user: req.session.user});
     }
