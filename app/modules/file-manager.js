@@ -1,8 +1,8 @@
 /*
 Table Schema:
 
-CREATE TABLE links (id SERIAL NOT NULL UNIQUE, link text);
-CREATE TABLE files (id SERIAL NOT NULL UNIQUE, name text, description text, link_id integer references links(id) ON DELETE CASCADE);
+CREATE TABLE links (id text NOT NULL UNIQUE, link text, url text);
+CREATE TABLE files (id SERIAL NOT NULL UNIQUE, name text, description text, link_id text references links(id) ON DELETE CASCADE);
 */
 
 const db = require('./db-connect');
@@ -75,18 +75,18 @@ exports.getLinkByID = function(id, callback) {
 }
 
 exports.insertLink = function(link, callback) {
-		db.one('INSERT INTO links (link) VALUES ($1) RETURNING id', link)
+		db.one('INSERT INTO links (id, link, url) VALUES (${id}, ${link}, ${url}) RETURNING id', link)
 			.then(data => {
-				callback(null, data.id);
+				callback(null);
 			})
 			.catch(error => {
 				callback(error);
 			});
 }
 
-exports.insertLinks = function(files, callback) {
-	for(var i = 0; i < files.length; i++) {
-		db.none('INSERT INTO links (link) VALUES ($1)', files[i][1].name);
+exports.insertLinks = function(links, callback) {
+	for(var i = 0; i < links.length; i++) {
+		db.none('INSERT INTO links (id, link, url) VALUES (${id}, ${link}, ${url})', links[i]);
 	}
 	callback();
 }

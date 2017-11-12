@@ -28,7 +28,7 @@ module.exports = function(app) {
 					res.cookie('email', o.email,    { maxAge: 900000 });
 					res.cookie('pass',  o.password, { maxAge: 900000 });
 				}
-        res.redirect('/employee');
+        res.redirect('/admin');
 			}
 		});
 	});

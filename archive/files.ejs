@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="/css/bootstrap-switch.css">
     <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
     <style>
-      .fa-trash-o, .fa-plus-square, .fa-external-link {
+      .fa-trash-o, .fa-plus-square {
         cursor: pointer;
       }
 
@@ -28,16 +28,7 @@
       }
 
       .fa-plus-square:hover {
-        color: #3276b1;
-      }
-
-      .fa-external-link {
-        color: #428bca;
-        padding-left: 25px;
-      }
-
-      .fa-external-link:hover {
-        color: #3276b1;
+        color: #3276b1
       }
 
       .fa-trash-o:hover {
@@ -268,10 +259,6 @@
         color: white !important;
       }
 
-      .link.active .fa-external-link {
-        color: white !important;
-      }
-
       .delete {
         color: white;
         background: #CA2525;
@@ -312,21 +299,57 @@
 
     </div>
     <div id='links-manager' class='jumbotron' style='margin-top: 30px;'>
-      <span style='position: absolute; top: 30px; right: 30px;'>
-        <button id="upload" type="button" class="btn btn-primary">Upload</button>
-      </span>
-      <h2>Links</h2>
-      <div id='link-list' class="list-group">
-        <% for(var i=0; i<links.length; i++) {%>
-        <li class="link list-group-item list-group-item-action flex-column align-items-start" data-id="link" data-link-id='<%= links[i].id %>' data-link='<%= links[i].link %>'>
-          <form method="POST" enctype="multipart/form-data" action="/admin/manage/links"><input type="text" name="id" value="<%= links[i].id %>" style="display: none;"><i class="fa fa-trash-o large right-corner link" aria-hidden="true"></i></form>
-          <div class="d-flex w-100 justify-content-between">
-            <h3 class="mb-1"><%= links[i].link %><a href="<%= links[i].url %>" target="_blank"><i class="fa fa-external-link" aria-hidden="true"></i></a></h3>
+      <div class="row">
+        <div class="col-sm-6">
+          <h2>Links</h2>
+          <div id='link-list' class="list-group">
+            <% for(var i=0; i<links.length; i++) {%>
+            <li class="link list-group-item list-group-item-action flex-column align-items-start" data-id="link" data-link-id='<%= links[i].id %>' data-link='<%= links[i].link %>'>
+              <form method="POST" enctype="multipart/form-data" action="/admin/manage/links"><input type="text" name="id" value="<%= links[i].id %>" style="display: none;"><i class="fa fa-trash-o large right-corner link" aria-hidden="true"></i></form>
+              <div class="d-flex w-100 justify-content-between">
+                <h3 class="mb-1"><%= links[i].link %></span></h3>
+              </div>
+            </li>
+            <% } %>
           </div>
-        </li>
-        <% } %>
+          <form id="delete-multiple" method="post" enctype="multipart/form-data"><input type="submit" class="btn delete" name="submit" value="Delete Multiple"></form>
+        </div>
+        <div class="col-sm-6">
+          <div class="row">
+            <div class="col-sm-6">
+              <h2>Upload</h2>
+            </div>
+            <div class="col-sm-6" style="padding-top: 20px;">
+              <div id="browse" class="input-group">
+                <label class="input-group-btn">
+                  <span class="btn btn-primary">
+                    Browse&hellip; <form id="upload-form" method="post" enctype="multipart/form-data"><input type="file" name="upload" style="display: none;" multiple></form>
+                  </span>
+                </label>
+                <input type="text" class="form-control" readonly>
+              </div>
+            </div>
+          </div>
+          <form id="dropzone" method="post" action="/admin/manage/links" class="dropzone">
+            <div id="ready" class="icon">
+              <i class="fa fa-file" aria-hidden="true"></i>
+            </div>
+            <div id="loader" class="icon">
+              <i class="fa fa-circle-o-notch fa-spin" aria-hidden="true"></i>
+            </div>
+            <div id="disabled" class="icon">
+              <span class="fa-stack fa-sm">
+                <i class="fa fa-ban fa-stack-2x"></i>
+                <i class="fa fa-file fa-stack-1x"></i>
+              </span>
+            </div>
+            <div class="dz-message" data-dz-message><span>Drag n Drop</span></div>
+            <div class="fallback">
+              <input type="file" name="upload" multiple hidden>
+            </div>
+          </form>
+        </div>
       </div>
-      <form id="delete-multiple" method="post" enctype="multipart/form-data"><input type="submit" class="btn delete" name="submit" value="Delete Multiple"></form>
     </div>
 
     <a href="/employee">Employee Home</a>
@@ -334,6 +357,33 @@
     <a href="/admin">Admin</a>
     <a href="/logout">Logout</a>
 
+    <script>
+      //Instantiating dialog with Filestack
+      var client = filestack.init("<%= filestackapikey %>");
+      //Filestack API method 'pick()' that opens the file picker
+      client.pick({}).then(function(result) {
+        console.log(JSON.stringify(result.filesUploaded))
+      });
+
+      {
+        "filename":"BlankW9.pdf",
+        "handle":"6aq4EULCTJSAjivqjroo",
+        "mimetype":"application/pdf",
+        "originalPath":"BlankW9.pdf",
+        "size":74411,
+        "source":"local_file_system",
+        "url":"https://cdn.filestackcontent.com/6aq4EULCTJSAjivqjroo",
+        "uploadId":"ebe5e13bfaf7482a90e13b7ddf423bab",
+        "originalFile":{
+          "name":"BlankW9.pdf",
+          "type":"application/pdf",
+          "size":74411
+        },
+        "status":"Stored"
+      }
+    </script>
+
+    <script src="//cdnjs.cloudflare.com/ajax/libs/dropzone/5.1.1/min/dropzone.min.js"></script>
     <script>
       var file_save = [
         <% for(var i=0; i<files.length; i++) {%>
@@ -350,15 +400,36 @@
       var link_save = [
         <% for(var i=0; i<links.length; i++) {%>
           {
-            "id": "<%= links[i].id %>",
-            "link": "<%= links[i].link %>",
-            "url": "<%= links[i].url %>"
+            "id": <%= links[i].id %>,
+            "link": "<%= links[i].link %>"
           },
         <% } %>
       ];
       var n = 0;
 
-      var client = filestack.init("<%= filestackapikey %>");
+      $(document).on('change', ':file', function() {
+        var input = $(this),
+        numFiles = input.get(0).files ? input.get(0).files.length : 1,
+        label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
+        input.trigger('fileselect', [numFiles, label]);
+      });
+
+      Dropzone.autoDiscover = false;
+
+      // Initialise DropZone form control
+      Dropzone.options.dropzone = {
+        init: function () {
+          // Set up any event handlers
+          this.on('success', function(file, response) {
+            newLink(response.id, file.name);
+          });
+
+          this.on('queuecomplete', function() {
+            uploadComplete();
+            setClicks()
+          });
+        }
+      };
 
       $(document).ready(function() {
         $("#delete-multiple").on('submit', function(e) {
@@ -369,12 +440,14 @@
             link_ids.push($(this).find('input').val());
           });
 
+          var form = new FormData($(this)[0]);
           $.ajax({
-            url:         "/admin/manage/links/delete",
-            method:      "POST",
-            dataType:    "json",
-            data:        JSON.stringify(link_ids),
-            contentType: 'application/json',
+            url: "/admin/manage/links",
+            method: "POST",
+            dataType: "json",
+            data: form,
+            processData: false,
+            contentType: false,
             success: function(result){
               console.log(result);
             },
@@ -391,16 +464,29 @@
           return false;
         });
 
+        $('#dropzone').dropzone();
+
+        $("#dropzone").on('drop', function() {
+          uploading()
+        });
+
+        $(':file').on('fileselect', function(event, numFiles, label) {
+          var input = $(this).parents('.input-group').find(':text');
+          var log = numFiles > 1 ? numFiles + ' files selected' : label;
+
+          if(input.length) {
+            uploading();
+            input.val(log);
+            $("#upload-form").submit();
+          }
+        });
+
         revert(false);
 
         $("#edit-switch").bootstrapSwitch();
 
         $('#edit-switch').on('switchChange.bootstrapSwitch', function(event, state) {
           toggleEdit(state);
-        });
-
-        $('#upload').on('click', function() {
-          upload();
         });
 
         $('#save').on('click', function() {
@@ -475,12 +561,12 @@
         );
       }
 
-      function newLink(link_id, link, url) {
+      function newLink(link_id, link) {
         $("#link-list").append(
           '<li class="link list-group-item list-group-item-action flex-column align-items-start" data-id="link" data-link-id=' + link_id + ' data-link=' + link + '>'
             + '<form method="POST" enctype="multipart/form-data" action="/admin/manage/links"><input type="text" name="id" value="' + link_id + '" style="display: none;"><i class="fa fa-trash-o large right-corner link" aria-hidden="true"></i></form>'
             + '<div class="d-flex w-100 justify-content-between">'
-              + '<h3 class="mb-1">' + link + '<a href="' + url + '" target="_blank"><i class="fa fa-external-link" aria-hidden="true"></i></a></h3>'
+              + '<h3 class="mb-1">' + link + '</span></h3>'
             + '</div>'
           + '</li>'
         );
@@ -489,7 +575,7 @@
           $(this).append('<li data-link-id="' + link_id + '" title="' + link + '">' + link + '</li>');
         });
 
-        link_save.push({"id": link_id, "link": link, "url": url});
+        link_save.push({"id": link_id, "link": link});
       }
 
       function deleteLink(id) {
@@ -505,7 +591,6 @@
         }
         for(var i = 0; i < link_save.length; i++) {
           if(link_save[i].id == id) {
-            client.remove(id); // Security policy and signature are required for move
             link_save.splice(i, 1);
             break;
           }
@@ -542,7 +627,7 @@
           $('#delete-multiple').fadeOut();
           $('#ready i').fadeOut();
           $('#disabled i').fadeIn();
-          $('#upload').fadeOut();
+          Dropzone.forElement("#dropzone").disable();
         } else {
           revert(false);
           $('.edit').attr('contenteditable', false);
@@ -556,7 +641,7 @@
           $('#delete-multiple').fadeIn();
           $('#ready i').fadeIn();
           $('#disabled i').fadeOut();
-          $('#upload').fadeIn();
+          Dropzone.forElement("#dropzone").enable();
         }
       }
 
@@ -600,12 +685,14 @@
           var parent = $(this).parent();
           if (parent.is('form')) {
             var id   = parent.find('input').val();
+            var form = new FormData(parent[0]);
             $.ajax({
-              url:         "/admin/manage/links/delete",
+              url:         "/admin/manage/links",
               method:      "POST",
               dataType:    "json",
-              data:        JSON.stringify([id]),
-              contentType: 'application/json',
+              data:        form,
+              processData: false,
+              contentType: false,
               success: function(result){
                 console.log(result);
               },
@@ -643,49 +730,17 @@
         }
       }
 
-      // {
-      //   "filename":"BlankW9.pdf", // link.link
-      //   "handle":"6aq4EULCTJSAjivqjroo", /// link.id
-      //   "mimetype":"application/pdf",
-      //   "originalPath":"BlankW9.pdf",
-      //   "size":74411,
-      //   "source":"local_file_system",
-      //   "url":"https://cdn.filestackcontent.com/6aq4EULCTJSAjivqjroo", // link.url
-      //   "originalFile":{
-      //     "name":"BlankW9.pdf",
-      //     "type":"application/pdf",
-      //     "size":74411
-      //   },
-      //   "status":"Stored"
-      // }
-      function upload() {
-        client.pick({
-          maxFiles: 12
-        }).then(function(result) {
-          links = []
-          for(var i = 0; i < result.filesUploaded.length; i++) {
-            link = {
-              'id': result.filesUploaded[i].handle,
-              'link': result.filesUploaded[i].filename,
-              'url': result.filesUploaded[i].url
-            }
-            links.push(link);
-            newLink(link.id, link.link, link.url);
-          }
-          $.ajax({
-            url:         "/admin/manage/links/insert",
-            method:      "POST",
-            dataType:    "json",
-            data:        JSON.stringify(links),
-            contentType: 'application/json',
-            success: function(result){
-              console.log(result);
-            },
-            error: function(err){
-              console.log(err);
-            }
-          });
-        });
+      function uploading() {
+        $("#dropzone").addClass('dropped');
+        $('#dropzone #loader i').css("display","inline-block");
+        $("#dropzone").find('.dz-message span').html("Uploading");
+      }
+
+      function uploadComplete() {
+        $("#dropzone").removeClass('dropped');
+        $('#dropzone #loader i').fadeOut();
+        $("#dropzone #ready").fadeIn();
+        $("#dropzone").find('.dz-message span').html("Drag n Drop");
       }
     </script>
   </body>

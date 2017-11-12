@@ -40,6 +40,8 @@ $ $env:ENV_VAR="value"
 - EMAIL_USER
 - EMAIL_PASS
 - BASE_URL (include trailing slash. i.e. 'http://localhost:5000/')
+- ADMIN_PASS
+- FS_API_KEY (API Key for associated [Filestack](https://www.filestack.com/) account)
 
 Optional environmental variables:
 - DATABASE_URL (ex. postgres://postgres:dev@localhost:5432/postgres)

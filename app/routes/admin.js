@@ -12,7 +12,7 @@ module.exports = function(app) {
       res.render('pages/admin/test', {user: req.session.user});
     }
   });
-
+/*
   app.get('/admin/manage/accreditations', function(req, res) {
     if (req.session.user == null || !req.session.user.admin){
   		res.redirect('/employee');
@@ -102,16 +102,16 @@ module.exports = function(app) {
       res.send(JSON.stringify({'success': true}));
     }
   });
-
+*/
   app.get('/admin/manage/files', function(req, res) {
     if(req.session.user == null || !req.session.user.admin) {
-  		res.redirect('/employee');
+  		res.redirect('/');
   	}	else {
       FIM.getFiles(function(err, files) {
         if(!err) {
           FIM.getLinks(function(err, links) {
             if(!err) {
-              res.render('pages/admin/files', {user: req.session.user, files: files, links: links});
+              res.render('pages/admin/files', {files: files, links: links, filestackapikey: process.env.FS_API_KEY});
             }	else {
     					res.render('pages/error', {error: err});
     				}
@@ -123,64 +123,28 @@ module.exports = function(app) {
     }
   });
 
-  app.post('/admin/manage/links', function(req, res) {
+  app.post('/admin/manage/links/insert', function(req, res) {
     res.setHeader('Content-Type', 'application/json');
     if(req.session.user == null || !req.session.user.admin) {
       res.send(JSON.stringify({'success': false}));
     } else {
-      var form = new formidable.IncomingForm();
-      var files = [];
-      var fields = [];
-      var id = null;
+      FIM.insertLinks(req.body, function(err) {
+        if(err) throw err;
+        res.send(JSON.stringify({'success': true}));
+      });
+    }
+  });
 
-      // form.multiples = true;
-      form.on('field', function(field, value) {
-        if (field == 'id') {
-          FIM.getLinkByID(value, function(err, link) {
-            if (err) throw err;
-
-            try {
-              var path = process.cwd() + '/public/files/' + link.link;
-              var stats = fs.statSync(path);
-              fs.unlink(path);
-            } catch (e) {
-              console.log("File does not exist.");
-            }
-          });
-          FIM.deleteLink(value);
-        }
-        fields.push([field, value]);
-      })
-        .on('file', function(field, file) {
-          var oldpath = file.path;
-          var newpath = process.cwd() + '/public/files/' + file.name;
-          fs.rename(oldpath, newpath, function (err) {
-            if (err) throw err;
-          });
-          files.push([field, file]);
-        })
-        .on('error', function(err) {
-          console.log(err);
-        })
-        .on('end', function() {
-          if(files.length > 0) {
-            console.log("files");
-            if(files.length > 1) {
-              throw "Too many files";
-            } else {
-              FIM.insertLink(files[0][1].name, function(err, id) {
-                if(err) throw err;
-
-                console.log(id);
-                res.send(JSON.stringify({"success": true, "id": id}));
-              });
-            }
-          } else {
-            console.log("Not file");
-            res.send(JSON.stringify({"success": true}));
-          }
-        });
-      form.parse(req);
+  app.post('/admin/manage/links/delete', function(req, res) {
+    res.setHeader('Content-Type', 'application/json');
+    if(req.session.user == null || !req.session.user.admin) {
+      res.send(JSON.stringify({'success': false}));
+    } else {
+      FIM.deleteLinks(req.body, function(err) {
+        if(err) throw err;
+        res.send(JSON.stringify({'success': true}));
+      });
+      res.send(JSON.stringify({'success': true}));
     }
   });
 
@@ -217,7 +181,7 @@ module.exports = function(app) {
       res.send(JSON.stringify({'success': true}));
     }
   });
-
+/*
   // Users
   app.get('/admin/manage/users', function(req, res) {
     if (req.session.user == null || !req.session.user.admin){
@@ -316,4 +280,5 @@ module.exports = function(app) {
       });
     }
   });
+  */
 }
