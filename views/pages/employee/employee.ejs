@@ -42,7 +42,7 @@
 
   <body id="page-top">
 
-    <% include ./partials/emp-nav.ejs %>
+    <!-- <% include ./partials/emp-nav.ejs %> -->
     <nav>
     </nav>
 
@@ -92,7 +92,7 @@
                 </a>
               </li>
             <% } %>
-            <% for(var i = 0; i < accreditations.length; i++) { %>
+            <!-- <% for(var i = 0; i < accreditations.length; i++) { %>
               <% if(user.roles.indexOf(accreditations[i].id) >= 0) { %>
               <li class="list-inline-item">
                 <a href="/employee/supervisor/<%= accreditations[i].id %>" class="btn btn-secondary btn-lg">
@@ -101,7 +101,7 @@
                 </a>
               </li>
               <% } %>
-            <% } %>
+            <% } %> -->
           </ul>
         </div>
       </div>

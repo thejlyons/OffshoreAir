@@ -4,7 +4,7 @@ module.exports = function(app) {
   app.get('/employee', function(req, res) {
     FIM.getFiles(function(err, o) {
       if(!err) {
-        res.render('pages/employee/files', {files: o});
+        res.render('pages/employee', {files: o});
       } else {
         res.render('pages/error', {error: err});
       }

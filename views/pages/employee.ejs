@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="landing page for employees after logging in">
+    <meta name="author" content="Scott Corbitt">
+
+    <title>Employee Portal</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="/css/employee.css" rel="stylesheet">
+
+    <!-- Custom fonts for this template -->
+    <link href="//fonts.googleapis.com/css?family=Lato:300,400,700,300italic,400italic,700italic" rel="stylesheet" type="text/css">
+
+    <!-- Plugin CSS -->
+    <link href="vendor/magnific-popup/magnific-popup.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="/css/landing-page.css" rel="stylesheet">
+    <link href="/css/creative.css" rel="stylesheet">
+    <link href="css/navbar.css" rel="stylesheet">
+
+  </head>
+
+  <body id="page-top">
+
+    <nav>
+    </nav>
+
+<!-- Code for navbar-duplicate -->
+    <nav id="mainNav" class="navbar navbar-default navbar-fixed-top">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <a class="navbar-brand" href="#">Welcome</a>
+        </div>
+
+        <div class="nav navbar-nav navbar-right">
+          <a href="/" id="btn-logout" class="navbar-btn btn btn-primary">Back to Home</a>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Header -->
+    <header class="intro-header">
+      <div class="container">
+        <div class="intro-message">
+          <h1>Employee Portal</h1>
+          <br>
+          <div id='files'>
+            <% for(var i=0; i<files.length; i++) {%>
+            <ul class="list-inline intro-social-buttons">
+              <li class="list-inline-item">
+               <h3><a href="/files/<%= files[i].link %>"><%= files[i].name %></a></h3>
+               <p><%= files[i].description %></p>
+             </li>
+           </ul>
+            <% } %>
+          </div>
+
+          </ul>
+        </div>
+      </div>
+    </header>
+
+
+    <!-- jQuery -->
+    <!-- <script src="/js/jquery-2.2.3.min.js"></script> -->
+    <script src="/vendor/jquery/jquery.min.js"></script>
+    <!-- Bootstrap Core JavaScript -->
+    <!-- <script src="public/vendor/bootstrap/js/bootstrap.min.js"></script> -->
+
+    <!-- Plugin JavaScript -->
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.3/jquery.easing.min.js"></script>
+    <script src="/vendor/scrollreveal/scrollreveal.min.js"></script>
+    <script src="/vendor/magnific-popup/jquery.magnific-popup.min.js"></script>
+
+    <!-- Theme JavaScript -->
+    <!-- <script src="public/js/creative.js"></script> -->
+
+  </body>
+  </html>
