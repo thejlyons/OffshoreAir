@@ -22,4 +22,8 @@ module.exports = function(app){
       this_title : "Estimates"
     });
   });
+
+  app.get('/test', function(req, res){
+    res.render('pages/test');
+  });
 }
