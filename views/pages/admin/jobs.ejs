@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>Admin Portal | Files</title>
+    <title>Admin Portal | Jobs</title>
 
     <link rel="stylesheet" href="/css/bootstrap.min.css">
     <link rel="stylesheet" href="/css/bootstrap-switch.css">
@@ -294,12 +294,12 @@
         <input id='edit-switch' type="checkbox" data-on-text='View' data-off-text='Edit' data-on-color='default' data-off-color='primary' checked>
       </span>
 
-      <h1 class="display-4">File Manager</h1>
+      <h1 class="display-4">Jobs Manager</h1>
 
-      <p class="lead">To edit the files, toggle the switch to edit then save your changes.</p>
+      <p class="lead">To edit the jobs, toggle the switch to edit then save your changes.</p>
 
-      <h2>Files&nbsp;<i class="fa fa-plus-square" aria-hidden="true" data-type='files'></i></h2>
-      <div id='file-list' class="list-group">
+      <h2>Jobs&nbsp;<i class="fa fa-plus-square" aria-hidden="true" data-type='jobs'></i></h2>
+      <div id='jobs-list' class="list-group">
         <!-- Filled by EJS dump to file_save and then method revert called once document.ready() -->
       </div>
 
@@ -307,48 +307,20 @@
         <button id='revert' type="button" class="btn btn-info">Revert Changes</button>
         <button id='save' type="button" class="btn btn-primary">Save Changes</button>
       </div>
-
-    </div>
-    <div id='links-manager' class='jumbotron' style='margin-top: 30px;'>
-      <span style='position: absolute; top: 30px; right: 30px;'>
-        <button id="upload" type="button" class="btn btn-primary">Upload</button>
-      </span>
-      <h2>Links</h2>
-      <div id='link-list' class="list-group">
-        <% for(var i=0; i<links.length; i++) {%>
-        <li class="link list-group-item list-group-item-action flex-column align-items-start" data-id="link" data-link-id='<%= links[i].id %>' data-link='<%= links[i].link %>'>
-          <form method="POST" enctype="multipart/form-data" action="/admin/manage/links"><input type="text" name="id" value="<%= links[i].id %>" style="display: none;"><i class="fa fa-trash-o large right-corner link" aria-hidden="true"></i></form>
-          <div class="d-flex w-100 justify-content-between">
-            <h3 class="mb-1"><%= links[i].link %><a href="<%= links[i].url %>" target="_blank"><i class="fa fa-external-link" aria-hidden="true"></i></a></h3>
-          </div>
-        </li>
-        <% } %>
-      </div>
-      <form id="delete-multiple" method="post" enctype="multipart/form-data"><input type="submit" class="btn delete" name="submit" value="Delete Multiple"></form>
     </div>
 
     <script>
-      var file_save = [
-        <% for(var i=0; i<files.length; i++) {%>
+      var job_save = [
+        <% for(var i=0; i<jobs.length; i++) {%>
           {
-            "id": <%= files[i].id %>,
-            "name": "<%= files[i].name %>",
-            "link_id": "<%= files[i].link_id %>",
-            "link": "<%= files[i].link %>",
-            "description": "<%= files[i].description %>"
+            "id": <%= jobs[i].id %>,
+            "title": "<%= jobs[i].title %>",
+            "img": "<%= jobs[i].img %>",
+            "description": "<%= jobs[i].description %>"
           },
         <% } %>
       ];
-      var file_dels = [];
-      var link_save = [
-        <% for(var i=0; i<links.length; i++) {%>
-          {
-            "id": "<%= links[i].id %>",
-            "link": "<%= links[i].link %>",
-            "url": "<%= links[i].url %>"
-          },
-        <% } %>
-      ];
+      var job_dels = [];
       var n = 0;
 
       var apikey = "<%= fsapikey %>";
@@ -356,36 +328,6 @@
       var client = filestack.init(apikey, security);
 
       $(document).ready(function() {
-        $("#delete-multiple").on('submit', function(e) {
-          e.preventDefault();
-          var link_ids = [];
-          $('#links-manager li.active form').not(this).each(function() {
-            $(this).find('input').clone().appendTo('#delete-multiple');
-            link_ids.push($(this).find('input').val());
-          });
-
-          $.ajax({
-            url:         "/admin/manage/links/delete",
-            method:      "POST",
-            dataType:    "json",
-            data:        JSON.stringify(link_ids),
-            contentType: 'application/json',
-            success: function(result){
-              console.log(result);
-            },
-            error: function(err){
-              console.log(err);
-            }
-          });
-
-          $.each(link_ids, function(i, val) {
-            deleteLink(val);
-          });
-
-          revert(false);
-          return false;
-        });
-
         revert(false);
 
         $("#edit-switch").bootstrapSwitch();
@@ -394,14 +336,10 @@
           toggleEdit(state);
         });
 
-        $('#upload').on('click', function() {
-          upload();
-        });
-
         $('#save').on('click', function() {
           $('#save').prop('disabled', true);
 
-          file_save = getFiles();
+          job_save = getJobs();
           save();
 
           $('#save').prop('disabled', false);
@@ -414,112 +352,64 @@
       });
 
       function save() {
-        $.each(file_save, function(i, val) {
+        $.each(job_save, function(i, val) {
           if(val.id.includes("new")) {
-            $.post("/admin/manage/files/insert", {"file": val}, function(result) {
-              $("[data-file-id='" + val.id + "']").attr("data-file-id", result.id);
+            $.post("/admin/manage/jobs/insert", {"job": val}, function(result) {
+              $("[data-job-id='" + val.id + "']").attr("data-job-id", result.id);
               console.log(result);
             });
           } else {
-            $.post("/admin/manage/files/update", {"file": val}, function(result) {
+            $.post("/admin/manage/jobs/update", {"job": val}, function(result) {
               console.log(result);
             });
           }
         });
 
-        if(file_dels.length > 0) {
-          $.post("/admin/manage/files/delete", {"files": file_dels}, function(result) {
+        if(job_dels.length > 0) {
+          $.post("/admin/manage/jobs/delete", {"jobs": job_dels}, function(result) {
             console.log(result);
           });
         }
       }
 
-      function getFiles() {
-        var files = [];
-        $('[data-id="file"]').each(function() {
-          var id = $(this).attr('data-file-id');
-          var name = $.trim($(this).find('[data-id="name"]').html());
-          var link_id = $(this).find('[data-id="link_id"]').attr('data-link-id');
-          var link = $.trim($(this).find('[data-id="link_id"]').html());
+      function getJobs() {
+        var jobs = [];
+        $('[data-id="job"]').each(function() {
+          var id = $(this).attr('data-job-id');
+          var title = $.trim($(this).find('[data-id="title"]').html());
+          var img = $(this).find('[data-id="img"]').attr('src');
           var description = $.trim($(this).find('[data-id="description"]').html());
 
-          var file = {
+          var job = {
             'id':          id,
-            'name':        name,
-            'link_id':     link_id,
-            'link':        link,
+            'title':       title,
+            'img':         img,
             'description': description,
           };
-          files.push(file);
+          jobs.push(job);
         });
 
-        return files;
+        return jobs;
       }
 
-      function newFile(id, name, link_id, link, description) {
-        $('#file-list').append(
-          '<li class="list-group-item list-group-item-action flex-column align-items-start" data-id="file" data-file-id=' + id + '>'
-            + getLinks(link_id, link)
+      function newJob(id, title, img, description) {
+        alt = title
+        if(img == "") {
+          img = "/img/noimage.png";
+          alt = "No Image";
+        }
+
+        $('#job-list').append(
+          '<li class="list-group-item list-group-item-action flex-column align-items-start" data-id="job" data-job-id=' + id + '>'
+            + '<img src="' + img + '" alt="' + alt + '">'
             + '<div class="d-flex w-100 justify-content-between">'
-              + '<h3 class="mb-1"><span class="edit" data-id="name">' + name + '</span></h3>'
+              + '<h3 class="mb-1"><span class="edit" data-id="title">' + title + '</span></h3>'
             + '</div>'
             + '<p class="mb-1" style="padding-left:18px;">'
               + '<span class="edit" data-id="description">' + description + '</span>'
             + '</p>'
           + '</li>'
         );
-      }
-
-      function newLink(link_id, link, url) {
-        $("#link-list").append(
-          '<li class="link list-group-item list-group-item-action flex-column align-items-start" data-id="link" data-link-id=' + link_id + ' data-link=' + link + '>'
-            + '<form method="POST" enctype="multipart/form-data" action="/admin/manage/links"><input type="text" name="id" value="' + link_id + '" style="display: none;"><i class="fa fa-trash-o large right-corner link" aria-hidden="true"></i></form>'
-            + '<div class="d-flex w-100 justify-content-between">'
-              + '<h3 class="mb-1">' + link + '<a href="' + url + '" target="_blank"><i class="fa fa-external-link" aria-hidden="true"></i></a></h3>'
-            + '</div>'
-          + '</li>'
-        );
-
-        $(".dropdown-list").each(function() {
-          $(this).append('<li data-link-id="' + link_id + '" title="' + link + '">' + link + '</li>');
-        });
-
-        link_save.push({"id": link_id, "link": link, "url": url});
-      }
-
-      function deleteLink(id) {
-        $("#link-list").find("li[data-link-id='" + id + "']").fadeOut(500, function() {
-          $(this).remove();
-        });
-
-        for(var i = 0; i < file_save.length; i++) {
-          if(file_save[i].link_id == id) {
-            file_save.splice(i, 1);
-            i--;
-          }
-        }
-        for(var i = 0; i < link_save.length; i++) {
-          if(link_save[i].id == id) {
-            client.remove(id); // Security policy and signature are required for move
-            link_save.splice(i, 1);
-            break;
-          }
-        }
-      }
-
-      function getLinks(link_id, link) {
-        ret = '<span class="right-corner">'
-          + '<i class="fa fa-trash-o large file" aria-hidden="true"></i>'
-          + '<span class="dropdown">'
-            + '<ul class="dropdown-list"><h3><span data-id="link_id" data-link-id="' + link_id + '">' + link + '</span><i class="fa fa-chevron-down" aria-hidden="true"></i></h3>';
-        for(var i = 0; i < link_save.length; i++) {
-          ret += '<li data-link-id="' + link_save[i].id + '" title="' + link_save[i].link + '">' + link_save[i].link + '</li>'
-        }
-        ret += '</ul>'
-          + '</span>'
-        + '</span>';
-
-        return ret;
       }
 
       function toggleEdit(state) {
@@ -532,12 +422,6 @@
           $('#controls').fadeIn();
           $('.fa-plus-square').fadeIn();
           $('#manager .right-corner').fadeIn();
-          $('#links-manager .fa-trash-o').fadeOut();
-          $('#browse').fadeOut();
-          $('#delete-multiple').fadeOut();
-          $('#ready i').fadeOut();
-          $('#disabled i').fadeIn();
-          $('#upload').fadeOut();
         } else {
           revert(false);
           $('.edit').attr('contenteditable', false);
@@ -546,81 +430,25 @@
           $('#controls').fadeOut();
           $('.fa-plus-square').fadeOut();
           $('#manager .right-corner').fadeOut();
-          $('#links-manager .fa-trash-o').fadeIn();
-          $('#browse').fadeIn();
-          $('#delete-multiple').fadeIn();
-          $('#ready i').fadeIn();
-          $('#disabled i').fadeOut();
-          $('#upload').fadeIn();
         }
       }
 
       function setClicks() {
-        $(".link").off('click');
-        $(".link").on('click', function() {
-          $(this).toggleClass('active');
-        });
-
         $('.fa-plus-square').off('click');
         $('.fa-plus-square').on('click', function() {
-          newFile('new' + n, 'New File', 0, 'Select File', 'This is a new file.');
+          newJob('new' + n, 'New Job', '', 'This is a new job.');
           n++;
           toggleEdit(false);
         });
 
-        $('.dropdown-list h3').off('click');
-        $('.dropdown-list h3').on('click', function() {
-          var parent = $(this).parent();
-          $('.dropdown-list').not(parent).each(function() {
-            $(this).find('li').slideUp();
-          });
-          parent.find('li').slideToggle(300);
-          $(this).toggleClass('open');
-        });
-
-        $('.dropdown-list li').off('click');
-        $('.dropdown-list li').on('click', function() {
-          console.log($(this).attr("title"));
-          var selected = $(this).parent().find('h3 span');
-          console.log(selected.html());
-          selected.html($(this).attr("title"));
-          selected.attr('data-link-id', $(this).attr("data-link-id"));
-          $('.dropdown-list li').each(function() {
-            $(this).slideUp();
-          });
-        });
-
-        $('.fa-trash-o.link').off('click');
-        $('.fa-trash-o.link').on('click', function() {
-          var parent = $(this).parent();
-          if (parent.is('form')) {
-            var id   = parent.find('input').val();
-            $.ajax({
-              url:         "/admin/manage/links/delete",
-              method:      "POST",
-              dataType:    "json",
-              data:        JSON.stringify([id]),
-              contentType: 'application/json',
-              success: function(result){
-                console.log(result);
-              },
-              error: function(err){
-                console.log(err);
-              }
-            });
-            deleteLink(id);
-          }
-          revert(false);
-        });
-
-        $('[data-id="name"]').off('keypress')
-        $('[data-id="name"]').on('keypress', function(e) {
+        $('[data-id="title"]').off('keypress')
+        $('[data-id="title"]').on('keypress', function(e) {
           var key = e.which;
           if(key == 13) {
             e.preventDefault();
             e.stopPropagation();
-            $(this).closest('[data-id="file"]').append(
-              newFile('new' + n, 'New File', 0, 'Select File', 'This is a new file.')
+            $(this).closest('[data-id="job"]').append(
+              newJob('new' + n, 'New Job', '', 'This is a new job.')
             );
             n++;
             toggleEdit(false);
@@ -633,31 +461,31 @@
           if(key == 13) {
             e.preventDefault();
             e.stopPropagation();
-            $(this).closest('[data-id="file"]').append(
-              newFile('new' + n, 'New File', 0, 'Select File', 'This is a new file.')
+            $(this).closest('[data-id="job"]').append(
+              newJob('new' + n, 'New Job', '', 'This is a new job.')
             );
             n++;
             toggleEdit(false);
           }
         });
 
-        $('.fa-trash-o.file').off('click');
-        $('.fa-trash-o.file').on('click', function() {
-          var parent = $(this).closest('[data-id="file"]');
-          var fattr = parent.attr('data-file-id');
+        $('.fa-trash-o.job').off('click');
+        $('.fa-trash-o.job').on('click', function() {
+          var parent = $(this).closest('[data-id="job"]');
+          var attr = parent.attr('data-job-id');
 
-          if (typeof fattr !== typeof undefined && fattr !== false && !fattr.includes("new")) {
-            file_dels.push(fattr);
+          if (typeof attr !== typeof undefined && attr !== false && !attr.includes("new")) {
+            job_dels.push(attr);
           }
           parent.remove();
         });
       }
 
       function revert(toggle) {
-        $('#file-list').html('');
+        $('#job-list').html('');
 
-        $.each(file_save, function(i, value) {
-          newFile(value.id, value.name, value.link_id, value.link, value.description);
+        $.each(job_save, function(i, value) {
+          newJob(value.id, value.title, value.img, value.description);
         });
 
         setClicks();
@@ -683,7 +511,7 @@
       // }
       function upload() {
         client.pick({
-          maxFiles: 12
+          maxFiles: 1
         }).then(function(result) {
           links = []
           for(var i = 0; i < result.filesUploaded.length; i++) {

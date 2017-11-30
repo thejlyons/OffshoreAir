@@ -1,22 +1,139 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>Admin Portal</title>
+    <title>Admin Portal | Files</title>
+
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/bootstrap-switch.css">
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+    <style>
+      body {
+        padding: 0;
+        margin: 0;
+      }
+
+      .giant-button {
+        cursor: pointer;
+        display: inline-block;
+        float: left;
+        position: relative;
+        height: 100vh;
+        width: 50vw;
+
+        -webkit-transition: background 0.6s; /* Safari */
+        transition: background 0.6s;
+      }
+
+      #files {
+        background: #4B93DC;
+      }
+
+      #files:hover {
+        background: #1E568F;
+      }
+
+      #files i, #files .text {
+        background-color: #184775;
+        text-shadow: 0px 2px 3px rgba(75, 147, 220, 0.5);
+      }
+
+      #files:hover i, #files:hover .text {
+        background-color: #0C233A;
+        text-shadow: 0px 2px 3px rgba(30, 86, 143, 0.5);
+      }
+
+      #jobs {
+        background: #98D94E;
+      }
+
+      #jobs:hover {
+        background: #5A8E1F;
+      }
+
+      #jobs i, #jobs .text {
+        background-color: #4A7518;
+        text-shadow: 0px 2px 3px rgba(152, 217, 78, 0.5);
+      }
+
+      #jobs:hover i, #jobs:hover .text {
+        background-color: #253A0C;
+        text-shadow: 0px 2px 3px rgba(90, 142, 31, 0.5);
+      }
+
+      .giant-button .text {
+        font-size: 10vw;
+        padding-top: 55vh;
+        text-align: center;
+        position: absolute;
+        top: 15px;
+        left: 15px;
+        right: 15px;
+        bottom: 15px;
+
+        opacity: 0.6;
+        color: transparent;
+        -webkit-background-clip: text;
+            -moz-background-clip: text;
+                 background-clip: text;
+
+       -webkit-transition: text-shadow 0.6s, background-color 0.6s; /* Safari */
+       transition: text-shadow 0.6s, background-color 0.6s;
+      }
+
+      .giant-button i {
+        font-size: 18vw;
+        padding-top: 18vh;
+        text-align: center;
+        position: absolute;
+        top: 15px;
+        left: 15px;
+        right: 15px;
+        bottom: 15px;
+
+        opacity: 0.6;
+        color: transparent;
+        -webkit-background-clip: text;
+        -moz-background-clip: text;
+        background-clip: text;
+
+        -webkit-transition: text-shadow 0.6s, background-color 0.6s; /* Safari */
+        transition: text-shadow 0.6s, background-color 0.6s;
+      }
+
+      #container {
+        display: flex;
+      }
+
+      #container div {
+        flex: 1;
+      }
+    </style>
+
+    <script src="/js/jquery-2.2.3.min.js"></script>
+    <script src="/js/bootstrap-switch.js"></script>
+    <script type="text/javascript" src="//static.filestackapi.com/v3/filestack.js"></script>
   </head>
   <body>
-    <h1>Admin Portal</h1>
+    <div id="container">
+      <div id="files" class="giant-button">
+        <i class="fa fa-file" aria-hidden="true"></i>
+        <span class="text">Files</span>
+      </div>
+      <div id="jobs" class="giant-button">
+        <i class="fa fa-industry" aria-hidden="true"></i>
+        <span class="text">Jobs</span>
+      </div>
+    </div>
+    <script>
+      $(document).ready(function() {
+        $('#files').on('click', function() {
+          window.location.replace("/admin/files");
+        });
 
-    <h2>Welcome, admin.</h2>
-
-    <a href="/employee">Employee Home</a>
-    <a href="/employee/accreditations">Accreditations</a>
-    <a href="/admin">Admin</a>
-    <a href="/logout">Logout</a>
-
-    <br>
-    <h3>Admin tools</h3>
-    <a href="/admin/manage/accreditations">Accreditations</a>
-    <a href="/admin/manage/files">Files</a>
-    <a href="/admin/manage/users">Users</a>
+        $('#jobs').on('click', function() {
+          window.location.replace("/admin/jobs");
+        });
+      });
+    </script>
   </body>
 </html>
