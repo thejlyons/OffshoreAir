@@ -16,7 +16,6 @@ exports.createAdmin = function(pass) {
 				db.one('INSERT INTO accounts(name, email, password) VALUES ($1, $2, $3) RETURNING *', ['Administrator', 'admin', hash])
 					.then(data => {
 						db.none("UPDATE accounts SET admin = 't' WHERE id = $1", [data.id]);
-						console.log("Admin created.")
 					});
 			});
 		});

@@ -3,6 +3,7 @@ var fs = require('fs');
 
 var ATM = require('../modules/account-manager');
 var FIM = require('../modules/file-manager');
+var JOM = require('../modules/job-manager');
 
 module.exports = function(app) {
   app.get('/admin', function(req, res) {
@@ -32,6 +33,25 @@ module.exports = function(app) {
     					res.render('pages/error', {error: err});
     				}
           })
+        }	else {
+					res.render('pages/error', {error: err});
+				}
+      });
+    }
+  });
+
+  app.get('/admin/jobs', function(req, res) {
+    if(req.session.user == null || !req.session.user.admin) {
+  		res.redirect('/');
+  	}	else {
+      JOM.getJobs(function(err, jobs) {
+        if(!err) {
+          res.render('pages/admin/jobs', {
+            jobs: jobs,
+            fsapikey: process.env.FILEPICKER_API_KEY,
+            fspolicy: process.env.FILEPICKER_POLICY,
+            fssign: process.env.FILEPICKER_SIGN
+          });
         }	else {
 					res.render('pages/error', {error: err});
 				}
@@ -94,6 +114,40 @@ module.exports = function(app) {
       res.send(JSON.stringify({'success': false}));
     } else {
       FIM.deleteFiles(req.body.files);
+      res.send(JSON.stringify({'success': true}));
+    }
+  });
+
+  app.post('/admin/manage/jobs/update', function(req, res) {
+    res.setHeader('Content-Type', 'application/json');
+    if(req.session.user == null || !req.session.user.admin) {
+      res.send(JSON.stringify({'success': false}));
+    } else {
+      JOM.updateJob(req.body.job, function(err) {
+        if(err) throw err;
+        res.send(JSON.stringify({'success': true}));
+      });
+    }
+  });
+
+  app.post('/admin/manage/jobs/insert', function(req, res) {
+    res.setHeader('Content-Type', 'application/json');
+    if(req.session.user == null || !req.session.user.admin) {
+      res.send(JSON.stringify({'success': false}));
+    } else {
+      JOM.insertJob(req.body.job, function(err, id) {
+        if(err) throw err;
+        res.send(JSON.stringify({'success': true, 'id': id}));
+      });
+    }
+  });
+
+  app.post('/admin/manage/jobs/delete', function(req, res) {
+    res.setHeader('Content-Type', 'application/json');
+    if(req.session.user == null || !req.session.user.admin) {
+      res.send(JSON.stringify({'success': false}));
+    } else {
+      JOM.deleteJobs(req.body.jobs);
       res.send(JSON.stringify({'success': true}));
     }
   });
