@@ -282,6 +282,31 @@
         color: white;
         background: #9D1515;
       }
+
+      .image-wrapper {
+        position: relative;
+        display: inline-block;
+      }
+
+      .image-wrapper:hover i {
+        opacity: 1.0;
+      }
+
+      .image-wrapper i {
+        position: absolute;
+        font-size: 24pt;
+        bottom: 10px;
+        right: 10px;
+        color: #bbb;
+        background-color: white;
+        padding: 3px 7px;
+        border-radius: 5px;
+        opacity: 0.0;
+        cursor: pointer;
+
+        -webkit-transition: opacity 0.6s; /* Safari */
+        transition: opacity 0.6s;
+      }
     </style>
 
     <script src="/js/jquery-2.2.3.min.js"></script>
@@ -300,7 +325,7 @@
 
       <h2>Jobs&nbsp;<i class="fa fa-plus-square" aria-hidden="true" data-type='jobs'></i></h2>
       <div id='jobs-list' class="list-group">
-        <!-- Filled by EJS dump to file_save and then method revert called once document.ready() -->
+        <!-- Filled by EJS dump to job_save and then method revert called once document.ready() -->
       </div>
 
       <div id='controls' style='position: absolute; bottom: 30px; right: 30px; display: none;'>
@@ -339,7 +364,6 @@
         $('#save').on('click', function() {
           $('#save').prop('disabled', true);
 
-          job_save = getJobs();
           save();
 
           $('#save').prop('disabled', false);
@@ -352,6 +376,8 @@
       });
 
       function save() {
+        job_save = getJobs();
+
         $.each(job_save, function(i, val) {
           if(val.id.includes("new")) {
             $.post("/admin/manage/jobs/insert", {"job": val}, function(result) {
@@ -399,15 +425,25 @@
           alt = "No Image";
         }
 
-        $('#job-list').append(
-          '<li class="list-group-item list-group-item-action flex-column align-items-start" data-id="job" data-job-id=' + id + '>'
-            + '<img src="' + img + '" alt="' + alt + '">'
-            + '<div class="d-flex w-100 justify-content-between">'
-              + '<h3 class="mb-1"><span class="edit" data-id="title">' + title + '</span></h3>'
+        $('#jobs-list').append(
+          '<li class="list-group-item list-group-item-action flex-row align-items-start" data-id="job" data-job-id=' + id + '>'
+            + '<span class="right-corner">'
+              + '<i class="fa fa-trash-o large file" aria-hidden="true"></i>'
+            + '</span>'
+            + '<div class="image-wrapper">'
+              + '<img data-id="img" style="width: 200px" src="' + img + '" alt="' + alt + '">'
+              + '<i class="fa fa-upload" aria-hidden="true" data-job-id=' + id + '></i>'
             + '</div>'
-            + '<p class="mb-1" style="padding-left:18px;">'
-              + '<span class="edit" data-id="description">' + description + '</span>'
-            + '</p>'
+            + '<div style="display:inline-block; padding-left: 20px">'
+              + '<div class="d-flex justify-content-between">'
+                + '<h3 class="mb-1">'
+                  + '<span class="edit" data-id="title">' + title + '</span>'
+                + '</h3>'
+              + '</div>'
+              + '<p class="mb-1" style="padding-left:18px;">'
+                + '<span class="edit" data-id="description">' + description + '</span>'
+              + '</p>'
+            + '</div>'
           + '</li>'
         );
       }
@@ -441,6 +477,11 @@
           toggleEdit(false);
         });
 
+        $('.fa-upload').off('click');
+        $('.fa-upload').on('click', function() {
+          upload($(this).attr('data-job-id'));
+        });
+
         $('[data-id="title"]').off('keypress')
         $('[data-id="title"]').on('keypress', function(e) {
           var key = e.which;
@@ -469,8 +510,8 @@
           }
         });
 
-        $('.fa-trash-o.job').off('click');
-        $('.fa-trash-o.job').on('click', function() {
+        $('.fa-trash-o').off('click');
+        $('.fa-trash-o').on('click', function() {
           var parent = $(this).closest('[data-id="job"]');
           var attr = parent.attr('data-job-id');
 
@@ -482,7 +523,7 @@
       }
 
       function revert(toggle) {
-        $('#job-list').html('');
+        $('#jobs-list').html('');
 
         $.each(job_save, function(i, value) {
           newJob(value.id, value.title, value.img, value.description);
@@ -495,13 +536,13 @@
       }
 
       // {
-      //   "filename":"BlankW9.pdf", // link.link
-      //   "handle":"6aq4EULCTJSAjivqjroo", /// link.id
+      //   "filename":"BlankW9.pdf",
+      //   "handle":"6aq4EULCTJSAjivqjroo", /// job.img_id
       //   "mimetype":"application/pdf",
       //   "originalPath":"BlankW9.pdf",
       //   "size":74411,
       //   "source":"local_file_system",
-      //   "url":"https://cdn.filestackcontent.com/6aq4EULCTJSAjivqjroo", // link.url
+      //   "url":"https://cdn.filestackcontent.com/6aq4EULCTJSAjivqjroo", // job.img
       //   "originalFile":{
       //     "name":"BlankW9.pdf",
       //     "type":"application/pdf",
@@ -509,33 +550,25 @@
       //   },
       //   "status":"Stored"
       // }
-      function upload() {
+      function upload(id) {
+        save();
+        
         client.pick({
           maxFiles: 1
         }).then(function(result) {
-          links = []
-          for(var i = 0; i < result.filesUploaded.length; i++) {
-            link = {
-              'id': result.filesUploaded[i].handle,
-              'link': result.filesUploaded[i].filename,
-              'url': result.filesUploaded[i].url
+          for(var i = 0; i < job_save.length; i++) {
+            if(id == job_save[i].id) {
+              if(job_save[i].img != '' && job_save[i].img != '/img/noimage.png') {
+                client.remove(job_save[i].img_id);
+              }
+              job_save[i].img = result.filesUploaded[0].url;
+              job_save[i].img_id = result.filesUploaded[0].handle;
+              $.post("/admin/manage/jobs/update", {"job": job_save[i]}, function(result) {
+                console.log(result);
+              });
+              break;
             }
-            links.push(link);
-            newLink(link.id, link.link, link.url);
           }
-          $.ajax({
-            url:         "/admin/manage/links/insert",
-            method:      "POST",
-            dataType:    "json",
-            data:        JSON.stringify(links),
-            contentType: 'application/json',
-            success: function(result){
-              console.log(result);
-            },
-            error: function(err){
-              console.log(err);
-            }
-          });
           revert(false);
         });
       }
