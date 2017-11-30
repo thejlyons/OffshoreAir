@@ -2,7 +2,7 @@
 Table Schema:
 
 CREATE TABLE accounts (id SERIAL NOT NULL UNIQUE, name text, password text, email text, date timestamp default current_timestamp, admin BOOLEAN DEFAULT FALSE);
-CREATE TABLE roles_fk (id SERIAL NOT NULL, user_id integer references accounts(id) ON DELETE CASCADE, accred_id integer references accreditations(id) ON DELETE CASCADE);
+// CREATE TABLE roles_fk (id SERIAL NOT NULL, user_id integer references accounts(id) ON DELETE CASCADE, accred_id integer references accreditations(id) ON DELETE CASCADE);
 */
 
 var crypto 		= require('crypto');
