@@ -364,7 +364,6 @@
         $('#save').on('click', function() {
           $('#save').prop('disabled', true);
 
-          job_save = getJobs();
           save();
 
           $('#save').prop('disabled', false);
@@ -377,6 +376,8 @@
       });
 
       function save() {
+        job_save = getJobs();
+
         $.each(job_save, function(i, val) {
           if(val.id.includes("new")) {
             $.post("/admin/manage/jobs/insert", {"job": val}, function(result) {
@@ -550,6 +551,8 @@
       //   "status":"Stored"
       // }
       function upload(id) {
+        save();
+        
         client.pick({
           maxFiles: 1
         }).then(function(result) {
