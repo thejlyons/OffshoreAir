@@ -1,3 +1,5 @@
+var EM = require('../modules/email-dispatcher');
+
 module.exports = function(app){
   app.get('/story', function(req, res){
     res.render('pages/story', {
@@ -19,7 +21,19 @@ module.exports = function(app){
 
   app.get('/estimate', function(req, res){
     res.render('pages/estimate', {
-      this_title : "Estimates"
+      this_title : "Estimates",
+      post: false
+    });
+  });
+
+  app.post('/estimate', function(req, res){
+    console.log(req.body);
+    console.log(process.env.ADMIN_EMAIL);
+    EM.dispatchGetEstimate(req.body, function() {
+      res.render('pages/estimate', {
+        this_title : "Estimates",
+        post: true
+      });
     });
   });
 

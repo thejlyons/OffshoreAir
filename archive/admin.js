@@ -2,12 +2,11 @@ var formidable = require('formidable');
 var fs = require('fs');
 
 var ATM = require('../modules/account-manager');
-var ACM = require('../modules/accreditation-manager');
 var EMD = require('../modules/email-dispatcher.js');
 var FIM = require('../modules/file-manager');
 
 module.exports = function(app) {
-  app.get('/admin', function(req, res) {
+  app.get('/admin-test', function(req, res) {
     if (req.session.user == null || !req.session.user.admin){
   		res.redirect('/employee');
   	}	else {
@@ -15,97 +14,7 @@ module.exports = function(app) {
     }
   });
 
-  app.get('/admin/manage/accreditations', function(req, res) {
-    if (req.session.user == null || !req.session.user.admin){
-  		res.redirect('/employee');
-  	}	else {
-      ACM.getAllAccreds(function(err, accreds) {
-        if(!err) {
-          ACM.getAllSteps(function(err, steps) {
-            if(!err) {
-              res.render('pages/admin/accreditations', {user: req.session.user, accreditations: accreds, steps: steps});
-            }	else {
-    					res.render('pages/error', {error: err});
-    				}
-          });
-        }	else {
-					res.render('pages/error', {error: err});
-				}
-      });
-    }
-  });
-
-  // Accreditations
-  app.post('/admin/manage/accreditations/update', function(req, res) {
-    res.setHeader('Content-Type', 'application/json');
-    if(req.session.user == null || !req.session.user.admin) {
-      res.send(JSON.stringify({'success': false}));
-    } else {
-      ACM.updateAccred(req.body.accreditation, function(err) {
-        if(err) throw err;
-        res.send(JSON.stringify({'success': true}));
-      });
-    }
-  });
-
-  app.post('/admin/manage/accreditations/insert', function(req, res) {
-    res.setHeader('Content-Type', 'application/json');
-    if(req.session.user == null || !req.session.user.admin) {
-      res.send(JSON.stringify({'success': false}));
-    } else {
-      ACM.insertAccred(req.body.accreditation, function(err, id) {
-        if(err) throw err;
-        res.send(JSON.stringify({'success': true, 'id': id}));
-      });
-    }
-  });
-
-  app.post('/admin/manage/accreditations/delete', function(req, res) {
-    res.setHeader('Content-Type', 'application/json');
-    if(req.session.user == null || !req.session.user.admin) {
-      res.send(JSON.stringify({'success': false}));
-    } else {
-      ACM.deleteAccreds(req.body.accreditations);
-      res.send(JSON.stringify({'success': true}));
-    }
-  });
-
-  // Steps
-  app.post('/admin/manage/steps/update', function(req, res) {
-    res.setHeader('Content-Type', 'application/json');
-    if(req.session.user == null || !req.session.user.admin) {
-      res.send(JSON.stringify({'success': false}));
-    } else {
-      ACM.updateStep(req.body.step, function(err) {
-        if(err) throw err;
-        res.send(JSON.stringify({'success': true}));
-      });
-    }
-  });
-
-  app.post('/admin/manage/steps/insert', function(req, res) {
-    res.setHeader('Content-Type', 'application/json');
-    if(req.session.user == null || !req.session.user.admin) {
-      res.send(JSON.stringify({'success': false}));
-    } else {
-      ACM.insertStep(req.body.step, function(err, id) {
-        if(err) throw err;
-        res.send(JSON.stringify({'success': true, 'id': id}));
-      });
-    }
-  });
-
-  app.post('/admin/manage/steps/delete', function(req, res) {
-    res.setHeader('Content-Type', 'application/json');
-    if(req.session.user == null || !req.session.user.admin) {
-      res.send(JSON.stringify({'success': false}));
-    } else {
-      ACM.deleteSteps(req.body.steps);
-      res.send(JSON.stringify({'success': true}));
-    }
-  });
-
-  app.get('/admin/manage/files', function(req, res) {
+  app.get('/admin-test/files', function(req, res) {
     if(req.session.user == null || !req.session.user.admin) {
   		res.redirect('/employee');
   	}	else {
@@ -113,7 +22,7 @@ module.exports = function(app) {
         if(!err) {
           FIM.getLinks(function(err, links) {
             if(!err) {
-              res.render('pages/admin/files', {user: req.session.user, files: files, links: links});
+              res.render('pages/admin/files-test', {user: req.session.user, files: files, links: links});
             }	else {
     					res.render('pages/error', {error: err});
     				}
@@ -125,7 +34,7 @@ module.exports = function(app) {
     }
   });
 
-  app.post('/admin/manage/links', function(req, res) {
+  app.post('/admin-test/manage/links', function(req, res) {
     res.setHeader('Content-Type', 'application/json');
     if(req.session.user == null || !req.session.user.admin) {
       res.send(JSON.stringify({'success': false}));
@@ -186,7 +95,7 @@ module.exports = function(app) {
     }
   });
 
-  app.post('/admin/manage/files/update', function(req, res) {
+  app.post('/admin-test/manage/files/update', function(req, res) {
     res.setHeader('Content-Type', 'application/json');
     if(req.session.user == null || !req.session.user.admin) {
       res.send(JSON.stringify({'success': false}));
@@ -198,7 +107,7 @@ module.exports = function(app) {
     }
   });
 
-  app.post('/admin/manage/files/insert', function(req, res) {
+  app.post('/admin-test/manage/files/insert', function(req, res) {
     res.setHeader('Content-Type', 'application/json');
     if(req.session.user == null || !req.session.user.admin) {
       res.send(JSON.stringify({'success': false}));
@@ -210,7 +119,7 @@ module.exports = function(app) {
     }
   });
 
-  app.post('/admin/manage/files/delete', function(req, res) {
+  app.post('/admin-test/manage/files/delete', function(req, res) {
     res.setHeader('Content-Type', 'application/json');
     if(req.session.user == null || !req.session.user.admin) {
       res.send(JSON.stringify({'success': false}));
@@ -221,7 +130,7 @@ module.exports = function(app) {
   });
 
   // Users
-  app.get('/admin/manage/users', function(req, res) {
+  app.get('/admin-test/manage/users', function(req, res) {
     if (req.session.user == null || !req.session.user.admin){
       res.redirect('/employee');
     }	else {
@@ -237,7 +146,7 @@ module.exports = function(app) {
     }
   });
 
-  app.post('/admin/manage/users', function(req, res) {
+  app.post('/admin-test/manage/users', function(req, res) {
     if (req.session.user == null || !req.session.user.admin){
       res.redirect('/employee');
     }	else {
@@ -279,7 +188,7 @@ module.exports = function(app) {
     }
   });
 
-  app.post('/admin/manage/users/new', function(req, res) {
+  app.post('/admin-test/manage/users/new', function(req, res) {
     res.setHeader('Content-Type', 'application/json');
     if(req.session.user == null || !req.session.user.admin) {
       res.send(JSON.stringify({'success': false}));
@@ -295,7 +204,7 @@ module.exports = function(app) {
     }
   });
 
-  app.get('/admin/manage/users/admin', function(req, res) {
+  app.get('/admin-test/manage/users/admin', function(req, res) {
     res.setHeader('Content-Type', 'application/json');
     if(req.session.user == null || !req.session.user.admin) {
       res.send(JSON.stringify({'success': false}));
@@ -307,7 +216,7 @@ module.exports = function(app) {
     }
   });
 
-  app.get('/admin/manage/users/delete', function(req, res) {
+  app.get('/admin-test/manage/users/delete', function(req, res) {
     res.setHeader('Content-Type', 'application/json');
     if(req.session.user == null || !req.session.user.admin) {
       res.send(JSON.stringify({'success': false}));
