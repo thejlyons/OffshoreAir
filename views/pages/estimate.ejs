@@ -48,9 +48,15 @@
     <!-- Page Content -->
     <br><br>
   <div class="container">
+    <% if(post) { %>
+      <div class="alert alert-success alert-dismissable">
+        <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+        <strong>Success!</strong> Your estimate has been submitted. We will get back to you shortly!
+      </div>
+    <% } %>
     <h1><em>Get a free estimate!</em></h1>
     <div class="row border-between">
-      <form>
+      <form method="POST">
         <div class="col-sm-5">
         	<div class="form-group"> <!-- Full Name -->
         		<label for="full_name_id" class="control-label">Full Name</label>

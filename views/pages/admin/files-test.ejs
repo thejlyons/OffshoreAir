@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="/css/bootstrap-switch.css">
     <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
     <style>
-      .fa-trash-o, .fa-plus-square {
+      .fa-trash-o, .fa-plus-square, .fa-external-link {
         cursor: pointer;
       }
 
@@ -33,6 +33,15 @@
 
       .fa-trash-o:hover {
         background: #9D1515;
+      }
+
+      .fa-external-link {
+        color: #428bca;
+        padding-left: 25px;
+      }
+
+      .fa-external-link:hover {
+        color: #3276b1;
       }
 
       .right-corner {
@@ -259,6 +268,10 @@
         color: white !important;
       }
 
+      .link.active .fa-external-link {
+        color: white !important;
+      }
+
       .delete {
         color: white;
         background: #CA2525;
@@ -305,9 +318,9 @@
           <div id='link-list' class="list-group">
             <% for(var i=0; i<links.length; i++) {%>
             <li class="link list-group-item list-group-item-action flex-column align-items-start" data-id="link" data-link-id='<%= links[i].id %>' data-link='<%= links[i].link %>'>
-              <form method="POST" enctype="multipart/form-data" action="/admin/manage/links"><input type="text" name="id" value="<%= links[i].id %>" style="display: none;"><i class="fa fa-trash-o large right-corner link" aria-hidden="true"></i></form>
+              <form method="POST" enctype="multipart/form-data" action="/admin-test/manage/links"><input type="text" name="id" value="<%= links[i].id %>" style="display: none;"><i class="fa fa-trash-o large right-corner link" aria-hidden="true"></i></form>
               <div class="d-flex w-100 justify-content-between">
-                <h3 class="mb-1"><%= links[i].link %></span></h3>
+                <h3 class="mb-1"><%= links[i].link %><a href="<%= url %><%= links[i].link %>" target="_blank"><i class="fa fa-external-link" aria-hidden="true"></i></a></h3>
               </div>
             </li>
             <% } %>
@@ -330,7 +343,7 @@
               </div>
             </div>
           </div>
-          <form id="dropzone" method="post" action="/admin/manage/links" class="dropzone">
+          <form id="dropzone" method="post" action="/admin-test/manage/links" class="dropzone">
             <div id="ready" class="icon">
               <i class="fa fa-file" aria-hidden="true"></i>
             </div>
@@ -357,31 +370,6 @@
     <a href="/admin">Admin</a>
     <a href="/logout">Logout</a>
 
-    <script>
-      //Instantiating dialog with Filestack
-      var client = filestack.init("<%= filestackapikey %>");
-      //Filestack API method 'pick()' that opens the file picker
-      client.pick({}).then(function(result) {
-        console.log(JSON.stringify(result.filesUploaded))
-      });
-
-      {
-        "filename":"BlankW9.pdf",
-        "handle":"6aq4EULCTJSAjivqjroo",
-        "mimetype":"application/pdf",
-        "originalPath":"BlankW9.pdf",
-        "size":74411,
-        "source":"local_file_system",
-        "url":"https://cdn.filestackcontent.com/6aq4EULCTJSAjivqjroo",
-        "uploadId":"ebe5e13bfaf7482a90e13b7ddf423bab",
-        "originalFile":{
-          "name":"BlankW9.pdf",
-          "type":"application/pdf",
-          "size":74411
-        },
-        "status":"Stored"
-      }
-    </script>
 
     <script src="//cdnjs.cloudflare.com/ajax/libs/dropzone/5.1.1/min/dropzone.min.js"></script>
     <script>
@@ -442,7 +430,7 @@
 
           var form = new FormData($(this)[0]);
           $.ajax({
-            url: "/admin/manage/links",
+            url: "/admin-test/manage/links",
             method: "POST",
             dataType: "json",
             data: form,
@@ -477,7 +465,22 @@
           if(input.length) {
             uploading();
             input.val(log);
-            $("#upload-form").submit();
+
+            var form = new FormData($("#upload-form")[0]);
+            $.ajax({
+              url: "/admin-test/manage/links",
+              method: "POST",
+              dataType: "json",
+              data: form,
+              processData: false,
+              contentType: false,
+              success: function(result){
+                console.log(result);
+              },
+              error: function(err){
+                console.log(err);
+              }
+            });
           }
         });
 
@@ -507,19 +510,19 @@
       function save() {
         $.each(file_save, function(i, val) {
           if(val.id.includes("new")) {
-            $.post("/admin/manage/files/insert", {"file": val}, function(result) {
+            $.post("/admin-test/manage/files/insert", {"file": val}, function(result) {
               $("[data-file-id='" + val.id + "']").attr("data-file-id", result.id);
               console.log(result);
             });
           } else {
-            $.post("/admin/manage/files/update", {"file": val}, function(result) {
+            $.post("/admin-test/manage/files/update", {"file": val}, function(result) {
               console.log(result);
             });
           }
         });
 
         if(file_dels.length > 0) {
-          $.post("/admin/manage/files/delete", {"files": file_dels}, function(result) {
+          $.post("/admin-test/manage/files/delete", {"files": file_dels}, function(result) {
             console.log(result);
           });
         }
@@ -564,9 +567,9 @@
       function newLink(link_id, link) {
         $("#link-list").append(
           '<li class="link list-group-item list-group-item-action flex-column align-items-start" data-id="link" data-link-id=' + link_id + ' data-link=' + link + '>'
-            + '<form method="POST" enctype="multipart/form-data" action="/admin/manage/links"><input type="text" name="id" value="' + link_id + '" style="display: none;"><i class="fa fa-trash-o large right-corner link" aria-hidden="true"></i></form>'
+            + '<form method="POST" enctype="multipart/form-data" action="/admin-test/manage/links"><input type="text" name="id" value="' + link_id + '" style="display: none;"><i class="fa fa-trash-o large right-corner link" aria-hidden="true"></i></form>'
             + '<div class="d-flex w-100 justify-content-between">'
-              + '<h3 class="mb-1">' + link + '</span></h3>'
+              + '<h3 class="mb-1">' + link + '<a href="<%= url %>' + link + '" target="_blank"><i class="fa fa-external-link" aria-hidden="true"></i></a></h3>'
             + '</div>'
           + '</li>'
         );

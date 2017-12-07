@@ -28,6 +28,17 @@ EM.dispatchUserRequest = function(name, email, callback) {
 	}, callback );
 }
 
+EM.dispatchGetEstimate = function(data, callback) {
+	console.log("Sending");
+	EM.server.send({
+		from         : process.env.EMAIL_FROM || 'Offshore Air <do-not-reply@gmail.com>',
+		to           : process.env.ADMIN_EMAIL,
+		subject      : 'Offshore Air Estimate',
+		text         : 'something went wrong... :(',
+		attachment   : EM.composeEstimateEmail(data)
+	}, callback );
+}
+
 // Emails
 EM.composeEmail = function(account){
 	var link = process.env.BASE_URL + 'reset-password?e=' + account.email+'&p=' + account.password;
@@ -45,5 +56,20 @@ EM.composeRequestEmail = function(name, email){
 		html += "You have been invited to join the Offshore Air employee portal.<br><br>";
 		html += "<a href='"+link+"'>Click here to join</a><br><br>";
 		html += "</body></html>";
+	return  [{data:html, alternative:true}];
+}
+
+EM.composeEstimateEmail = function(data) {
+	var html = "<html><body>";
+	  html += "New estimate from " + data.full_name[0] + " (" + data.full_name[1] + ")<br>";
+		html += "Address:<br>";
+		html += data.street1 + "<br>";
+		html += data.city + ", " + data.zip + "<br>";
+		html += "What days and times are you most available to schedule an appointment with our estimator?<br>";
+		html += data.message[0] + "<br>";
+		html += "What rooms do you want to install AC in?<br>";
+		html += data.message[1] + "<br>";
+		html += "</body></html>";
+	console.log("Created");
 	return  [{data:html, alternative:true}];
 }
