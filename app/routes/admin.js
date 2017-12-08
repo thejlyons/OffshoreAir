@@ -75,9 +75,8 @@ module.exports = function(app) {
         .on('file', function(field, file) {
           fs.readFile(file.path, function(err, content) {
             if(!err) {
-              s3.putObject({
+              s3.waitFor('putObject', {
                 Bucket: process.env.AWS_BUCKET,
-                Bucket: "offshoreair-uploads",
                 Key: file.name,
                 Body: content,
                 ContentType: file.type,
@@ -145,14 +144,82 @@ module.exports = function(app) {
         if(!err) {
           res.render('pages/admin/jobs', {
             jobs: jobs,
-            fsapikey: process.env.FILEPICKER_API_KEY,
-            fspolicy: process.env.FILEPICKER_POLICY,
-            fssign: process.env.FILEPICKER_SIGN
+            url: process.env.AWS_BASE_URL
           });
         }	else {
 					res.render('pages/error', {error: err});
 				}
       });
+    }
+  });
+
+  app.post('/admin/manage/jobs', function(req, res) {
+    res.setHeader('Content-Type', 'application/json');
+    if(req.session.user == null || !req.session.user.admin) {
+      res.send(JSON.stringify({'success': false}));
+    } else {
+      var form = new formidable.IncomingForm();
+      var files = [];
+      var fields = [];
+      var id;
+      var src;
+
+      form.multiples = false;
+      form.on('field', function(field, value) {
+        if(field == 'id') {
+          id = value;
+        }
+        fields.push([field, value]);
+      })
+        .on('file', function(field, file) {
+          JOM.getImageByID(id, function(err, img) {
+            if (err) throw err;
+
+            console.log(img);
+            var params = {
+              Bucket: process.env.AWS_BUCKET,
+              Delete: {
+                Objects: [
+                  {
+                    Key: img.img
+                  }
+                ],
+              },
+            };
+
+            s3.deleteObjects(params, function(err, data) {
+              if (err) console.log(err, err.stack); // an error occurred
+              else     console.log(data);           // successful response
+
+              fs.readFile(file.path, function(err, content) {
+                if(!err) {
+                  s3.waitFor('putObject', {
+                    Bucket: process.env.AWS_BUCKET,
+                    Key: file.name,
+                    Body: content,
+                    ContentType: file.type,
+                    ACL: "public-read"
+                  }, function(err, data) {
+                    JOM.updateJobImage(id, file.name, function(err) {
+                      if(err) {
+                        console.log(err);
+                      }
+                      src = file.name;
+                      files.push([field, file]);
+                    });
+                  });
+                }
+              });
+            });
+          });
+        })
+        .on('error', function(err) {
+          console.log(err);
+        })
+        .on('end', function() {
+          res.send(JSON.stringify({"success": true}));
+        });
+      form.parse(req);
     }
   });
 
