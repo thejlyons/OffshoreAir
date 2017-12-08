@@ -113,11 +113,11 @@
       }
 
       .dropzone.dz-drag-hover img {
-        filter: brightness(75%);
+        filter: brightness(65%);
       }
 
       .dropzone:hover img {
-        filter: brightness(75%);
+        filter: brightness(65%);
       }
 
       .dropzone .dz-preview {
@@ -375,9 +375,8 @@
       Dropzone.options.dropzone = {
         init: function () {
           // Set up any event handlers
-          this.on('success', function(file, response) {
-            console.log($(this).attr('data-job-id'));
-            updateImage(response.id, file.name);
+          this.on('complete', function(file, response) {
+            updateImage(id, file.name);
           });
 
           this.on('queuecomplete', function() {
@@ -395,6 +394,12 @@
       });
 
       $(document).ready(function() {
+        var dz = $('.dropzone').dropzone({clickable: '.dropzone *'})[0];
+        // dz.dropzone.off('success');
+        // dz.dropzone.on('complete', function (file, response) {
+        //   updateImage(id, file.name);
+        // });
+
         revert(false);
 
         $("#edit-switch").bootstrapSwitch();
@@ -545,20 +550,22 @@
       }
 
       function setClicks() {
-        var dz = $('.dropzone').dropzone({clickable: '.dropzone *'})[0];
-        // dz.dropzone.off('success');
-        dz.dropzone.on('complete', function (file, response) {
-          console.log("File dropped. Would upload for " + id + ' with img ' + file.name);
-          updateImage(id, file.name);
-        });
+        $('.dropzone').dropzone({clickable: '.dropzone *'});
+        
         $('.dropzone').off('drop');
         $('.dropzone').on('drop', function() {
-          console.log("File dropped. Would upload for " + $(this).attr('data-job-id'));
+          $(this).find('i').removeClass('fa-upload');
+          $(this).find('i').addClass('fa-circle-o-notch');
+          $(this).find('i').addClass('fa-spin');
+          $(this).find('i').css({'opacity': 1.0, 'background-color': 'transparent'});
           id = $(this).attr('data-job-id');
         });
         $('.dropzone').off('click');
         $('.dropzone').on('click', function() {
-          console.log("File dropped. Would upload for " + $(this).attr('data-job-id'));
+          $(this).find('i').removeClass('fa-upload');
+          $(this).find('i').addClass('fa-circle-o-notch');
+          $(this).find('i').addClass('fa-spin');
+          $(this).find('i').css({'opacity': 1.0, 'background-color': 'transparent'});
           id = $(this).attr('data-job-id');
         });
 
@@ -627,14 +634,30 @@
         }
       }
 
+      var retries = 5;
       function updateImage(id, img) {
-        for(var i = 0; i < job_save.length; i++) {
-          if(job_save[i].id == id) {
-            job_save[i].img = img;
-            break;
+        $.ajax({
+          type          : 'GET',
+          url           : "<%= url %>" + img,
+          success       : function (data) {
+            retries = 3;
+            for(var i = 0; i < job_save.length; i++) {
+              if(job_save[i].id == id) {
+                job_save[i].img = img;
+                break;
+              }
+            }
+            revert(false);
+          },
+          error         : function(xhr, textStatus, errorThrown) {
+            if(retries > 0) {
+              retries--;
+              setTimeout(function() {
+                updateImage(id, img);
+              }, 5000);
+            }
           }
-        }
-        revert(false);
+        });
       }
     </script>
   </body>

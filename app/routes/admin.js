@@ -1,6 +1,7 @@
 var formidable = require('formidable');
 var fs = require('fs');
 var AWS = require('aws-sdk');
+AWS.config.setPromisesDependency(require('bluebird'));
 var s3 = new AWS.S3();
 
 var ATM = require('../modules/account-manager');
@@ -75,7 +76,7 @@ module.exports = function(app) {
         .on('file', function(field, file) {
           fs.readFile(file.path, function(err, content) {
             if(!err) {
-              s3.waitFor('putObject', {
+              s3.putObject({
                 Bucket: process.env.AWS_BUCKET,
                 Key: file.name,
                 Body: content,
@@ -175,7 +176,6 @@ module.exports = function(app) {
           JOM.getImageByID(id, function(err, img) {
             if (err) throw err;
 
-            console.log(img);
             var params = {
               Bucket: process.env.AWS_BUCKET,
               Delete: {
@@ -193,13 +193,29 @@ module.exports = function(app) {
 
               fs.readFile(file.path, function(err, content) {
                 if(!err) {
-                  s3.waitFor('putObject', {
+                  // s3.putObject({
+                  //   Bucket: process.env.AWS_BUCKET,
+                  //   Key: file.name,
+                  //   Body: content,
+                  //   ContentType: file.type,
+                  //   ACL: "public-read"
+                  // }, function(data) {
+                  //   JOM.updateJobImage(id, file.name, function(err) {
+                  //     if(err) {
+                  //       console.log(err);
+                  //     }
+                  //     src = file.name;
+                  //     files.push([field, file]);
+                  //   });
+                  // });
+                  var putObjectPromise = s3.upload({
                     Bucket: process.env.AWS_BUCKET,
                     Key: file.name,
                     Body: content,
                     ContentType: file.type,
                     ACL: "public-read"
-                  }, function(err, data) {
+                  }).promise();
+                  putObjectPromise.then(function(data) {
                     JOM.updateJobImage(id, file.name, function(err) {
                       if(err) {
                         console.log(err);
@@ -207,6 +223,8 @@ module.exports = function(app) {
                       src = file.name;
                       files.push([field, file]);
                     });
+                  }).catch(function(err) {
+                    console.log(err);
                   });
                 }
               });
@@ -217,7 +235,9 @@ module.exports = function(app) {
           console.log(err);
         })
         .on('end', function() {
-          res.send(JSON.stringify({"success": true}));
+          setTimeout(function() {
+            res.send(JSON.stringify({"success": true}));
+          }, 1500);
         });
       form.parse(req);
     }
