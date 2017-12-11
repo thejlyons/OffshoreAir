@@ -14,10 +14,11 @@ function LoginValidator()
 
 LoginValidator.prototype.validateForm = function()
 {
-	if ($('#email-tf').val() == ''){
-		this.showLoginError('Whoops!', 'Please enter a valid email');
-		return false;
-	}	else if ($('#pass-tf').val() == ''){
+	// if ($('#email-tf').val() == ''){
+	// 	this.showLoginError('Whoops!', 'Please enter a valid email');
+	// 	return false;
+	// }
+	if ($('#pass-tf').val() == ''){
 		this.showLoginError('Whoops!', 'Please enter a valid password');
 		return false;
 	}	else {
