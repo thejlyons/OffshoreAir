@@ -1,7 +1,7 @@
 
 $(document).ready(function(){
 
-	var lv = new LoginValidator();
+	// var lv = new LoginValidator();
 	var lc = new LoginController();
 
 // main login form //
