@@ -1,3 +1,4 @@
+var formidable = require('formidable');
 var EM = require('../modules/email-dispatcher');
 
 module.exports = function(app){
@@ -29,6 +30,20 @@ module.exports = function(app){
   app.post('/estimate', function(req, res){
     console.log(req.body);
     console.log(process.env.ADMIN_EMAIL);
+    var form = new formidable.IncomingForm();
+    var fields = [];
+
+    form.on('field', function(field, value) {
+      console.log(field + ": " + value);
+      fields.push([field, value]);
+    })
+      .on('error', function(err) {
+        console.log(err);
+      })
+      .on('end', function() {
+        console.log(fields);
+      });
+    form.parse(req);
     EM.dispatchGetEstimate(req.body, function() {
       res.render('pages/estimate', {
         this_title : "Estimates",

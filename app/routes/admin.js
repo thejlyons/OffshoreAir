@@ -305,7 +305,6 @@ module.exports = function(app) {
             images.push(temp);
           }
         }
-        console.log(images);
         res.render('pages/admin/images', {
           images: images,
           url: process.env.AWS_BASE_URL + "images/"
@@ -329,7 +328,6 @@ module.exports = function(app) {
         if(field == 'key') {
           key = value;
         }
-        console.log(key);
         fields.push([field, value]);
       })
         .on('file', function(field, file) {

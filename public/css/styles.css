@@ -202,7 +202,7 @@ nav a:hover { text-decoration: none; color: #DDD; }
 /*nav ul li a:hover, nav ul li a:focus { color: rgba(255, 255, 255, 1); text-decoration: none; }*/
 .indicator { position: absolute; right: 0 !important; }
 .pull { display: none; }
-.hero { background: url('../img/Beach-Chairs.jpg') no-repeat center center; -webkit-background-size: cover; -moz-background-size: cover; -o-background-size: cover; background-size: cover; padding: 0; height: auto; }
+.hero { background: url('https://s3-us-west-1.amazonaws.com/offshoreair-uploads/images/hero.jpg') no-repeat center center; -webkit-background-size: cover; -moz-background-size: cover; -o-background-size: cover; background-size: cover; padding: 0; height: auto; }
 .hero p { color: #fff; font-style: italic; font-size: 18px; }
 .hero p.header { font-size: 30px !important; }
 .hero a { color: #fff; }

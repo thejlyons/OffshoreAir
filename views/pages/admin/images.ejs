@@ -249,7 +249,7 @@
       <div id='img-list' class="container">
         <div class="row">
           <% for(var i = 0; i < images.length; i++) { %>
-            <div class="col-md-4">
+            <div class="col-md-4" style="margin-bottom: 15px;">
               <form id="dropzone-<%= i %>" class="dropzone" method="post" action="/admin/images">
                 <img style="width: 100%" src="<%= url %><%= images[i] %>" alt="<%= images[i] %>">
                 <i class="fa fa-upload" aria-hidden="true"></i>
@@ -260,8 +260,8 @@
                 <input type="text" name="key" value='<%= images[i] %>' hidden>
               </form>
             </div>
-            <% if(i % 3 == 0 && i != 0) {%>
-              <div class="w-100"></div>
+            <% if(i % 3 == 2 && i != 0) {%>
+              <div class="clearfix"></div>
             <% } %>
           <% } %>
         </div>

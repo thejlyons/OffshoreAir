@@ -31,7 +31,7 @@ EM.dispatchUserRequest = function(name, email, callback) {
 EM.dispatchGetEstimate = function(data, callback) {
 	console.log("Sending");
 	EM.server.send({
-		from         : process.env.EMAIL_FROM || 'Offshore Air <do-not-reply@gmail.com>',
+		from         : process.env.EMAIL_FROM || 'Offshore Air Estimate <do-not-reply@gmail.com>',
 		to           : process.env.ADMIN_EMAIL,
 		subject      : 'Offshore Air Estimate',
 		text         : 'something went wrong... :(',
@@ -61,14 +61,21 @@ EM.composeRequestEmail = function(name, email){
 
 EM.composeEstimateEmail = function(data) {
 	var html = "<html><body>";
-	  html += "New estimate from " + data.full_name[0] + " (" + data.full_name[1] + ")<br>";
-		html += "Address:<br>";
+	  html += "New estimate from <strong>" + data.full_name[0] + " (" + data.full_name[1] + ")</strong><br><br>";
+		html += "Address:<br><strong>";
 		html += data.street1 + "<br>";
-		html += data.city + ", " + data.zip + "<br>";
-		html += "What days and times are you most available to schedule an appointment with our estimator?<br>";
-		html += data.message[0] + "<br>";
-		html += "What rooms do you want to install AC in?<br>";
-		html += data.message[1] + "<br>";
+		html += data.city + ", " + data.zip + "</strong><br><br>";
+		html += "How did you hear about us?<br>";
+		if('heard' in data) {
+			html += "<strong>" + data.heard.join(", ") + "</strong><br><br>";
+		}
+		html += "What days and times are you most available to schedule an appointment with our estimator?<br><strong>";
+		html += data.message[0] + "</strong><br><br>";
+		html += "What rooms do you want to install AC in?<br><strong>";
+		html += data.message[1] + "</strong><br><br>";
+		if('insulated' in data) {
+			html += "Is your home/office insulated? <strong>" + data.insulated + "</strong>";
+		}
 		html += "</body></html>";
 	console.log("Created");
 	return  [{data:html, alternative:true}];
