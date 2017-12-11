@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Admin Portal | Jobs</title>
+
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/bootstrap-switch.css">
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+    <style>
+      .fa-trash-o, .fa-plus-square, .fa-external-link, .dropzone {
+        cursor: pointer;
+      }
+
+      #manager .fa-plus-square, #manager .right-corner {
+        display: none;
+      }
+
+      .fa-trash-o {
+        background: #CA2525;
+        border-radius: 3px;
+        color: #F3D2D2;
+        font-size: 12pt;
+        padding: 3px 6px;
+      }
+
+      .fa-plus-square {
+        color: #428bca;
+      }
+
+      .fa-plus-square:hover {
+        color: #3276b1;
+      }
+
+      .fa-external-link {
+        color: #428bca;
+        padding-left: 25px;
+      }
+
+      .fa-external-link:hover {
+        color: #3276b1;
+      }
+
+      .fa-trash-o:hover {
+        background: #9D1515;
+      }
+
+      .right-corner {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+      }
+
+      .fa-trash-o.large {
+        padding: 5px 8px;
+        font-size: 16pt;
+        float: right;
+      }
+
+      .edit {
+        -webkit-transition: border-color 1s; /* Safari */
+        transition: border-color 1s;
+        border: 1px solid #FFF;
+      }
+
+      .edit-border {
+        border-color: #428bca !important;
+      }
+
+      hr.middle-fade {
+        border: 0;
+        height: 1px;
+        background: #999;
+        background-image: linear-gradient(to right, #ccc, #999, #ccc);
+      }
+
+      #dropzone {
+        position: relative;
+        height: 27vw;
+        background: white;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+      }
+
+      #dropzone .dz-preview {
+        visibility: hidden;
+        display: none;
+      }
+
+      #dropzone .dz-message {
+        font-size: 4vw;
+        padding-top: 15vw;
+        text-align: center;
+
+        background-color: #AAA;
+        opacity: 0.6;
+        color: transparent;
+        text-shadow: 0px 2px 3px rgba(255,255,255,0.5);
+        -webkit-background-clip: text;
+            -moz-background-clip: text;
+                 background-clip: text;
+
+       -webkit-transition: background-color 0.6s; /* Safari */
+       transition: background-color 0.6s;
+      }
+
+      #dropzone.dz-drag-hover .dz-message {
+        background-color: #777 !important;
+      }
+
+      .dropzone img {
+        -webkit-transition: filter 0.6s; /* Safari */
+        transition: filter 0.6s;
+      }
+
+      .dropzone.dz-drag-hover img {
+        filter: brightness(65%);
+      }
+
+      .dropzone:hover img {
+        filter: brightness(65%);
+      }
+
+      .dropzone .dz-preview {
+        visibility: hidden;
+        display: none;
+      }
+
+      #dropzone::before {
+        padding-top: 2vw;
+        margin: auto;
+        text-align: center;
+        font-size: 9vw;
+        position: absolute;
+        z-index: 10;
+        top: 15px;
+        left: 15px;
+        right: 15px;
+        bottom: 15px;
+        border-radius: 4px;
+        border: 8px dashed #CCC;
+        content: " ";
+        opacity: 0.6;
+        -webkit-transition: background-color 0.6s, border-color 0.6s; /* Safari */
+        transition: background-color 0.6s, border-color 0.6s;
+      }
+
+      #dropzone.dz-drag-hover::before {
+        border-color: #AAA !important;
+      }
+
+      #dropzone .icon {
+        font-size: 10vw;
+        padding-top: 2vw;
+        text-align: center;
+        position: absolute;
+        z-index: 10;
+        top: 15px;
+        left: 15px;
+        right: 15px;
+        bottom: 15px;
+      }
+
+      #dropzone .icon i {
+        background-color: #AAA;
+        opacity: 0.6;
+        color: transparent;
+        text-shadow: 0px 2px 3px rgba(255,255,255,0.5);
+        -webkit-background-clip: text;
+        -moz-background-clip: text;
+        background-clip: text;
+
+        -webkit-transition: display 1s, background-color 0.6s; /* Safari */
+        transition: display 1s, background-color 0.6s;
+      }
+
+      #dropzone.dz-drag-hover .icon i {
+        background-color: #777 !important;
+      }
+
+      #dropzone #disabled {
+        font-size: 7vw !important;
+        padding-top: 1.5vw !important;
+      }
+
+      #dropzone #disabled i, #dropzone #loader i {
+        display: none;
+      }
+
+      #dropzone.dropped #ready i {
+        display: none !important;
+      }
+
+      .jumbotron {
+        position: relative;
+        width: 75%;
+        margin: 15px auto;
+        padding-bottom: 90px;
+        border-radius: 4px;
+      }
+
+      /*.image-wrapper {
+        position: relative;
+        display: inline-block;
+      }*/
+
+      .dropzone:hover i {
+        opacity: 1.0 !important;
+      }
+
+      .dropzone i {
+        position: absolute;
+        font-size: 24pt;
+        bottom: 10px;
+        right: 25px;
+        color: #bbb;
+        background-color: white;
+        padding: 3px 7px;
+        border-radius: 5px;
+        opacity: 0.0;
+        cursor: pointer;
+
+        -webkit-transition: opacity 0.6s; /* Safari */
+        transition: opacity 0.6s;
+      }
+
+      a.btn {
+        float: right;
+        margin-left: 20px;
+      }
+
+      .container {
+        background: white;
+        padding: 20px;
+        border-radius: 4px;
+      }
+    </style>
+
+    <script src="/js/jquery-2.2.3.min.js"></script>
+    <script src="/js/bootstrap-switch.js"></script>
+    <script type="text/javascript" src="//static.filestackapi.com/v3/filestack.js"></script>
+  </head>
+  <body>
+    <div id='manager' class='jumbotron'>
+      <a class="btn btn-default" href="/logout">Logout</a>
+      <a class="btn btn-primary" href="/admin">Admin Home</a>
+
+      <h1 class="display-4">Image Manager</h1>
+
+      <div id='img-list' class="container">
+        <div class="row">
+          <% for(var i = 0; i < images.length; i++) { %>
+            <div class="col-md-4">
+              <form id="dropzone-<%= i %>" class="dropzone" method="post" action="/admin/images">
+                <img style="width: 100%" src="<%= url %><%= images[i] %>" alt="<%= images[i] %>">
+                <i class="fa fa-upload" aria-hidden="true"></i>
+                <div class="dz-message" data-dz-message></div>
+                <div class="fallback">'
+                  <input type="file" name="upload" hidden>
+                </div>
+                <input type="text" name="key" value='<%= images[i] %>' hidden>
+              </form>
+            </div>
+            <% if(i % 3 == 0 && i != 0) {%>
+              <div class="w-100"></div>
+            <% } %>
+          <% } %>
+        </div>
+      </div>
+    </div>
+
+    <script src="//cdnjs.cloudflare.com/ajax/libs/dropzone/5.1.1/min/dropzone.min.js"></script>
+    <script>
+      Dropzone.autoDiscover = false;
+
+      $(document).ready(function() {
+        $(".dropzone").each(function(i) {
+          var id = '#' + $(this).attr('id');
+          var dz = $(this).dropzone({clickable: id + ' *'})[0];
+          var key = $(this).find('img').attr('alt');
+          dz.dropzone.on('complete', function (file, response) {
+            updateImage(i, key + "?" + Date.now());
+          });
+          dz.dropzone.on('addedfile', function (file) {
+            loading(id);
+          });
+
+          $(this).on('drop', function() {
+            loading(id);
+          });
+        });
+      });
+
+      function loading(dz) {
+        $(dz).find('i').removeClass('fa-upload');
+        $(dz).find('i').addClass('fa-circle-o-notch');
+        $(dz).find('i').addClass('fa-spin');
+        $(dz).find('i').css({'opacity': 1.0, 'background-color': 'transparent'});
+      }
+
+      function doneLoading(dz) {
+        $(dz).find('i').removeClass('fa-circle-o-notch');
+        $(dz).find('i').removeClass('fa-spin');
+        $(dz).find('i').addClass('fa-upload');
+        $(dz).find('i').css({'opacity': 0.0, 'background-color': 'white'});
+      }
+
+      var retries = 5;
+      function updateImage(id, img) {
+        $.ajax({
+          type          : 'GET',
+          url           : "<%= url %>" + img,
+          success       : function (data) {
+            retries = 3;
+            console.log('success');
+            console.log(id);
+            $('#dropzone-' + id + ' img').attr('src', '<%= url %>' + img);
+            doneLoading('#dropzone-' + id);
+          },
+          error         : function(xhr, textStatus, errorThrown) {
+            console.log("One fail.");
+            if(retries > 0) {
+              retries--;
+              setTimeout(function() {
+                updateImage(id, img);
+              }, 5000);
+            }
+          }
+        });
+      }
+    </script>
+  </body>
+</html>

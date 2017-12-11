@@ -307,7 +307,7 @@
       }
 
       .image-wrapper:hover i {
-        opacity: 1.0;
+        opacity: 1.0 !important;
       }
 
       .image-wrapper i {
@@ -325,6 +325,11 @@
         -webkit-transition: opacity 0.6s; /* Safari */
         transition: opacity 0.6s;
       }
+
+      a.btn {
+        float: right;
+        margin-left: 20px;
+      }
     </style>
 
     <script src="/js/jquery-2.2.3.min.js"></script>
@@ -333,7 +338,9 @@
   </head>
   <body>
     <div id='manager' class='jumbotron'>
-      <span style='position: absolute; top: 30px; right: 30px;'>
+      <a class="btn btn-default" href="/logout">Logout</a>
+      <a class="btn btn-primary" href="/admin">Admin Home</a>
+      <span style='position: absolute; top: 100px; right: 30px;'>
         <input id='edit-switch' type="checkbox" data-on-text='View' data-off-text='Edit' data-on-color='default' data-off-color='primary' checked>
       </span>
 
@@ -358,48 +365,31 @@
         <% for(var i=0; i<jobs.length; i++) {%>
           {
             "id": <%= jobs[i].id %>,
-          "title": "<%= jobs[i].title %>",
-          "img": "<%= jobs[i].img %>",
-          "description": "<%= jobs[i].description %>"
+            "title": "<%= jobs[i].title %>",
+            "img": "<%= jobs[i].img %>",
+            "description": "<%= jobs[i].description %>"
           },
         <% } %>
       ];
       var job_dels = [];
       var n = 0;
-      var id;
+      var jid;
 
       Dropzone.autoDiscover = false;
-      Dropzone.clickable = true;
-
-      // Initialise DropZone form control
-      Dropzone.options.dropzone = {
-        init: function () {
-          // Set up any event handlers
-          this.on('complete', function(file, response) {
-            updateImage(id, file.name);
-          });
-
-          this.on('queuecomplete', function() {
-            console.log("finished");
-            setClicks();
-          });
-        }
-      };
-
-      $(document).on('change', ':file', function() {
-        var input = $(this),
-        numFiles = input.get(0).files ? input.get(0).files.length : 1,
-        label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
-        input.trigger('fileselect', [numFiles, label]);
-      });
+      // Dropzone.clickable = true;
+      //
+      // // Initialise DropZone form control
+      // Dropzone.options.dropzone = {
+      //   init: function () {
+      //     // Set up any event handlers
+      //     this.on('success', function(file, response) {
+      //       console.log(id);
+      //       updateImage(id, file.name);
+      //     });
+      //   }
+      // };
 
       $(document).ready(function() {
-        var dz = $('.dropzone').dropzone({clickable: '.dropzone *'})[0];
-        // dz.dropzone.off('success');
-        // dz.dropzone.on('complete', function (file, response) {
-        //   updateImage(id, file.name);
-        // });
-
         revert(false);
 
         $("#edit-switch").bootstrapSwitch();
@@ -421,31 +411,31 @@
           revert(true);
         });
 
-        $(':file').on('fileselect', function(event, numFiles, label) {
-          var input = $(this).parents('.input-group').find(':text');
-          var log = numFiles > 1 ? numFiles + ' files selected' : label;
-
-          if(input.length) {
-            // uploading();
-            input.val(log);
-
-            var form = new FormData($(this).closest('form')[0]);
-            $.ajax({
-              url: "/admin/manage/jobs",
-              method: "POST",
-              dataType: "json",
-              data: form,
-              processData: false,
-              contentType: false,
-              success: function(result){
-                console.log(result);
-              },
-              error: function(err){
-                console.log(err);
-              }
-            });
-          }
-        });
+        // $(':file').on('fileselect', function(event, numFiles, label) {
+        //   var input = $(this).parents('.input-group').find(':text');
+        //   var log = numFiles > 1 ? numFiles + ' files selected' : label;
+        //
+        //   if(input.length) {
+        //     // uploading();
+        //     input.val(log);
+        //
+        //     var form = new FormData($(this).closest('form')[0]);
+        //     $.ajax({
+        //       url: "/admin/manage/jobs",
+        //       method: "POST",
+        //       dataType: "json",
+        //       data: form,
+        //       processData: false,
+        //       contentType: false,
+        //       success: function(result){
+        //         console.log(result);
+        //       },
+        //       error: function(err){
+        //         console.log(err);
+        //       }
+        //     });
+        //   }
+        // });
       });
 
       function save() {
@@ -469,6 +459,10 @@
             console.log(result);
           });
         }
+
+        $.post("/admin/manage/jobs/clean", function(result) {
+          console.log(result);
+        });
       }
 
       function getJobs() {
@@ -476,7 +470,7 @@
         $('[data-id="job"]').each(function() {
           var id = $(this).attr('data-job-id');
           var title = $.trim($(this).find('[data-id="title"]').html());
-          var img = $(this).find('[data-id="img"]').attr('src');
+          var img = $(this).find('[data-id="img"]').attr('data-img');
           var description = $.trim($(this).find('[data-id="description"]').html());
 
           var job = {
@@ -492,9 +486,11 @@
       }
 
       function newJob(id, title, img, description) {
-        alt = title
+        alt = title;
+        src = "<%= url %>" + img;
         if(img == "") {
           img = "/img/noimage.png";
+          src = img;
           alt = "No Image";
         }
 
@@ -505,13 +501,13 @@
             + '</span>'
             + '<div class="image-wrapper">'
             + '<form id="dropzone-' + id + '" class="dropzone" method="post" action="/admin/manage/jobs" data-job-id=' + id + '>'
-              + '<img data-id="img" data-img="'+ img + '" style="width: 200px" src="<%= url %>' + img + '" alt="' + alt + '">'
+              + '<img data-id="img" data-img="'+ img + '" style="width: 200px" src="' + src + '" alt="' + alt + '">'
               + '<i class="fa fa-upload" aria-hidden="true"></i>'
               + '<div class="dz-message" data-dz-message></div>'
               + '<div class="fallback">'
                 + '<input type="file" name="upload" multiple hidden>'
               + '</div>'
-              + '<input type="number" name="id" value=' + id + ' hidden>'
+              + '<input type="text" name="id" value=' + id + ' hidden>'
             + '</form>'
             + '</div>'
             + '<div style="display:inline-block; padding-left: 20px">'
@@ -526,6 +522,22 @@
             + '</div>'
           + '</li>'
         );
+
+        var dz = $('#dropzone-' + id).dropzone({clickable: '#dropzone-' + id + ' *'})[0];
+        dz.dropzone.on('complete', function (file, response) {
+          updateImage(id, file.name);
+        });
+        dz.dropzone.on('addedfile', function (file) {
+          loading('#dropzone-' + id);
+        });
+
+        $('#dropzone-' + id).on('drop', function() {
+          loading(this);
+          // jid = $(this).attr('data-job-id');
+        });
+        $('#dropzone-' + id).on('click', function() {
+          // jid = $(this).attr('data-job-id');
+        });
       }
 
       function toggleEdit(state) {
@@ -550,25 +562,6 @@
       }
 
       function setClicks() {
-        $('.dropzone').dropzone({clickable: '.dropzone *'});
-        
-        $('.dropzone').off('drop');
-        $('.dropzone').on('drop', function() {
-          $(this).find('i').removeClass('fa-upload');
-          $(this).find('i').addClass('fa-circle-o-notch');
-          $(this).find('i').addClass('fa-spin');
-          $(this).find('i').css({'opacity': 1.0, 'background-color': 'transparent'});
-          id = $(this).attr('data-job-id');
-        });
-        $('.dropzone').off('click');
-        $('.dropzone').on('click', function() {
-          $(this).find('i').removeClass('fa-upload');
-          $(this).find('i').addClass('fa-circle-o-notch');
-          $(this).find('i').addClass('fa-spin');
-          $(this).find('i').css({'opacity': 1.0, 'background-color': 'transparent'});
-          id = $(this).attr('data-job-id');
-        });
-
         $('.fa-plus-square').off('click');
         $('.fa-plus-square').on('click', function() {
           newJob('new' + n, 'New Job', '', 'This is a new job.');
@@ -634,6 +627,20 @@
         }
       }
 
+      function loading(dz) {
+        $(dz).find('i').removeClass('fa-upload');
+        $(dz).find('i').addClass('fa-circle-o-notch');
+        $(dz).find('i').addClass('fa-spin');
+        $(dz).find('i').css({'opacity': 1.0, 'background-color': 'transparent'});
+      }
+
+      function doneLoading(dz) {
+        $(dz).find('i').removeClass('fa-circle-o-notch');
+        $(dz).find('i').removeClass('fa-spin');
+        $(dz).find('i').addClass('fa-upload');
+        $(dz).find('i').css({'opacity': 0.0, 'background-color': 'white'});
+      }
+
       var retries = 5;
       function updateImage(id, img) {
         $.ajax({
@@ -641,15 +648,14 @@
           url           : "<%= url %>" + img,
           success       : function (data) {
             retries = 3;
-            for(var i = 0; i < job_save.length; i++) {
-              if(job_save[i].id == id) {
-                job_save[i].img = img;
-                break;
-              }
-            }
-            revert(false);
+            console.log('success');
+            console.log(id);
+            $('#dropzone-' + id + ' img[data-id="img"]').attr('data-img', img);
+            $('#dropzone-' + id + ' img[data-id="img"]').attr('src', '<%= url %>' + img);
+            doneLoading('#dropzone-' + id);
           },
           error         : function(xhr, textStatus, errorThrown) {
+            console.log("One fail.");
             if(retries > 0) {
               retries--;
               setTimeout(function() {

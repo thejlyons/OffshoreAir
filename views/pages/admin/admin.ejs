@@ -14,11 +14,11 @@
 
       .giant-button {
         cursor: pointer;
-        display: inline-block;
-        float: left;
-        position: relative;
+        /*display: inline-block;*/
+        /*float: left;*/
+        /*position: relative;*/
         height: 100vh;
-        width: 50vw;
+        /*width: 50vw;*/
 
         -webkit-transition: background 0.6s; /* Safari */
         transition: background 0.6s;
@@ -60,8 +60,26 @@
         text-shadow: 0px 2px 3px rgba(90, 142, 31, 0.5);
       }
 
+      #img {
+        background: #E52E52;
+      }
+
+      #img:hover {
+        background: #BE1C3A;
+      }
+
+      #img i, #img .text {
+        background-color: #A51C35;
+        text-shadow: 0px 2px 3px rgba(229, 46, 82, 0.5);
+      }
+
+      #img:hover i, #img:hover .text {
+        background-color: #611825;
+        text-shadow: 0px 2px 3px rgba(190, 28, 58, 0.5);
+      }
+
       .giant-button .text {
-        font-size: 10vw;
+        font-size: 10vh;
         padding-top: 55vh;
         text-align: center;
         position: absolute;
@@ -81,8 +99,8 @@
       }
 
       .giant-button i {
-        font-size: 18vw;
-        padding-top: 18vh;
+        font-size: 18vh;
+        padding-top: 30vh;
         text-align: center;
         position: absolute;
         top: 15px;
@@ -100,12 +118,16 @@
         transition: text-shadow 0.6s, background-color 0.6s;
       }
 
-      #container {
-        display: flex;
+      #nav {
+        position: fixed;
+        z-index: 20;
+        width: 100%;
+        padding: 15px;
       }
 
-      #container div {
-        flex: 1;
+      #nav a {
+        float: right;
+        margin-left: 20px;
       }
     </style>
 
@@ -114,26 +136,41 @@
     <script type="text/javascript" src="//static.filestackapi.com/v3/filestack.js"></script>
   </head>
   <body>
-    <div id="container">
-      <div id="files" class="giant-button">
-        <i class="fa fa-file" aria-hidden="true"></i>
-        <span class="text">Files</span>
-      </div>
-      <div id="jobs" class="giant-button">
-        <i class="fa fa-industry" aria-hidden="true"></i>
-        <span class="text">Jobs</span>
+    <div id="nav">
+      <a class="btn btn-default" href="/logout">Logout</a>
+    </div>
+    <div class="container-fluid">
+      <div class="row">
+        <a href="/admin/files">
+          <div id="files" class="giant-button col-sm-4">
+            <i class="fa fa-file" aria-hidden="true"></i>
+            <span class="text">Files</span>
+          </div>
+        </a>
+        <a href="/admin/jobs">
+          <div id="jobs" class="giant-button col-sm-4">
+            <i class="fa fa-industry" aria-hidden="true"></i>
+            <span class="text">Jobs</span>
+          </div>
+        </a>
+        <a href="/admin/images">
+          <div id="img" class="giant-button col-sm-4">
+            <i class="fa fa-file-image-o" aria-hidden="true"></i>
+            <span class="text">Images</span>
+          </div>
+        </a>
       </div>
     </div>
     <script>
-      $(document).ready(function() {
-        $('#files').on('click', function() {
-          window.location.replace("/admin/files");
-        });
-
-        $('#jobs').on('click', function() {
-          window.location.replace("/admin/jobs");
-        });
-      });
+      // $(document).ready(function() {
+      //   $('#files').on('click', function() {
+      //     window.location.replace("/admin/files");
+      //   });
+      //
+      //   $('#jobs').on('click', function() {
+      //     window.location.replace("/admin/jobs");
+      //   });
+      // });
     </script>
   </body>
 </html>

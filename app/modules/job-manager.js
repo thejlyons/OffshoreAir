@@ -18,17 +18,21 @@ exports.getJobs = function(callback) {
 }
 
 exports.getImageByID = function(id, callback) {
-	db.one('SELECT img FROM jobs WHERE id = $1', id)
-		.then(data => {
-			callback(null, data);
-		})
-		.catch(error => {
-			callback(error);
-		});
+	if(id.includes("new")) {
+		callback(null, null);
+	} else {
+		db.one('SELECT img FROM jobs WHERE id = $1', id)
+			.then(data => {
+				callback(null, data.img);
+			})
+			.catch(error => {
+				callback(error);
+			});
+	}
 }
 
 exports.updateJob = function(job, callback) {
-	db.none('UPDATE jobs SET title = $1, img = $2, description = $4 WHERE id = $5', [job.title, job.img, job.description, job.id])
+	db.none('UPDATE jobs SET title = $1, img = $2, description = $3 WHERE id = $4', [job.title, job.img, job.description, job.id])
 		.then(() => {
 			callback(null);
 		})
@@ -55,6 +59,20 @@ exports.insertJob = function(job, callback) {
 		.catch(error => {
 			callback(error);
 		});
+}
+
+exports.insertNewJob = function(id, callback) {
+	if(id.includes("new")) {
+		db.one('INSERT INTO jobs (title, description) VALUES (\'New Job\', \'This is a new job.\') RETURNING id')
+		.then(data => {
+			callback(null, data.id);
+		})
+		.catch(error => {
+			callback(error);
+		});
+	} else {
+		return id;
+	}
 }
 
 exports.deleteJobs = function(del_ids) {

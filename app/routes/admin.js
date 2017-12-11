@@ -19,13 +19,13 @@ module.exports = function(app) {
 
   app.get('/admin/files', function(req, res) {
     if(req.session.user == null || !req.session.user.admin) {
-  		res.redirect('/employee');
+  		res.redirect('/login');
   	}	else {
       FIM.getFiles(function(err, files) {
         if(!err) {
           FIM.getLinks(function(err, links) {
             if(!err) {
-              res.render('pages/admin/files', {user: req.session.user, files: files, links: links, url: process.env.AWS_BASE_URL});
+              res.render('pages/admin/files', {user: req.session.user, files: files, links: links, url: process.env.AWS_BASE_URL + "files/"});
             }	else {
     					res.render('pages/error', {error: err});
     				}
@@ -58,7 +58,7 @@ module.exports = function(app) {
               Delete: {
                 Objects: [
                   {
-                    Key: link.link
+                    Key: "files/" + link.link
                   }
                 ],
               },
@@ -78,7 +78,7 @@ module.exports = function(app) {
             if(!err) {
               s3.putObject({
                 Bucket: process.env.AWS_BUCKET,
-                Key: file.name,
+                Key: "files/" + file.name,
                 Body: content,
                 ContentType: file.type,
                 ACL: "public-read"
@@ -139,13 +139,13 @@ module.exports = function(app) {
 
   app.get('/admin/jobs', function(req, res) {
     if(req.session.user == null || !req.session.user.admin) {
-  		res.redirect('/');
+  		res.redirect('/login');
   	}	else {
       JOM.getJobs(function(err, jobs) {
         if(!err) {
           res.render('pages/admin/jobs', {
             jobs: jobs,
-            url: process.env.AWS_BASE_URL
+            url: process.env.AWS_BASE_URL + "jobs/"
           });
         }	else {
 					res.render('pages/error', {error: err});
@@ -163,7 +163,6 @@ module.exports = function(app) {
       var files = [];
       var fields = [];
       var id;
-      var src;
 
       form.multiples = false;
       form.on('field', function(field, value) {
@@ -176,58 +175,38 @@ module.exports = function(app) {
           JOM.getImageByID(id, function(err, img) {
             if (err) throw err;
 
-            var params = {
-              Bucket: process.env.AWS_BUCKET,
-              Delete: {
-                Objects: [
-                  {
-                    Key: img.img
-                  }
-                ],
-              },
-            };
+            if(img) {
+              var params = {
+                Bucket: process.env.AWS_BUCKET,
+                Delete: {Objects: [{Key: "jobs/" + img}]},
+              };
+              s3.deleteObjects(params, function(err, data) {
+                if (err) console.log(err, err.stack); // an error occurred
+                else     console.log(data);           // successful response
+              });
+            }
 
-            s3.deleteObjects(params, function(err, data) {
-              if (err) console.log(err, err.stack); // an error occurred
-              else     console.log(data);           // successful response
-
-              fs.readFile(file.path, function(err, content) {
-                if(!err) {
-                  // s3.putObject({
-                  //   Bucket: process.env.AWS_BUCKET,
-                  //   Key: file.name,
-                  //   Body: content,
-                  //   ContentType: file.type,
-                  //   ACL: "public-read"
-                  // }, function(data) {
-                  //   JOM.updateJobImage(id, file.name, function(err) {
-                  //     if(err) {
-                  //       console.log(err);
-                  //     }
-                  //     src = file.name;
-                  //     files.push([field, file]);
-                  //   });
-                  // });
-                  var putObjectPromise = s3.upload({
-                    Bucket: process.env.AWS_BUCKET,
-                    Key: file.name,
-                    Body: content,
-                    ContentType: file.type,
-                    ACL: "public-read"
-                  }).promise();
-                  putObjectPromise.then(function(data) {
+            fs.readFile(file.path, function(err, content) {
+              if(!err) {
+                s3.putObject({
+                  Bucket: process.env.AWS_BUCKET,
+                  Key: "jobs/" + file.name,
+                  Body: content,
+                  ContentType: file.type,
+                  ACL: "public-read"
+                }, function(err, data) {
+                  if(img) {
                     JOM.updateJobImage(id, file.name, function(err) {
                       if(err) {
                         console.log(err);
                       }
-                      src = file.name;
                       files.push([field, file]);
                     });
-                  }).catch(function(err) {
-                    console.log(err);
-                  });
-                }
-              });
+                  } else {
+                    files.push([field, file]);
+                  }
+                });
+              }
             });
           });
         })
@@ -274,6 +253,111 @@ module.exports = function(app) {
     } else {
       JOM.deleteJobs(req.body.jobs);
       res.send(JSON.stringify({'success': true}));
+    }
+  });
+
+  app.post('/admin/manage/jobs/clean', function(req, res) {
+    res.setHeader('Content-Type', 'application/json');
+    if(req.session.user == null || !req.session.user.admin) {
+      res.send(JSON.stringify({'success': false}));
+    } else {
+      s3.listObjectsV2({
+        Bucket: process.env.AWS_BUCKET,
+        Delimiter: '',
+        Prefix: 'jobs/'
+      }, function(err, data) {
+        JOM.getJobs(function(err, jobs) {
+          jobs_list = [];
+          for(var i = 0; i < jobs.length; i++) {
+            jobs_list.push(jobs[i].img);
+          }
+          for(var i = 0; i < data.Contents.length; i++) {
+            if(jobs_list.indexOf(data.Contents[i].Key.replace('jobs/', '')) < 0) {
+              var params = {
+                Bucket: process.env.AWS_BUCKET,
+                Delete: {Objects: [{Key: data.Contents[i].Key}]},
+              };
+              s3.deleteObjects(params, function(err, data) {
+                if (err) console.log(err, err.stack); // an error occurred
+                else     console.log(data);           // successful response
+              });
+            }
+          }
+        });
+      });
+      res.send(JSON.stringify({'success': true}));
+    }
+  });
+
+  app.get('/admin/images', function(req, res) {
+    if(req.session.user == null || !req.session.user.admin) {
+  		res.redirect('/login');
+  	}	else {
+      s3.listObjectsV2({
+        Bucket: process.env.AWS_BUCKET,
+        Delimiter: '',
+        Prefix: 'images/'
+      }, function(err, data) {
+        images = [];
+        for(var i = 0; i < data.Contents.length; i++) {
+          var temp = data.Contents[i].Key.replace('images/', '');
+          if(temp != '') {
+            images.push(temp);
+          }
+        }
+        console.log(images);
+        res.render('pages/admin/images', {
+          images: images,
+          url: process.env.AWS_BASE_URL + "images/"
+        });
+      });
+    }
+  });
+
+  app.post('/admin/images', function(req, res) {
+    res.setHeader('Content-Type', 'application/json');
+    if(req.session.user == null || !req.session.user.admin) {
+      res.send(JSON.stringify({'success': false}));
+    } else {
+      var form = new formidable.IncomingForm();
+      var files = [];
+      var fields = [];
+      var key;
+
+      form.multiples = false;
+      form.on('field', function(field, value) {
+        if(field == 'key') {
+          key = value;
+        }
+        console.log(key);
+        fields.push([field, value]);
+      })
+        .on('file', function(field, file) {
+          fs.readFile(file.path, function(err, content) {
+            if(!err) {
+              s3.putObject({
+                Bucket: process.env.AWS_BUCKET,
+                Key: "images/" + key,
+                Body: content,
+                ContentType: file.type,
+                ACL: "public-read"
+              }, function(err, data) {
+                if (err) console.log(err, err.stack); // an error occurred
+                else     console.log(data);           // successful response
+                files.push([field, file]);
+              });
+            }
+          });
+        })
+        .on('error', function(err) {
+          console.log(err);
+        })
+        .on('end', function() {
+          setTimeout(function() {
+            res.send(JSON.stringify({"success": true}));
+          }, 1500);
+        });
+      form.parse(req);
     }
   });
 }

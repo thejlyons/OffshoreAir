@@ -282,6 +282,11 @@
         color: white;
         background: #9D1515;
       }
+
+      a.btn {
+        float: right;
+        margin-left: 20px;
+      }
     </style>
 
     <script src="/js/jquery-2.2.3.min.js"></script>
@@ -290,7 +295,10 @@
   </head>
   <body>
     <div id='manager' class='jumbotron'>
-      <span style='position: absolute; top: 30px; right: 30px;'>
+      <a class="btn btn-default" href="/logout">Logout</a>
+      <a class="btn btn-primary" href="/admin">Admin Home</a>
+      <span style='position: absolute; top: 80px; right: 30px;'>
+        <br>
         <input id='edit-switch' type="checkbox" data-on-text='View' data-off-text='Edit' data-on-color='default' data-off-color='primary' checked>
       </span>
 
