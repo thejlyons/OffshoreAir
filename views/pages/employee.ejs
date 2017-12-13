@@ -54,7 +54,7 @@
             <% for(var i=0; i<files.length; i++) {%>
             <ul class="list-inline intro-social-buttons">
               <li class="list-inline-item">
-               <h3><a href="/files/<%= files[i].link %>"><%= files[i].name %></a></h3>
+               <h3><a href="<%= url %><%= files[i].link %>"><%= files[i].name %></a></h3>
                <p><%= files[i].description %></p>
              </li>
            </ul>

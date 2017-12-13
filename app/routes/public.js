@@ -1,5 +1,6 @@
 var formidable = require('formidable');
 var EM = require('../modules/email-dispatcher');
+var JM = require('../modules/job-manager');
 
 module.exports = function(app){
   app.get('/story', function(req, res){
@@ -20,6 +21,16 @@ module.exports = function(app){
     });
   });
 
+  app.get('/sample-work', function(req, res) {
+    JM.getJobs(function(err, jobs) {
+      res.render('pages/sample-work', {
+        this_title : "Sample Work",
+        jobs: jobs,
+        url: process.env.AWS_BASE_URL + 'jobs/'
+      });
+    });
+  });
+
   app.get('/estimate', function(req, res){
     res.render('pages/estimate', {
       this_title : "Estimates",
@@ -28,20 +39,14 @@ module.exports = function(app){
   });
 
   app.post('/estimate', function(req, res){
-    console.log(req.body);
-    console.log(process.env.ADMIN_EMAIL);
     var form = new formidable.IncomingForm();
     var fields = [];
 
     form.on('field', function(field, value) {
-      console.log(field + ": " + value);
       fields.push([field, value]);
     })
       .on('error', function(err) {
         console.log(err);
-      })
-      .on('end', function() {
-        console.log(fields);
       });
     form.parse(req);
     EM.dispatchGetEstimate(req.body, function() {

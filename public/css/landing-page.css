@@ -35,7 +35,7 @@ h6 {
     padding-bottom: 50px;
     text-align: center;
     color: #f8f8f8;
-    background: url(../img/luxury.jpg) no-repeat center center;
+    background: url("https://s3-us-west-1.amazonaws.com/offshoreair-uploads/images/employee.png") no-repeat center center;
     background-size: cover;
 }
 
