@@ -12,7 +12,6 @@
     "test": "node test.js"
   },
   "dependencies": {
-    "auth0-js": "^8.8.0",
     "aws-sdk": "^2.165.0",
     "bluebird": "^3.5.1",
     "body-parser": "^1.17.2",
