@@ -8,7 +8,7 @@ var app = express();
 const bodyParser = require('body-parser');
 
 // Enable SSL redirect
-app.use(sslRedirect());
+app.use(sslRedirect(301));
 
 app.use(express.static(__dirname + '/public'));
 
