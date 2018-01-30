@@ -1,3 +1,4 @@
+var sslRedirect = require('heroku-ssl-redirect');
 var express = require('express');
 var session = require('express-session');
 var cookieParser = require('cookie-parser')
@@ -5,6 +6,9 @@ var PostgreSqlStore = require('connect-pg-simple')(session);
 var app = express();
 
 const bodyParser = require('body-parser');
+
+// Enable SSL redirect
+app.use(sslRedirect(['production'], 301));
 
 app.use(express.static(__dirname + '/public'));
 
