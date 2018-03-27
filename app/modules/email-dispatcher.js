@@ -66,8 +66,8 @@ EM.composeEstimateEmail = function(data) {
 		html += data.street1 + "<br>";
 		html += data.city + ", " + data.zip + "</strong><br><br>";
 		html += "How did you hear about us?<br>";
-		if(data.heard.length > 0) {
-			html += "<strong>" + data.heard.join(", ") + "</strong><br><br>";
+		if('heard' in data) {
+			html += "<strong>" + data.heard + "</strong><br><br>";
 		}
 		html += "What days and times are you most available to schedule an appointment with our estimator?<br><strong>";
 		html += data.message[0] + "</strong><br><br>";
