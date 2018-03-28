@@ -3,7 +3,7 @@
   "version": "0.1.1",
   "description": "Offshore Air Website",
   "engines": {
-    "node": "6.11.1"
+    "node": "6.10.1"
   },
   "main": "server.js",
   "scripts": {
