@@ -29,7 +29,7 @@
     "formidable": "^1.1.1",
     "heroku-ssl-redirect": "0.0.4",
     "jquery": "^3.2.1",
-    "moment": "^2.19.3",
+    "moment": "^2.18.1",
     "nodemon": "^1.12.1",
     "passport": "^0.3.2",
     "passport-auth0": "^0.6.0",
