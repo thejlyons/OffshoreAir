@@ -5,7 +5,7 @@ EM.server = require("emailjs/email").server.connect({
 	host 	    : process.env.EMAIL_HOST,
 	user 	    : process.env.EMAIL_USER,
 	password  : process.env.EMAIL_PASS,
-	ssl		    : true
+	ssl 			: true
 });
 
 EM.dispatchResetPasswordLink = function(account, callback){
@@ -29,7 +29,6 @@ EM.dispatchUserRequest = function(name, email, callback) {
 }
 
 EM.dispatchGetEstimate = function(data, callback) {
-	console.log("Sending");
 	EM.server.send({
 		from         : process.env.EMAIL_FROM || 'Offshore Air Estimate <do-not-reply@gmail.com>',
 		to           : process.env.ADMIN_EMAIL,
@@ -67,7 +66,7 @@ EM.composeEstimateEmail = function(data) {
 		html += data.city + ", " + data.zip + "</strong><br><br>";
 		html += "How did you hear about us?<br>";
 		if('heard' in data) {
-			html += "<strong>" + data.heard + "</strong><br><br>";
+			html += "<strong>" + data.heard.join(", ") + "</strong><br><br>";
 		}
 		html += "What days and times are you most available to schedule an appointment with our estimator?<br><strong>";
 		html += data.message[0] + "</strong><br><br>";
@@ -77,6 +76,5 @@ EM.composeEstimateEmail = function(data) {
 			html += "Is your home/office insulated? <strong>" + data.insulated + "</strong>";
 		}
 		html += "</body></html>";
-	console.log("Created");
 	return  [{data:html, alternative:true}];
 }

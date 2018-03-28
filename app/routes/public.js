@@ -49,7 +49,8 @@ module.exports = function(app){
         console.log(err);
       });
     form.parse(req);
-    EM.dispatchGetEstimate(req.body, function() {
+    EM.dispatchGetEstimate(req.body, function(err, message) {
+      console.log(err || message);
       res.render('pages/estimate', {
         this_title : "Estimates",
         post: true
