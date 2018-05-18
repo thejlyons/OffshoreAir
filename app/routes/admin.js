@@ -5,6 +5,7 @@ AWS.config.setPromisesDependency(require('bluebird'));
 var s3 = new AWS.S3();
 
 var ATM = require('../modules/account-manager');
+var EFM = require('../modules/form-manager');
 var FIM = require('../modules/file-manager');
 var JOM = require('../modules/job-manager');
 
@@ -356,6 +357,60 @@ module.exports = function(app) {
           }, 1500);
         });
       form.parse(req);
+    }
+  });
+
+  app.get('/admin/form', function(req, res) {
+    if(req.session.user == null || !req.session.user.admin) {
+  		res.redirect('/login');
+  	}	else {
+      EFM.getQuestions(function(err, questions) {
+        if(!err) {
+          EFM.getTypes(function(err, types) {
+            if(!err) {
+              res.render('pages/admin/form', {user: req.session.user, questions: questions, types: types});
+            }	else {
+                res.render('pages/error', {error: err});
+            }
+          })
+        }	else {
+            res.render('pages/error', {error: err});
+        }
+      });
+    }
+  });
+
+  app.post('/admin/manage/form/insert', function(req, res) {
+    res.setHeader('Content-Type', 'application/json');
+    if(req.session.user == null || !req.session.user.admin) {
+      res.send(JSON.stringify({'success': false}));
+    } else {
+      EFM.insertQuestion(req.body.question, function(err) {
+        if(err) throw err;
+        res.send(JSON.stringify({'success': true}));
+      });
+    }
+  });
+
+  app.post('/admin/manage/form/update', function(req, res) {
+    res.setHeader('Content-Type', 'application/json');
+    if(req.session.user == null || !req.session.user.admin) {
+      res.send(JSON.stringify({'success': false}));
+    } else {
+      EFM.updateQuestion(req.body.question, function(err) {
+        if(err) throw err;
+        res.send(JSON.stringify({'success': true}));
+      });
+    }
+  });
+
+  app.post('/admin/manage/form/delete', function(req, res) {
+    res.setHeader('Content-Type', 'application/json');
+    if(req.session.user == null || !req.session.user.admin) {
+      res.send(JSON.stringify({'success': false}));
+    } else {
+      EFM.deleteQuestions(req.body.questions);
+      res.send(JSON.stringify({'success': true}));
     }
   });
 }

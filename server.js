@@ -1,3 +1,7 @@
+if (process.env.NODE_ENV !== 'production') {
+  require('dotenv').load();
+}
+
 var sslRedirect = require('heroku-ssl-redirect');
 var express = require('express');
 var session = require('express-session');

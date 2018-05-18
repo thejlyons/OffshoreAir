@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Admin Portal | Files</title>
+
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/bootstrap-switch.css">
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+    <style>
+      body {
+        padding: 0;
+        margin: 0;
+      }
+
+      .giant-button {
+        cursor: pointer;
+        /*display: inline-block;*/
+        /*float: left;*/
+        /*position: relative;*/
+        height: 100vh;
+        /*width: 50vw;*/
+
+        -webkit-transition: background 0.6s; /* Safari */
+        transition: background 0.6s;
+      }
+
+      #files {
+        background: #4B93DC;
+      }
+
+      #files:hover {
+        background: #1E568F;
+      }
+
+      #files i, #files .text {
+        background-color: #184775;
+        text-shadow: 0px 2px 3px rgba(75, 147, 220, 0.5);
+      }
+
+      #files:hover i, #files:hover .text {
+        background-color: #0C233A;
+        text-shadow: 0px 2px 3px rgba(30, 86, 143, 0.5);
+      }
+
+      #jobs {
+        background: #98D94E;
+      }
+
+      #jobs:hover {
+        background: #5A8E1F;
+      }
+
+      #jobs i, #jobs .text {
+        background-color: #4A7518;
+        text-shadow: 0px 2px 3px rgba(152, 217, 78, 0.5);
+      }
+
+      #jobs:hover i, #jobs:hover .text {
+        background-color: #253A0C;
+        text-shadow: 0px 2px 3px rgba(90, 142, 31, 0.5);
+      }
+
+      #img {
+        background: #E52E52;
+      }
+
+      #img:hover {
+        background: #BE1C3A;
+      }
+
+      #img i, #img .text {
+        background-color: #A51C35;
+        text-shadow: 0px 2px 3px rgba(229, 46, 82, 0.5);
+      }
+
+      #img:hover i, #img:hover .text {
+        background-color: #611825;
+        text-shadow: 0px 2px 3px rgba(190, 28, 58, 0.5);
+      }
+
+      .giant-button .text {
+        font-size: 10vh;
+        padding-top: 55vh;
+        text-align: center;
+        position: absolute;
+        top: 15px;
+        left: 15px;
+        right: 15px;
+        bottom: 15px;
+
+        opacity: 0.6;
+        color: transparent;
+        -webkit-background-clip: text;
+            -moz-background-clip: text;
+                 background-clip: text;
+
+       -webkit-transition: text-shadow 0.6s, background-color 0.6s; /* Safari */
+       transition: text-shadow 0.6s, background-color 0.6s;
+      }
+
+      .giant-button i {
+        font-size: 18vh;
+        padding-top: 30vh;
+        text-align: center;
+        position: absolute;
+        top: 15px;
+        left: 15px;
+        right: 15px;
+        bottom: 15px;
+
+        opacity: 0.6;
+        color: transparent;
+        -webkit-background-clip: text;
+        -moz-background-clip: text;
+        background-clip: text;
+
+        -webkit-transition: text-shadow 0.6s, background-color 0.6s; /* Safari */
+        transition: text-shadow 0.6s, background-color 0.6s;
+      }
+
+      #nav {
+        position: fixed;
+        z-index: 20;
+        width: 100%;
+        padding: 15px;
+      }
+
+      #nav a {
+        float: right;
+        margin-left: 20px;
+      }
+    </style>
+
+    <script src="/js/jquery-2.2.3.min.js"></script>
+    <script src="/js/bootstrap-switch.js"></script>
+    <script type="text/javascript" src="//static.filestackapi.com/v3/filestack.js"></script>
+  </head>
+  <body>
+    <div id="nav">
+      <a class="btn btn-default" href="/logout">Logout</a>
+    </div>
+    <div class="container-fluid">
+      <div class="row">
+        <a href="/admin/files">
+          <div id="files" class="giant-button col-sm-4">
+            <i class="fa fa-file" aria-hidden="true"></i>
+            <span class="text">Files</span>
+          </div>
+        </a>
+        <a href="/admin/jobs">
+          <div id="jobs" class="giant-button col-sm-4">
+            <i class="fa fa-industry" aria-hidden="true"></i>
+            <span class="text">Jobs</span>
+          </div>
+        </a>
+        <a href="/admin/images">
+          <div id="img" class="giant-button col-sm-4">
+            <i class="fa fa-file-image-o" aria-hidden="true"></i>
+            <span class="text">Images</span>
+          </div>
+        </a>
+      </div>
+    </div>
+    <script>
+      // $(document).ready(function() {
+      //   $('#files').on('click', function() {
+      //     window.location.replace("/admin/files");
+      //   });
+      //
+      //   $('#jobs').on('click', function() {
+      //     window.location.replace("/admin/jobs");
+      //   });
+      // });
+    </script>
+  </body>
+</html>

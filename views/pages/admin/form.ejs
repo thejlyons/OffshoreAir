@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Admin Portal | From</title>
+
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/bootstrap-switch.css">
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+    <style>
+      .fa-trash-o, .fa-plus-square, .fa-external-link {
+        cursor: pointer;
+      }
+
+      #manager .fa-plus-square, #manager .right-corner {
+        display: none;
+      }
+
+      .fa-trash-o {
+        background: #CA2525;
+        border-radius: 3px;
+        color: #F3D2D2;
+        font-size: 12pt;
+        padding: 3px 6px;
+        display: none;
+      }
+
+      .fa-plus-square {
+        color: #428bca;
+      }
+
+      .fa-plus-square:hover {
+        color: #3276b1
+      }
+
+      .fa-trash-o:hover {
+        background: #9D1515;
+      }
+
+      .fa-external-link {
+        color: #428bca;
+        padding-left: 25px;
+      }
+
+      .fa-external-link:hover {
+        color: #3276b1;
+      }
+
+      .right-corner {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+      }
+
+      .fa-trash-o.large {
+        padding: 5px 8px;
+        font-size: 16pt;
+        float: right;
+      }
+
+      .edit {
+        -webkit-transition: border-color 1s; /* Safari */
+        transition: border-color 1s;
+        border: 1px solid #FFF;
+      }
+
+      .edit-border {
+        border-color: #428bca !important;
+      }
+
+      hr.middle-fade {
+        border: 0;
+        height: 1px;
+        background: #999;
+        background-image: linear-gradient(to right, #ccc, #999, #ccc);
+      }
+
+      #dropzone {
+        position: relative;
+        height: 27vw;
+        background: white;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+      }
+
+      #dropzone .dz-preview {
+        visibility: hidden;
+        display: none;
+      }
+
+      #dropzone .dz-message {
+        font-size: 4vw;
+        padding-top: 15vw;
+        text-align: center;
+
+        background-color: #AAA;
+        opacity: 0.6;
+        color: transparent;
+        text-shadow: 0px 2px 3px rgba(255,255,255,0.5);
+        -webkit-background-clip: text;
+            -moz-background-clip: text;
+                 background-clip: text;
+
+       -webkit-transition: background-color 0.6s; /* Safari */
+       transition: background-color 0.6s;
+      }
+
+      #dropzone.dz-drag-hover .dz-message {
+        background-color: #777 !important;
+      }
+
+      #dropzone::before {
+        padding-top: 2vw;
+        margin: auto;
+        text-align: center;
+        font-size: 9vw;
+        position: absolute;
+        z-index: 10;
+        top: 15px;
+        left: 15px;
+        right: 15px;
+        bottom: 15px;
+        border-radius: 4px;
+        border: 8px dashed #CCC;
+        content: " ";
+        opacity: 0.6;
+        -webkit-transition: background-color 0.6s, border-color 0.6s; /* Safari */
+        transition: background-color 0.6s, border-color 0.6s;
+      }
+
+      #dropzone.dz-drag-hover::before {
+        border-color: #AAA !important;
+      }
+
+      #dropzone .icon {
+        font-size: 10vw;
+        padding-top: 2vw;
+        text-align: center;
+        position: absolute;
+        z-index: 10;
+        top: 15px;
+        left: 15px;
+        right: 15px;
+        bottom: 15px;
+      }
+
+      #dropzone .icon i {
+        background-color: #AAA;
+        opacity: 0.6;
+        color: transparent;
+        text-shadow: 0px 2px 3px rgba(255,255,255,0.5);
+        -webkit-background-clip: text;
+        -moz-background-clip: text;
+        background-clip: text;
+
+        -webkit-transition: display 1s, background-color 0.6s; /* Safari */
+        transition: display 1s, background-color 0.6s;
+      }
+
+      #dropzone.dz-drag-hover .icon i {
+        background-color: #777 !important;
+      }
+
+      #dropzone #disabled {
+        font-size: 7vw !important;
+        padding-top: 1.5vw !important;
+      }
+
+      #dropzone #disabled i, #dropzone #loader i {
+        display: none;
+      }
+
+      #dropzone.dropped #ready i {
+        display: none !important;
+      }
+
+      .jumbotron {
+        position: relative;
+        width: 75%;
+        margin: 15px auto;
+        padding-bottom: 90px;
+        border-radius: 4px;
+      }
+
+      .dropdown {
+        font-size: 14pt;
+        float: right;
+        margin-right: 10px;
+        z-index: 50;
+      }
+
+      .dropdown-list h3 {
+        font-size: 21px;
+        width: 275px;
+        cursor: pointer;
+        margin-right: 10px;
+        padding: 3px 0px 3px 7px;
+        border: 1px solid #CCC;
+        border-radius: 4px;
+        display: block;
+        margin: 0;
+      }
+
+      .dropdown .dropdown-list {
+        position: relative;
+        padding: 0px;
+        width: 88%;
+        background: white;
+        list-style: none;
+      }
+
+      .dropdown .dropdown-list li {
+        position: relative;
+        background: white;
+        z-index: 15;
+        display: none;
+        border-left: 1px solid #CCC;
+        border-right: 1px solid #CCC;
+        padding: 3px 0px 3px 7px;
+        cursor: pointer;
+        overflow: hidden;
+        margin: 0;
+        width: 244px;
+      }
+
+      .dropdown .dropdown-list li:hover {
+        background: #428bca;
+        color: white;
+      }
+
+      .dropdown .dropdown-list li:first-child {
+        border-top: 1px solid #CCC;
+      }
+
+      .dropdown .dropdown-list li:last-child {
+        border-bottom: 1px solid #CCC;
+        border-radius: 0px 0px 4px 4px;
+      }
+
+      .fa-chevron-down {
+        position: relative;
+        top: -4px;
+        float: right;
+        padding: 5px;
+        border-radius: 0px 4px 4px 0px;
+        background: #428bca;
+        color: white;
+      }
+
+      .dropdown-list h3:hover .fa-chevron-down {
+        background: #3276b1;
+      }
+
+      .open {
+        border-bottom-left-radius: 0px !important;
+      }
+
+      .link {
+        cursor: pointer;
+        -webkit-user-select: none; /* Chrome/Safari */
+        -moz-user-select: none; /* Firefox */
+        -ms-user-select: none; /* IE10+ */
+
+        /* Rules below not implemented in browsers yet */
+        -o-user-select: none;
+        user-select: none;
+      }
+
+      .link.active {
+        background: #428bca !important;
+        color: white !important;
+      }
+
+      .link.active .fa-external-link {
+        color: white !important;
+      }
+
+      .delete {
+        color: white;
+        background: #CA2525;
+        float: right;
+      }
+
+      .delete:hover {
+        color: white;
+        background: #9D1515;
+      }
+
+      a.btn {
+        float: right;
+        margin-left: 20px;
+      }
+
+      .sorter-container {
+        position: absolute;
+        top: 40px;
+        right: 0px;
+      }
+
+      .sorter {
+        float: none;
+        color: white;
+        background: #428bca;
+        border-radius: 0px;
+        font-size: 14pt;
+        padding: 7px;
+        border-radius: 0px 4px 4px 0px;
+        cursor: pointer;
+        position: relative;
+        top: 0;
+      }
+
+      .sorter.fa-chevron-down {
+        border-radius: 4px 0px 0px 4px;
+        border-right: 1px solid #3276b1;
+      }
+
+      .sorter:hover {
+        background: #3276b1;
+      }
+
+      [data-id="container"] {
+        min-height: 100px;
+      }
+
+      .edit-padding {
+        padding-right: 350px;
+      }
+    </style>
+
+    <script src="/js/jquery-2.2.3.min.js"></script>
+    <script src="/js/bootstrap-switch.js"></script>
+    <script type="text/javascript" src="//static.filestackapi.com/v3/filestack.js"></script>
+  </head>
+  <body>
+    <div id='manager' class='jumbotron'>
+      <a class="btn btn-default" href="/logout">Logout</a>
+      <a class="btn btn-primary" href="/admin">Admin Home</a>
+      <span style='position: absolute; top: 80px; right: 30px;'>
+        <br>
+        <input id='edit-switch' type="checkbox" data-on-text='View' data-off-text='Edit' data-on-color='default' data-off-color='primary' checked>
+      </span>
+
+      <h1 class="display-4">Form Manager</h1>
+
+      <p class="lead">To edit the questions, toggle the switch to edit then save your changes.</p>
+
+      <h2>Questions&nbsp;<i class="fa fa-plus-square" aria-hidden="true" data-type='questions'></i></h2>
+      <div id='question-list' class="list-group">
+        <!-- Filled by EJS dump to form_save and then method revert called once document.ready() -->
+      </div>
+
+      <div id='controls' style='position: absolute; bottom: 30px; right: 30px; display: none;'>
+        <button id='revert' type="button" class="btn btn-info">Revert Changes</button>
+        <button id='save' type="button" class="btn btn-primary">Save Changes</button>
+      </div>
+
+    </div>
+
+    <script>
+      var form_save = [
+        <% for(var i=0; i<questions.length; i++) {%>
+          {
+            "id": <%= questions[i].id %>,
+            "question": "<%= questions[i].question %>",
+            "placeholder": "<%= questions[i].placeholder %>",
+            "options": "<%= questions[i].options %>".split(","),
+            "sort_order": <%= questions[i].sort_order %>,
+            "type_id": "<%= questions[i].type_id %>",
+          },
+        <% } %>
+      ];
+
+      sortSave();
+
+      var form_dels = [];
+      var types = [
+        <% for(var i=0; i<types.length; i++) {%>
+          {
+            "id": <%= types[i].id %>,
+            "type": "<%= types[i].type %>",
+            "hr_type": "<%= types[i].hr_type %>"
+          },
+        <% } %>
+      ];
+      var n = 0;
+
+      $(document).ready(function() {
+        revert(false);
+
+        $("#edit-switch").bootstrapSwitch();
+
+        $('#edit-switch').on('switchChange.bootstrapSwitch', function(event, state) {
+          toggleEdit(state);
+        });
+
+        $('#save').on('click', function() {
+          $('#save').prop('disabled', true);
+
+          form_save = getQuestions();
+          sortSave();
+          save();
+
+          $('#save').prop('disabled', false);
+          $("#edit-switch").bootstrapSwitch('state', true);
+        });
+
+        $('#revert').on('click', function() {
+          revert(true);
+        });
+      });
+
+      function save() {
+        $.each(form_save, function(i, val) {
+          if(val.id.includes("new")) {
+            $.post("/admin/manage/form/insert", {"question": val}, function(result) {
+              $("[data-question-id='" + val.id + "']").attr("data-question-id", result.id);
+              console.log(result);
+            });
+          } else {
+            $.post("/admin/manage/form/update", {"question": val}, function(result) {
+              console.log(result);
+            });
+          }
+        });
+
+        if(form_dels.length > 0) {
+          $.post("/admin/manage/form/delete", {"questions": form_dels}, function(result) {
+            console.log(result);
+          });
+        }
+      }
+
+      function getQuestions() {
+        var  questions = [];
+        $('[data-id="container"]').each(function() {
+          var id = $(this).attr('data-question-id');
+          questions.push(getQuestion(id));
+        });
+        return questions;
+      }
+
+      function getQuestion(id) {
+        var qdiv = $("[data-question-id='" + id + "']");
+        var question = $.trim(qdiv.find('[data-id="question"]').html());
+        var placeholder = "";
+        if (qdiv.find('[data-id="placeholder"]') !== 'undefined') {
+          placeholder = $.trim(qdiv.find('[data-id="placeholder"]').html());
+        }
+        var options = [];
+        if (qdiv.find('[data-id="options"]') !== 'undefined') {
+          $.each(qdiv.find('[data-id="options"]'), function(i, v) {
+            options.push($.trim($(v).html()));
+          });
+        }
+        var sort_order = parseInt(qdiv.attr('data-sort-order'), 10);
+        var type_id = qdiv.find('[data-id="type_id"]').attr('data-type-id');
+
+        var question = {
+          'id':          id,
+          "question":    question,
+          "placeholder": placeholder,
+          "options":     options,
+          "sort_order":  sort_order,
+          "type_id":     type_id
+        };
+        return question;
+      }
+
+      function newQuestion(id, question, placeholder, options, type_id) {
+        type_id = parseInt(type_id, 10);
+        var t;
+        var text_type;
+        for (var i = 0; i < types.length; i++) {
+          if (type_id === types[i].id) {
+            t = types[i];
+          }
+          if (types[i].type === "text") {
+            text_type = types[i];
+          }
+        }
+        if (typeof t === typeof undefined) {
+          return newQuestionText(id, question, placeholder, text_type.id);
+        } else if (t.type === "textarea") {
+          return newQuestionTextarea(id, question, type_id);
+        } else if (t.type === "checkbox") {
+          return newQuestionCheckbox(id, question, options, type_id);
+        } else if (t.type === "radio") {
+          return newQuestionRadio(id, question, options, type_id);
+        } else {
+          return newQuestionText(id, question, placeholder, text_type.id);
+        }
+      }
+
+      function newQuestionTextarea(id, question, type_id) {
+        return '<li class="list-group-item list-group-item-action flex-column align-items-start" data-id="container" data-question-id=' + id + '>'
+            + getTypes(type_id)
+            + '<div class="d-flex w-100 justify-content-between">'
+              + '<h3 class="mb-1"><span class="edit" data-id="question">' + question + '</span></h3>'
+            + '</div>'
+          + '</li>';
+      }
+
+      function newQuestionCheckbox(id, question, options, type_id) {
+        var options_html = "";
+        $.each(options, function(i, v) {
+          options_html += '<p class="mb-1" style="padding-left:18px;">'
+                          + '<span class="edit" data-id="options">' + v + '</span><i class="fa fa-trash-o large option" aria-hidden="true"></i>'
+                        + '</p>';
+        });
+        return '<li class="list-group-item list-group-item-action flex-column align-items-start" data-id="container" data-question-id=' + id + '>'
+            + getTypes(type_id)
+            + '<div class="d-flex w-100 justify-content-between">'
+              + '<h3 class="mb-1"><span class="edit" data-id="question">' + question + '</span></h3>'
+            + '</div>'
+            + '<div class="options">'
+              + '<h3>Options <i class="fa fa-plus-square" aria-hidden="true" data-type="option"></i></h3>'
+              + options_html
+            + '</div>'
+          + '</li>';
+      }
+
+      function newQuestionRadio(id, question, options, type_id) {
+        var options_html = "";
+        $.each(options, function(i, v) {
+          options_html += '<p class="mb-1" style="padding-left:18px;">'
+                          + '<span class="edit" data-id="options">' + v + '</span><i class="fa fa-trash-o large option" aria-hidden="true"></i>'
+                        + '</p>';
+        });
+        return '<li class="list-group-item list-group-item-action flex-column align-items-start" data-id="container" data-question-id=' + id + '>'
+            + getTypes(type_id)
+            + '<div class="d-flex w-100 justify-content-between">'
+              + '<h3 class="mb-1"><span class="edit" data-id="question">' + question + '</span></h3>'
+            + '</div>'
+            + '<div class="options">'
+              + '<h3>Options <i class="fa fa-plus-square" aria-hidden="true" data-type="option"></i></h3>'
+              + options_html
+            + '</div>'
+          + '</li>';
+      }
+
+      function newQuestionText(id, question, placeholder, type_id) {
+        return '<li class="list-group-item list-group-item-action flex-column align-items-start" data-id="container" data-question-id=' + id + '>'
+            + getTypes(type_id)
+            + '<div class="d-flex w-100 justify-content-between">'
+              + '<h3 class="mb-1"><span class="edit" data-id="question">' + question + '</span></h3>'
+            + '</div>'
+            + '<p class="mb-1" style="padding-left:18px;">'
+              + 'Placeholder: <span class="edit" data-id="placeholder">' + placeholder + '</span>'
+            + '</p>'
+          + '</li>';
+      }
+
+      function newOption(option) {
+        return '<p class="mb-1" style="padding-left:18px;">'
+                  + '<span class="edit" data-id="options">' + option + '</span><i class="fa fa-trash-o large option" aria-hidden="true"></i>'
+                + '</p>';
+      }
+
+      function getTypes(type_id) {
+        var t = -1;
+        for (var i = 0; i < types.length; i++) {
+          if (type_id === types[i].id) {
+            t = types[i];
+          }
+        }
+        ret = '<span class="right-corner">'
+          + '<i class="fa fa-trash-o large question" aria-hidden="true"></i>'
+          + '<span class="dropdown">'
+            + '<ul class="dropdown-list"><h3><span data-id="type_id" data-type-id=' + t.id + '>' + t.hr_type + '</span><i class="fa fa-chevron-down" aria-hidden="true"></i></h3>';
+        for(var i = 0; i < types.length; i++) {
+          ret += '<li data-type-id=' + types[i].id + ' title="' + types[i].hr_type + '">' + types[i].hr_type + '</li>'
+        }
+        ret += '</ul>'
+          + '</span>'
+          + '<br>'
+          + '<span class="sorter-container"><i class="fa fa-chevron-down sorter" aria-hidden="true"></i><i class="fa fa-chevron-up sorter" aria-hidden="true"></i></span>'
+        + '</span>';
+
+        return ret;
+      }
+
+      function toggleEdit(state) {
+        if(!state) {
+          setClicks();
+          $('.edit').attr('contenteditable', true);
+          $('.edit').addClass('edit-border');
+          $('.right-corner').attr('contenteditable', false);
+          $('.fa-plus-square').attr('contenteditable', false);
+          $('#controls').fadeIn();
+          $('.fa-plus-square').fadeIn();
+          $('#manager .right-corner').fadeIn();
+          $('.fa-trash-o').fadeIn();
+          $('#browse').fadeOut();
+          $('#delete-multiple').fadeOut();
+          $('#ready i').fadeOut();
+          $('#disabled i').fadeIn();
+          $("[data-id='container']").addClass('edit-padding');
+        } else {
+          revert(false);
+          $('.edit').attr('contenteditable', false);
+          $('.edit').removeClass('edit-border');
+          $('.right-corner').attr('contenteditable', false);
+          $('#controls').fadeOut();
+          $('.fa-plus-square').fadeOut();
+          $('#manager .right-corner').fadeOut();
+          $('.fa-trash-o').fadeOut();
+          $('#browse').fadeIn();
+          $('#delete-multiple').fadeIn();
+          $('#ready i').fadeIn();
+          $('#disabled i').fadeOut();
+          $("[data-id='container']").removeClass('edit-padding');
+        }
+      }
+
+      function setClicks() {
+        $('.fa-plus-square').off('click');
+        $('.fa-plus-square').on('click', function() {
+          if($(this).attr('data-type') === "questions") {
+            $('#question-list').append(newQuestion('new' + n, 'What is your question?', 'Answer here', [], 1));
+            n++;
+          } else {
+            $(this).closest("div.options").append(newOption("New Option"));
+          }
+          toggleEdit(false);
+        });
+
+        $('.dropdown-list h3').off('click');
+        $('.dropdown-list h3').on('click', function() {
+          var parent = $(this).parent();
+          $('.dropdown-list').not(parent).each(function() {
+            $(this).find('li').slideUp();
+          });
+          parent.find('li').slideToggle(300);
+          $(this).toggleClass('open');
+        });
+
+        $('.dropdown-list li').off('click');
+        $('.dropdown-list li').on('click', function() {
+          var selected = $(this).parent().find('h3 span');
+          selected.html($(this).attr("title"));
+          var type_id = $(this).attr("data-type-id");
+          selected.attr('data-type-id', type_id);
+          var id = $(this).closest('[data-id="container"]').attr('data-question-id');
+          var question = getQuestion(id);
+          var new_question = newQuestion(question.id, question.question, question.placeholder, question.options, question.type_id);
+          $("[data-question-id='" + id + "']").replaceWith(new_question);
+          $('.dropdown-list li').each(function() {
+            $(this).slideUp();
+          });
+          setClicks();
+          toggleEdit(false);
+        });
+
+        $('.fa-trash-o.question').off('click');
+        $('.fa-trash-o.question').on('click', function() {
+          var parent = $(this).closest('[data-id="container"]');
+          var fattr = parent.attr('data-question-id');
+
+          if (typeof fattr !== typeof undefined && fattr !== false && !fattr.includes("new")) {
+            form_dels.push(fattr);
+          }
+          parent.remove();
+        });
+
+        $('.fa-trash-o.option').off('click');
+        $('.fa-trash-o.option').on('click', function() {
+          var parent = $(this).closest('p').remove();
+        });
+
+        $('[data-id="question"], [data-id="placeholder"]').off('keypress')
+        $('[data-id="question"], [data-id="placeholder"]').on('keypress', function(e) {
+          var key = e.which;
+          if(key == 13) {
+            e.preventDefault();
+            e.stopPropagation();
+            $('#question-list').append(newQuestion('new' + n, 'What is your question?', 'Answer here', [], 1));
+            n++;
+            toggleEdit(false);
+          }
+        });
+
+        $('[data-id="options"]').off('keypress')
+        $('[data-id="options"]').on('keypress', function(e) {
+          var key = e.which;
+          if(key == 13) {
+            e.preventDefault();
+            e.stopPropagation();
+            $(this).closest('div.options').append(
+              newOption("New Option")
+            );
+            toggleEdit(false);
+          }
+        });
+
+        $('.sorter.fa-chevron-down').off('click');
+        $('.sorter.fa-chevron-down').on('click', function() {
+          var parent = $(this).closest('[data-id="container"]');
+          parent.insertAfter(parent.next());
+          setClicks();
+        });
+
+        $('.sorter.fa-chevron-up').off('click');
+        $('.sorter.fa-chevron-up').on('click', function() {
+          var parent = $(this).closest('[data-id="container"]');
+          parent.insertBefore(parent.prev());
+          setClicks();
+        });
+
+        setSortOrder();
+      }
+
+      function revert(toggle) {
+        $('#question-list').html('');
+
+        $.each(form_save, function(i, value) {
+          $('#question-list').append(newQuestion(value.id, value.question, value.placeholder, value.options, value.type_id));
+        });
+
+        setClicks();
+        if(toggle) {
+          toggleEdit(false);
+        }
+      }
+
+      function setSortOrder() {
+        $.each($("#question-list [data-id='container']"), function(i, v) {
+          $(v).attr("data-sort-order", i);
+        });
+      }
+
+      function sortSave() {
+        form_save = form_save.sort(function (a, b) {
+          return a.sort_order - b.sort_order;
+        });
+      }
+    </script>
+  </body>
+</html>

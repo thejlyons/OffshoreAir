@@ -1,6 +1,8 @@
 var EM = {};
 module.exports = EM;
 
+var FM = require('../modules/form-manager');
+
 EM.server = require("emailjs/email").server.connect({
 	host 	    : process.env.EMAIL_HOST,
 	user 	    : process.env.EMAIL_USER,
@@ -28,13 +30,13 @@ EM.dispatchUserRequest = function(name, email, callback) {
 	}, callback );
 }
 
-EM.dispatchGetEstimate = function(data, callback) {
+EM.dispatchGetEstimate = function(data, questions, callback) {
 	EM.server.send({
 		from         : process.env.EMAIL_FROM || 'Offshore Air Estimate <do-not-reply@gmail.com>',
 		to           : process.env.ADMIN_EMAIL,
 		subject      : 'Offshore Air Estimate',
 		text         : 'something went wrong... :(',
-		attachment   : EM.composeEstimateEmail(data)
+		attachment   : EM.composeEstimateEmail(data, questions)
 	}, callback );
 }
 
@@ -58,23 +60,19 @@ EM.composeRequestEmail = function(name, email){
 	return  [{data:html, alternative:true}];
 }
 
-EM.composeEstimateEmail = function(data) {
-	var html = "<html><body>";
-	  html += "New estimate from <strong>" + data.full_name[0] + " (" + data.full_name[1] + ")</strong><br><br>";
-		html += "Address:<br><strong>";
-		html += data.street1 + "<br>";
-		html += data.city + ", " + data.zip + "</strong><br><br>";
-		html += "How did you hear about us?<br>";
-		if('heard' in data) {
-			html += "<strong>" + data.heard + "</strong><br><br>";
+EM.composeEstimateEmail = function(data, questions) {
+	console.log(questions);
+	var html = "<html><body><h3>New estimate</h3><br>";
+	for (id in data) {
+		var question;
+		for (i in questions) {
+			if (parseInt(id, 10) === parseInt(questions[i].id, 10)) {
+				question = questions[i];
+				break;
+			}
 		}
-		html += "What days and times are you most available to schedule an appointment with our estimator?<br><strong>";
-		html += data.message[0] + "</strong><br><br>";
-		html += "What rooms do you want to install AC in?<br><strong>";
-		html += data.message[1] + "</strong><br><br>";
-		if('insulated' in data) {
-			html += "Is your home/office insulated? <strong>" + data.insulated + "</strong>";
-		}
-		html += "</body></html>";
+		html += question.question + ":<br><strong>" + data[id] + "</strong><br><br>";
+	}
+	html += "</body></html>";
 	return  [{data:html, alternative:true}];
 }
