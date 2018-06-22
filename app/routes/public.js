@@ -68,7 +68,7 @@ module.exports = function(app){
         res.render('pages/estimate-new', {
           this_title : "Estimates",
           questions: questions,
-          post: false
+          post: true
         });
       });
     });
