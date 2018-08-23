@@ -5,6 +5,7 @@
 
     <link rel="stylesheet" href="/css/bootstrap.min.css">
     <link rel="stylesheet" href="/css/bootstrap-switch.css">
+    <link rel="stylesheet" href="/css/backend/backend.css">
     <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
     <style>
       .fa-trash-o, .fa-plus-square, .fa-chevron-up, .fa-chevron-down {
@@ -73,8 +74,9 @@
     <script src="/js/bootstrap-switch.js"></script>
   </head>
   <body>
-    <div id='manager' class='jumbotron' style='position: relative; width: 75%; margin: 15px auto; padding-bottom: 90px;'>
-      <span style='position: absolute; top: 30px; right: 30px;'>
+    <%- include ../../partials/backend-nav.ejs %>
+    <div id='manager' class='manager'>
+      <span style='position: absolute; top: 40px; right: 30px;'>
         <input id='edit-switch' type="checkbox" data-on-text='View' data-off-text='Edit' data-on-color='default' data-off-color='primary' checked>
       </span>
 
@@ -97,16 +99,6 @@
         <button id='save' type="button" class="btn btn-primary">Save Changes</button>
       </div>
     </div>
-
-    <br>
-    <a href="/employee">Employee Home</a>
-    <a href="/employee/accreditations">Accreditations</a>
-    <a href="/admin">Admin</a>
-    <a href="/logout">Logout</a>
-
-    <br>
-    <h3>Admin tools</h3>
-    <a href="/admin/manage/accreditations">Accreditations</a>
 
     <script>
       var accred_save = [

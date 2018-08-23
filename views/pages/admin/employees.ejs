@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>Admin Portal | Users</title>
+    <title>Admin Portal | Employees</title>
 
     <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/backend/backend.css">
     <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
     <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/v/bs/jq-2.2.4/dt-1.10.15/r-2.1.1/datatables.min.css"/>
     <style>
@@ -146,76 +147,64 @@
     <script type="text/javascript" src="//cdn.datatables.net/v/bs/jq-2.2.4/dt-1.10.15/r-2.1.1/datatables.min.js"></script>
   </head>
   <body>
-    <h1>Admin Portal | Manage Users</h1>
+    <%- include ../../partials/backend-nav.ejs %>
+    <div id='manager' class='manager'>
+      <h1>Manage Employees</h1>
+      <h3>Add Employee</h3>
+      <form id="new-employee">
+        <input type="text" name="name" value="Jane Doe">
+        <input type="text" name="email" value="Jane.Doe@gmail.com">
+        <input type="submit" value="Give Access">
+      </form>
 
-    <h2>Welcome, admin.</h2>
+      <table id="employees-table" class="display">
+        <thead>
+          <tr>
+            <th>Employee</th>
+            <th>Email</th>
+            <th>Roles</th>
+            <th>Admin</th>
+            <th>Edit</th>
+            <th>Delete</th>
+          </tr>
+        </thead>
+      </table>
 
-    <a href="/employee">Employee Home</a>
-    <a href="/employee/accreditations">Accreditations</a>
-    <a href="/admin">Admin</a>
-    <a href="/logout">Logout</a>
-
-    <br>
-    <h3>Admin tools</h3>
-    <a href="/admin/manage/accreditations">Accreditations</a>
-    <a href="/admin/manage/files">Files</a>
-    <a href="/admin/manage/users">Users</a>
-
-    <br><br>
-    <h3>Add User</h3>
-    <form id="new-user">
-      <input type="text" name="name" value="Jane Doe">
-      <input type="text" name="email" value="Jane.Doe@gmail.com">
-      <input type="submit" value="Give Access">
-    </form>
-
-    <table id="users-table" class="display">
-      <thead>
-        <tr>
-          <th>Employee</th>
-          <th>Email</th>
-          <th>Roles</th>
-          <th>Admin</th>
-          <th>Edit</th>
-          <th>Delete</th>
-        </tr>
-      </thead>
-    </table>
-
-    <form id="editor" method="POST">
-      <input type="number" name="id" hidden>
-      <div class="form-group">
-        <label>Name</label>
-        <input type="text" class="form-control" name="name">
-      </div>
-      <div class="form-group">
-        <label>Email address</label>
-        <input type="email" class="form-control" name="email">
-      </div>
-      <div class="form-group">
-        <label>Roles</label>
-        <div class="input-group">
-          <span class="input-group-addon"><i class="fa fa-plus" aria-hidden="true"></i></span>
-          <input type="text" class="form-control" name="roles" disabled>
+      <form id="editor" method="POST">
+        <input type="number" name="id" hidden>
+        <div class="form-group">
+          <label>Name</label>
+          <input type="text" class="form-control" name="name">
         </div>
-        <span class="dropdown">
-          <ul class="dropdown-list">
-            <% for(var i = 0; i < accreditations.length; i++) { %>
-              <li data-accred-id="<%= accreditations[i].id %>"><%= accreditations[i].title %></li>
-            <% } %>
-          </ul>
-        </span>
-      </div>
-      <div class="form-check">
-        <label class="form-check-label">
-          <input type="checkbox" name="admin" class="form-check-input">
-          Admin
-        </label>
-      </div>
-      <button class="btn btn-primary">Submit</button>
-      <span class="btn btn-info">Cancel</span>
-    </form>
-    <div class="screen"></div>
+        <div class="form-group">
+          <label>Email address</label>
+          <input type="email" class="form-control" name="email">
+        </div>
+        <div class="form-group">
+          <label>Roles</label>
+          <div class="input-group">
+            <span class="input-group-addon"><i class="fa fa-plus" aria-hidden="true"></i></span>
+            <input type="text" class="form-control" name="roles" disabled>
+          </div>
+          <span class="dropdown">
+            <ul class="dropdown-list">
+              <% for(var i = 0; i < accreditations.length; i++) { %>
+                <li data-accred-id="<%= accreditations[i].id %>"><%= accreditations[i].title %></li>
+              <% } %>
+            </ul>
+          </span>
+        </div>
+        <div class="form-check">
+          <label class="form-check-label">
+            <input type="checkbox" name="admin" class="form-check-input">
+            Admin
+          </label>
+        </div>
+        <button class="btn btn-primary">Submit</button>
+        <span class="btn btn-info">Cancel</span>
+      </form>
+      <div class="screen"></div>
+    </div>
 
     <script>
       var accreds = [
@@ -229,7 +218,9 @@
 
       var employees = [
         <% for (var i = 0; i < employees.length; i++) { %>
-          new Employee(<%= employees[i].id %>, "<%= employees[i].name %>", "<%= employees[i].email %>", [<%= employees[i].roles %>], <%= employees[i].admin %>, <%= i %>),
+          <% if(employees[i].email != 'admin') { %>
+            new Employee(<%= employees[i].id %>, "<%= employees[i].name %>", "<%= employees[i].email %>", [<%= employees[i].roles %>], <%= employees[i].admin %>, <%= i %>),
+            <% } %>
         <% } %>
       ];
 
@@ -253,15 +244,15 @@
       };
 
       $(document).ready(function() {
-        $("#new-user").on("submit", function() {
-          $.post("/admin/manage/users/new", {"email": $(this).find("input[name='email']").val(), "name": $(this).find("input[name='name']").val()}, function(result) {
+        $("#new-employee").on("submit", function() {
+          $.post("/admin/manage/employees/new", {"email": $(this).find("input[name='email']").val(), "name": $(this).find("input[name='name']").val()}, function(result) {
             alert("Email sent.");
           });
 
           return false;
         });
 
-        $('#users-table').DataTable( {
+        $('#employees-table').DataTable( {
           data: employees,
           columns: [
             { data: 'name' },
@@ -280,7 +271,7 @@
                   c = "fa-check-square-o";
                 }
 
-                return '<i class="fa ' + c + '" aria-hidden="true" data-user-id="' + row.id + '"></i>';
+                return '<i class="fa ' + c + '" aria-hidden="true" data-employee-id="' + row.id + '"></i>';
               }
             },
             {
@@ -289,7 +280,7 @@
               searchable: false,
               defaultContent: '',
               render: function(data, type, row) {
-                return '<i class="fa fa-pencil" aria-hidden="true" data-user-index="' + row.index + '"></i>';
+                return '<i class="fa fa-pencil" aria-hidden="true" data-employee-index="' + row.index + '"></i>';
               }
             },
             {
@@ -298,7 +289,7 @@
               searchable: false,
               defaultContent: '',
               render: function(data, type, row) {
-                return '<i class="fa fa-trash-o" aria-hidden="true" data-user-id="' + row.id + '"></i>';
+                return '<i class="fa fa-trash-o" aria-hidden="true" data-employee-id="' + row.id + '"></i>';
               }
             }
           ]
@@ -357,8 +348,8 @@
           icon.addClass('fa-spin');
 
           var step_id = icon.attr('data-step-id');
-          var user_id = icon.attr('data-user-id');
-          $.getJSON("/admin/manage/users/admin?user=" + user_id + "&set=t", function(result){
+          var employee_id = icon.attr('data-employee-id');
+          $.getJSON("/admin/manage/employees/admin?employee=" + employee_id + "&set=t", function(result){
             if(result.success) {
               icon.removeClass('fa-circle-o-notch');
               icon.removeClass('fa-spin');
@@ -377,8 +368,8 @@
           icon.addClass('fa-spin');
 
           var step_id = icon.attr('data-step-id');
-          var user_id = icon.attr('data-user-id');
-          $.getJSON("/admin/manage/users/admin?user=" + user_id + "&set=f", function(result){
+          var employee_id = icon.attr('data-employee-id');
+          $.getJSON("/admin/manage/employees/admin?employee=" + employee_id + "&set=f", function(result){
             if(result.success) {
               icon.removeClass('fa-circle-o-notch');
               icon.removeClass('fa-spin');
@@ -392,8 +383,8 @@
         $(".fa-trash-o").off('click');
         $(".fa-trash-o").on('click', function() {
           var icon = $(this);
-          var user_id = icon.attr('data-user-id');
-          $.getJSON("/admin/manage/users/delete?user=" + user_id, function(result){
+          var employee_id = icon.attr('data-employee-id');
+          $.getJSON("/admin/manage/employees/delete?employee=" + employee_id, function(result){
             if(result.success) {
               icon.closest('tr').fadeOut(400, function() { $(this).remove(); });
             }
@@ -404,7 +395,7 @@
         $(".fa-pencil").off('click');
         $(".fa-pencil").on('click', function() {
           current_list = {};
-          var employee = employees[$(this).attr('data-user-index')];
+          var employee = employees[$(this).attr('data-employee-index')];
           $("#editor input[name='id']").val(employee.id);
           $("#editor input[name='name']").val(employee.name);
           $("#editor input[name='email']").val(employee.email);

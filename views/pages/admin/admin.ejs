@@ -5,6 +5,7 @@
 
     <link rel="stylesheet" href="/css/bootstrap.min.css">
     <link rel="stylesheet" href="/css/bootstrap-switch.css">
+    <link rel="stylesheet" href="/css/backend/backend.css">
       <style>
       .fa-trash-o, .fa-plus-square, .fa-external-link {
         cursor: pointer;
@@ -321,7 +322,11 @@
       .card-text {
         font-size: 48pt !important;
         text-align: center;
-        padding: 40px;
+        padding: 10px;
+      }
+
+      .row {
+        padding: 15px 0;
       }
 
       #files i {
@@ -391,6 +396,40 @@
       #form {
         border-color: #9C23FF;
       }
+
+      #accreds i {
+        color: #FEAD5C;
+      }
+
+      #accreds a.btn {
+        background: #FEAD5C;
+        border-color: #FEAD5C;
+      }
+
+      #accreds a.btn:hover {
+        background: #F37A01;
+      }
+
+      #accreds {
+        border-color: #FEAD5C;
+      }
+
+      #employees i {
+        color: #FFFF51;
+      }
+
+      #employees a.btn {
+        background: #FFFF51;
+        border-color: #FFFF51;
+      }
+
+      #employees a.btn:hover {
+        background: #DBDB00;
+      }
+
+      #employees {
+        border-color: #FFFF51;
+      }
     </style>
       <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
 
@@ -399,51 +438,68 @@
     <script type="text/javascript" src="//static.filestackapi.com/v3/filestack.js"></script>
   </head>
   <body>
-    <div id='manager' class='jumbotron'>
-      <a class="btn btn-default" href="/logout">Logout</a>
-      <a class="btn btn-primary" href="/admin">Admin Home</a>
-
+    <%- include ../../partials/backend-nav.ejs %>
+    <div id='manager' class="manager">
       <h1 class="display-4">Admin Home</h1>
-        <br><br>
-
-        <div class="row">
-          <div class="col-sm-3">
-            <div id="files" class="card">
-              <div class="card-body">
-                <h5 class="card-title">Employee Files</h5>
-                <p class="card-text"><i class="fa fa-file" aria-hidden="true"></i></p>
-                <a href="/admin/files" class="btn btn-primary">File Manager</a>
-              </div>
-            </div>
-          </div>
-          <div class="col-sm-3">
-            <div id="jobs" class="card">
-              <div class="card-body">
-                <h5 class="card-title">Featured Jobs</h5>
-                <p class="card-text"><i class="fa fa-industry" aria-hidden="true"></i></p>
-                <a href="/admin/jobs" class="btn btn-primary">Jobs Manager</a>
-              </div>
-            </div>
-          </div>
-          <div class="col-sm-3">
-            <div id="images" class="card">
-              <div class="card-body">
-                <h5 class="card-title">Site Images</h5>
-                <p class="card-text"><i class="fa fa-file-image-o" aria-hidden="true"></i></p>
-                <a href="/admin/images" class="btn btn-primary">Image Manager</a>
-              </div>
-            </div>
-          </div>
-          <div class="col-sm-3">
-            <div id="form" class="card">
-              <div class="card-body">
-                <h5 class="card-title">Estimate Form</h5>
-                <p class="card-text"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></p>
-                <a href="/admin/form" class="btn btn-primary">Form Manager</a>
-              </div>
+      <br>
+      <div class="row">
+        <div class="col-sm-4">
+          <div id="files" class="card">
+            <div class="card-body">
+              <h5 class="card-title">Employee Files</h5>
+              <p class="card-text"><i class="fa fa-file" aria-hidden="true"></i></p>
+              <a href="/admin/files" class="btn btn-primary">File Manager</a>
             </div>
           </div>
         </div>
+        <div class="col-sm-4">
+          <div id="jobs" class="card">
+            <div class="card-body">
+              <h5 class="card-title">Featured Jobs</h5>
+              <p class="card-text"><i class="fa fa-industry" aria-hidden="true"></i></p>
+              <a href="/admin/jobs" class="btn btn-primary">Jobs Manager</a>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-4">
+          <div id="images" class="card">
+            <div class="card-body">
+              <h5 class="card-title">Site Images</h5>
+              <p class="card-text"><i class="fa fa-file-image-o" aria-hidden="true"></i></p>
+              <a href="/admin/images" class="btn btn-primary">Image Manager</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-sm-4">
+          <div id="form" class="card">
+            <div class="card-body">
+              <h5 class="card-title">Estimate Form</h5>
+              <p class="card-text"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></p>
+              <a href="/admin/form" class="btn btn-primary">Form Manager</a>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-4">
+          <div id="accreds" class="card">
+            <div class="card-body">
+              <h5 class="card-title">Accreditations</h5>
+              <p class="card-text"><i class="fa fa-certificate" aria-hidden="true"></i></p>
+              <a href="/admin/accreditations" class="btn btn-primary">Accreditation Manager</a>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-4">
+          <div id="employees" class="card">
+            <div class="card-body">
+              <h5 class="card-title">Employees</h5>
+              <p class="card-text"><i class="fa fa-user" aria-hidden="true"></i></p>
+              <a href="/admin/employees" class="btn btn-primary">Employee Manager</a>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </body>
 </html>

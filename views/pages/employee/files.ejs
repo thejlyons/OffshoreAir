@@ -10,19 +10,23 @@
 
     <title>Employee Portal</title>
 
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/bootstrap-switch.css">
+    <link rel="stylesheet" href="/css/backend/backend.css">
     <!-- Bootstrap core CSS -->
-    <link href="/css/employee.css" rel="stylesheet">
+    <!-- <link href="/css/employee.css" rel="stylesheet"> -->
 
     <!-- Custom fonts for this template -->
     <link href="https://fonts.googleapis.com/css?family=Lato:300,400,700,300italic,400italic,700italic" rel="stylesheet" type="text/css">
 
     <!-- Custom styles for this template -->
-    <link href="/css/landing-page.css" rel="stylesheet">
+    <!-- <link href="/css/landing-page.css" rel="stylesheet"> -->
 
   </head>
 
   <body>
-
+    <%- include ../../partials/backend-nav.ejs %>
+    <div id="manager" class="manager">
     <!-- Navigation -->
     <!-- <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
       <div class="container">
@@ -35,35 +39,21 @@
       </div>
     </nav> -->
 
-    <!-- Header -->
-    <header class="intro-header">
-      <div class="container">
-        <div class="intro-message">
-          <h1>Employee Portal</h1>
-          <hr class="intro-divider">
-          <ul class="list-inline intro-social-buttons">
-            <li class="list-inline-item">
-              <a href="/employee/accreditations" class="btn btn-secondary btn-lg">
-                <i class="fa"></i>
-                <span class="network-name">Accreditations</span>
-              </a>
-            </li>
-            <li class="list-inline-item">
-              <a href="/employee/files" class="btn btn-secondary btn-lg">
-                <i class="fa"></i>
-                <span class="network-name">Files</span>
-              </a>
-            </li>
-          </ul>
+      <!-- Header -->
+      <header class="intro-header">
+        <div class="container">
+          <div class="intro-message">
+            <h1>Employee Portal</h1>
+          </div>
         </div>
-      </div>
-    </header>
+      </header>
 
-    <div id='files'>
-      <% for(var i=0; i<files.length; i++) {%>
-         <!-- <h3><a href="/files/<%= files[i].link %>"><%= files[i].name %></a></h3> -->
-         <p><%= files[i].description %></p>
-      <% } %>
+      <div id='files'>
+        <% for(var i=0; i<files.length; i++) {%>
+           <h3><a href="/files/<%= files[i].link %>"><%= files[i].name %></a></h3>
+           <p><%= files[i].description %></p>
+        <% } %>
+      </div>
     </div>
 
 <!--

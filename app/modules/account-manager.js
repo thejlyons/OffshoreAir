@@ -2,6 +2,7 @@
 Table Schema:
 
 CREATE TABLE accounts (id SERIAL NOT NULL UNIQUE, name text, password text, email text, date timestamp default current_timestamp, admin BOOLEAN DEFAULT FALSE);
+CREATE TABLE roles_fk (id SERIAL NOT NULL, user_id integer references accounts(id) ON DELETE CASCADE, accred_id integer references accreditations(id) ON DELETE CASCADE);
 */
 
 var crypto 		= require('crypto');
@@ -21,7 +22,7 @@ exports.createAdmin = function(pass) {
 }
 
 exports.autoLogin = function(email, pass, callback) {
-	db.one('SELECT id, name, password, email, admin FROM accounts WHERE email = $1', email)
+	db.one('SELECT id, name, password, email, admin, (SELECT array(SELECT accred_id FROM roles_fk WHERE roles_fk.user_id = accounts.id)) AS roles FROM accounts WHERE email = $1', email)
     .then(data => {
 			if (data) {
 				data.password == pass ? callback(data) : callback(null);
@@ -35,7 +36,7 @@ exports.autoLogin = function(email, pass, callback) {
 }
 
 exports.manualLogin = function(email, pass, callback) {
-	db.one('SELECT id, name, email, password, email, admin FROM accounts WHERE email = $1', email)
+	db.one('SELECT id, name, email, password, email, admin, (SELECT array(SELECT accred_id FROM roles_fk WHERE roles_fk.user_id = accounts.id)) AS roles FROM accounts WHERE email = $1', email)
     .then(data => {
 			if (data){
 				validatePassword(pass, data.password, function(err, res) {
@@ -55,7 +56,7 @@ exports.manualLogin = function(email, pass, callback) {
 }
 
 exports.getSessionById = function(user_id, callback) {
-	db.one('SELECT id, name, password, email, admin FROM accounts WHERE id = $1', user_id)
+	db.one('SELECT id, name, password, email, admin, (SELECT array(SELECT accred_id FROM roles_fk WHERE roles_fk.user_id = accounts.id)) AS roles FROM accounts WHERE id = $1', user_id)
     .then(data => {
 			callback(data);
     })
@@ -198,6 +199,58 @@ exports.findById = function(id, callback) {
 	.catch(error => {
 		callback(error);
 	});
+}
+
+exports.getAllUsers = function(callback) {
+	db.any('SELECT id, name, password, email, admin, (SELECT array(SELECT accred_id FROM roles_fk WHERE roles_fk.user_id = accounts.id)) AS roles FROM accounts')
+    .then(data => {
+			callback(data);
+    })
+    .catch(error => {
+        callback(error);
+    });
+}
+
+exports.makeUserAdmin = function(set, user_id, callback) {
+	db.none('UPDATE accounts SET admin = $1 WHERE id = $2', [set, user_id])
+    .then(() => {
+			callback(null);
+    })
+    .catch(error => {
+			callback(error)
+    });
+}
+
+exports.updateRoles = function(user_id, roles, dels, callback) {
+	var del_query = "DELETE FROM roles_fk WHERE (user_id, accred_id) IN (";
+	var values = [];
+	for(var i = 0; i < dels.length; i++){
+		values.push("(" + user_id + ", " + dels[i] + ")");
+	}
+	del_query += values.join(", ") + ")";
+	var add_query = "WITH data(employee, accred) AS (VALUES";
+	values = [];
+	for(var i = 0; i < roles.length; i++){
+		values.push("(" + user_id + ", " + roles[i] + ")");
+	}
+	add_query += values.join(", ") + ") INSERT INTO roles_fk (user_id, accred_id) SELECT d.employee, d.accred FROM data d WHERE NOT EXISTS (SELECT 1 FROM roles_fk WHERE user_id = d.employee AND accred_id = d.accred)";
+	db.task(t => {
+			var batch = [];
+			if(dels.length > 0) {
+				batch.push(t.none(del_query));
+			}
+			if(roles.length > 0) {
+				batch.push(t.none(add_query));
+			}
+			return t.batch(batch);
+    })
+    .then(events => {
+			callback();
+    })
+    .catch(error => {
+      throw error;
+			callback();
+    });
 }
 
 /* private encryption & validation methods */

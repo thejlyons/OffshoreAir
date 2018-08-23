@@ -4,6 +4,8 @@
     <title>Employee Portal | Supervisor</title>
 
     <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/bootstrap-switch.css">
+    <link rel="stylesheet" href="/css/backend/backend.css">
     <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
     <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/v/bs/jq-2.2.4/dt-1.10.15/r-2.1.1/datatables.min.css"/>
     <style>
@@ -16,40 +18,36 @@
     <script type="text/javascript" src="//cdn.datatables.net/v/bs/jq-2.2.4/dt-1.10.15/r-2.1.1/datatables.min.js"></script>
   </head>
   <body>
-    <h1>Employee Portal | Supervisor</h1>
+    <%- include ../../partials/backend-nav.ejs %>
+    <div id='manager' class="manager">
+      <h1>Employee Portal | Supervisor</h1>
+      <div id='accreditations'>
+        <h3><%= accreditation.title %></h3>
+        <ul>
+        <% for(var j=0; j<accreditation.skills.length; j++) {%>
+          <li><%= accreditation.skills[j] %></li>
+        <% } %>
+        </ul>
+        <h4>Progress</h4>
+        <ul>
+        <% for(var j=0; j<steps.length; j++) {%>
+          <li><%= steps[j].content %></li>
+        <% } %>
+        </ul>
+      </div>
 
-    <a href="/employee">Employee Home</a>
-    <a href="/employee/accreditations">Accreditations</a>
-    <a href="/employee/files">Files</a>
-    <a href="/admin">Admin</a>
-    <a href="/logout">Logout</a>
-
-    <div id='accreditations'>
-      <h3><%= accreditation.title %></h3>
-      <ul>
-      <% for(var j=0; j<accreditation.skills.length; j++) {%>
-        <li><%= accreditation.skills[j] %></li>
-      <% } %>
-      </ul>
-      <h4>Progress</h4>
-      <ul>
-      <% for(var j=0; j<steps.length; j++) {%>
-        <li><%= steps[j].content %></li>
-      <% } %>
-      </ul>
+      <br>
+      <table id="users-table" class="display">
+        <thead>
+          <tr>
+            <th>Employee</th>
+            <% for(var i = 0; i < steps.length; i++) { %>
+              <th>Step <%= i + 1 %></th>
+            <% } %>
+          </tr>
+        </thead>
+      </table>
     </div>
-
-    <br>
-    <table id="users-table" class="display">
-      <thead>
-        <tr>
-          <th>Employee</th>
-          <% for(var i = 0; i < steps.length; i++) { %>
-            <th>Step <%= i + 1 %></th>
-          <% } %>
-        </tr>
-      </thead>
-    </table>
 
     <script>
       var steps = [
@@ -86,10 +84,12 @@
         $('#users-table').DataTable( {
           data: [
             <% for (var key in progress) { %>
-              <% if(progress[key][accreditation.id] && progress[key][accreditation.id].length < steps.length) { %>
-                new Employee("<%= progress[key].name %>", "<%= progress[key].id %>", [<%= progress[key][accreditation.id] %>]),
-              <% } else if(!progress[key][accreditation.id]) { %>
-                new Employee("<%= progress[key].name %>", "<%= progress[key].id %>", []),
+              <% if(progress[key].name != "Administrator" && progress[key].id != user.id) { %>
+                <% if(progress[key][accreditation.id] && progress[key][accreditation.id].length < steps.length) { %>
+                  new Employee("<%= progress[key].name %>", "<%= progress[key].id %>", [<%= progress[key][accreditation.id] %>]),
+                <% } else if(!progress[key][accreditation.id]) { %>
+                  new Employee("<%= progress[key].name %>", "<%= progress[key].id %>", []),
+                <% } %>
               <% } %>
             <% } %>
           ],

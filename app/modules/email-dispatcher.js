@@ -56,6 +56,9 @@ EM.composeRequestEmail = function(name, email){
 		html += "Hello " + name + ",<br><br>";
 		html += "You have been invited to join the Offshore Air employee portal.<br><br>";
 		html += "<a href='"+link+"'>Click here to join</a><br><br>";
+		html += "Or copy and paste the link below:<br>";
+		html += "<a href='"+link+"'>"+link+"</a><br><br>";
+		html += " ";
 		html += "</body></html>";
 	return  [{data:html, alternative:true}];
 }
