@@ -8,12 +8,12 @@
     <link rel="stylesheet" href="/css/backend/backend.css">
     <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
     <style>
-      .fa-trash-o, .fa-plus-square, .fa-chevron-up, .fa-chevron-down {
+      .far.fa-trash-alt, .fa.fa-plus-square, .fas.fa-chevron-up, .fas.fa-chevron-down {
         cursor: pointer;
         display: none;
       }
 
-      .fa-trash-o {
+      .fa-trash-alt {
         background: #CA2525;
         border-radius: 3px;
         color: #F3D2D2;
@@ -29,7 +29,7 @@
         color: #3276b1
       }
 
-      .fa-trash-o:hover {
+      .fa-trash-alt:hover {
         background: #9D1515;
       }
 
@@ -39,13 +39,15 @@
         right: 15px;
       }
 
-      .fa-trash-o.large {
+      .fa-trash-alt.large {
         padding: 5px 8px;
         font-size: 16pt;
+        display: none;
       }
 
-      .fa-chevron-up, .fa-chevron-down {
+      .fas.fa-chevron-up, .fas.fa-chevron-down {
         font-size: 20pt;
+        padding: 2px;
         color: #428bca;
       }
 
@@ -67,6 +69,10 @@
         /*background: #428bca;
         color: #FFF;*/
         border-color: #428bca !important;
+      }
+
+      #controls {
+        display: none;
       }
     </style>
 
@@ -94,7 +100,7 @@
         <!-- Filled by EJS dump to steps_save and then method revert called once document.ready() -->
       </div>
 
-      <div id='controls' style='position: absolute; bottom: 30px; right: 30px; display: none;'>
+      <div id='controls'>
         <button id='revert' type="button" class="btn btn-info">Revert Changes</button>
         <button id='save' type="button" class="btn btn-primary">Save Changes</button>
       </div>
@@ -213,7 +219,7 @@
       function newAccred(id, title, skills) {
         $('#accred-list').append(
           '<li class="list-group-item list-group-item-action flex-column align-items-start" data-id="accreditation" data-accred-id=' + id + '>'
-            + '<i class="fa fa-trash-o large right-corner" aria-hidden="true"></i>'
+            + '<i class="far fa-trash-alt large right-corner" aria-hidden="true"></i>'
             + '<div class="d-flex w-100 justify-content-between">'
               + '<h3 class="mb-1"><span class="edit" data-id="title">' + title + '</span>&nbsp;<i class="fa fa-plus-square" aria-hidden="true" data-type="skill"></i></h3>'
             + '</div>'
@@ -226,7 +232,7 @@
         var ret = "";
         $.each(skills, function(i, value) {
           ret += '<p class="mb-1" style="padding-left:18px;">'
-              + '<i class="fa fa-trash-o" aria-hidden="true"></i>&nbsp;<span class="edit" data-id="skill">' + value + '</span>'
+              + '<i class="far fa-trash-alt" aria-hidden="true"></i>&nbsp;<span class="edit" data-id="skill">' + value + '</span>'
             + '</p>';
         });
 
@@ -258,10 +264,10 @@
         $('#step-list').append(
           '<li class="list-group-item list-group-item-action flex-column align-items-start" data-id="step" data-step-id=' + id + '>'
             + '<span class="right-corner"><span class="fa-stack fa-lg" style="position: relative; top: -8px; margin-right: 11px;">'
-              + '<i class="fa fa-chevron-up fa-stack-2x" style="margin-bottom: 18px;"></i>'
-              + '<i class="fa fa-chevron-down fa-stack-2x" style="margin-top: 18px;"></i>'
+              + '<i class="fas fa-chevron-up fa-stack-2x" style="margin-bottom: 18px;"></i>'
+              + '<i class="fas fa-chevron-down fa-stack-2x" style="margin-top: 18px;"></i>'
             + '</span>'
-            + '<i class="fa fa-trash-o large" aria-hidden="true"></i></span>'
+            + '<i class="far fa-trash-alt large" aria-hidden="true"></i></span>'
             + '<div class="d-flex w-100 justify-content-between">'
               + '<h3 class="mb-1" style="padding-right: 100px;">'
                 + '<span class="edit" data-id="content" style="padding: 2px; line-height: 24pt;">' + content + '</span>'
@@ -276,21 +282,21 @@
           setClicks();
           $('.edit').attr('contenteditable', true);
           $('.edit').addClass('edit-border');
-          $('.fa-trash-o').attr('contenteditable', false);
+          $('.fa-trash-alt').attr('contenteditable', false);
           $('.fa-plus-square').attr('contenteditable', false);
           $('#controls').fadeIn();
           $('.fa-plus-square').fadeIn();
-          $('.fa-trash-o').fadeIn();
+          $('.fa-trash-alt').fadeIn();
           $('.fa-chevron-up').fadeIn();
           $('.fa-chevron-down').fadeIn();
         } else {
           revert(false);
           $('.edit').attr('contenteditable', false);
           $('.edit').removeClass('edit-border');
-          $('.fa-trash-o').attr('contenteditable', false);
+          $('.fa-trash-alt').attr('contenteditable', false);
           $('#controls').fadeOut();
           $('.fa-plus-square').fadeOut();
-          $('.fa-trash-o').fadeOut();
+          $('.fa-trash-alt').fadeOut();
           $('.fa-chevron-up').fadeOut();
           $('.fa-chevron-down').fadeOut();
         }
@@ -327,8 +333,8 @@
           $(this).closest('[data-id="step"]').moveDown();
         });
 
-        $('.fa-trash-o').off('click');
-        $('.fa-trash-o').on('click', function() {
+        $('.fa-trash-alt').off('click');
+        $('.fa-trash-alt').on('click', function() {
           var for_skill = $(this).siblings();
           console.log(for_skill);
           if(for_skill && for_skill.attr('data-id') && for_skill.attr('data-id') == 'skill') {

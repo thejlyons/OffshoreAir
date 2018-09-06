@@ -5,6 +5,7 @@
 
     <link rel="stylesheet" href="/css/bootstrap.min.css">
     <link rel="stylesheet" href="/css/backend/backend.css">
+    <!-- <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.1/css/bootstrap.css"> -->
     <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
     <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/v/bs/jq-2.2.4/dt-1.10.15/r-2.1.1/datatables.min.css"/>
     <style>
@@ -15,11 +16,15 @@
       overflow-x: hidden;
     }
 
-      .fa-trash-o, .fa-square-o, .fa-pencil, .fa-check-square-o {
+      .fa-trash-alt, .fa-square, .fa-pencil-alt, .fa-check-square {
         cursor: pointer;
       }
 
-      .fa-trash-o {
+      .fa-square, .fa-check-square {
+        font-size: 18pt;
+      }
+
+      .fa-trash-alt {
         background: #CA2525;
         border-radius: 3px;
         color: #F3D2D2;
@@ -27,11 +32,11 @@
         padding: 3px 6px;
       }
 
-      .fa-trash-o:hover {
+      .fa-trash-alt:hover {
         background: #9D1515;
       }
 
-      .fa-pencil {
+      .fa-pencil-alt {
         background: #56C68E;
         border-radius: 3px;
         color: #D2F3D2;
@@ -39,7 +44,7 @@
         padding: 3px 5px;
       }
 
-      .fa-pencil:hover {
+      .fa-pencil-alt:hover {
         background: #289960;
       }
 
@@ -57,10 +62,9 @@
         opacity: 0.5;
       }
 
-      #editor {
+      .editor {
         display: none;
         position: fixed;
-        top: -600px;
         left: 0;
         right: 0;
         width: 50%;
@@ -72,6 +76,14 @@
         z-index: 15;
         -webkit-transition: top 0.4s; /* Safari */
         transition: top 0.4s;
+      }
+
+      #editor {
+        top: -600px;
+      }
+
+      #new-employee {
+        top: -600px;
       }
 
       .btn {
@@ -141,6 +153,28 @@
         border-bottom: 1px solid #CCC;
         border-radius: 0px 0px 4px 4px;
       }
+
+      #btn-new-employee {
+        position: absolute;
+        top: 40px;
+        right: 30px;
+      }
+
+      .fas.fa-spinner {
+        display: none;
+        float: left;
+        font-size: 25px;
+      }
+
+      #new-employee #confirm {
+        position: relative;
+        top: -7px;
+      }
+
+      #employees-table {
+        background: white;
+        border-radius: 5px;
+      }
     </style>
 
     <script src="/js/jquery-2.2.3.min.js"></script>
@@ -150,27 +184,34 @@
     <%- include ../../partials/backend-nav.ejs %>
     <div id='manager' class='manager'>
       <h1>Manage Employees</h1>
-      <h3>Add Employee</h3>
-      <form id="new-employee">
-        <input type="text" name="name" value="Jane Doe">
-        <input type="text" name="email" value="Jane.Doe@gmail.com">
-        <input type="submit" value="Give Access">
-      </form>
+      <button id='btn-new-employee' type="button" class="btn btn-primary">+ Add Employee</button>
+      <br>
+      <div class="content">
+        <table id="employees-table" class="table table-striped table-bordered">
+          <thead>
+            <tr>
+              <th>Employee</th>
+              <th>Email</th>
+              <th>Roles</th>
+              <th>Admin</th>
+              <th>Edit</th>
+              <th>Delete</th>
+            </tr>
+          </thead>
+          <tfoot>
+            <tr>
+              <th>Employee</th>
+              <th>Email</th>
+              <th>Roles</th>
+              <th>Admin</th>
+              <th>Edit</th>
+              <th>Delete</th>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
 
-      <table id="employees-table" class="display">
-        <thead>
-          <tr>
-            <th>Employee</th>
-            <th>Email</th>
-            <th>Roles</th>
-            <th>Admin</th>
-            <th>Edit</th>
-            <th>Delete</th>
-          </tr>
-        </thead>
-      </table>
-
-      <form id="editor" method="POST">
+      <form id="editor" class="editor" method="POST">
         <input type="number" name="id" hidden>
         <div class="form-group">
           <label>Name</label>
@@ -203,6 +244,25 @@
         <button class="btn btn-primary">Submit</button>
         <span class="btn btn-info">Cancel</span>
       </form>
+
+      <form id="new-employee" class="editor">
+        <div class="form-group">
+          <label>Name</label>
+          <input type="text" class="form-control" name="name" placeholder="Jane Doe">
+        </div>
+        <div class="form-group">
+          <label>Email address</label>
+          <input type="text" class="form-control" name="email" placeholder="Jane.Doe@gmail.com">
+        </div>
+        <div class="alert alert-success" style="display:none;" role="alert">
+          Invite email has been sent.
+          <button id='confirm' type="button" class="btn btn-success btn-small">Confirm</button>
+        </div>
+        <input id="btn-submit" type="submit" class="btn btn-primary" value="Give Access">
+        <span id="btn-cancel" class="btn btn-info">Cancel</span>
+        <i class="fas fa-spinner fa-spin"></i>
+      </form>
+
       <div class="screen"></div>
     </div>
 
@@ -245,11 +305,27 @@
 
       $(document).ready(function() {
         $("#new-employee").on("submit", function() {
+          $("#btn-submit").fadeOut();
+          $("#btn-cancel").fadeOut();
+          $("#new-employee .fa-spinner").fadeIn();
           $.post("/admin/manage/employees/new", {"email": $(this).find("input[name='email']").val(), "name": $(this).find("input[name='name']").val()}, function(result) {
-            alert("Email sent.");
+            $("#new-employee .fa-spinner").fadeOut();
+            $("#new-employee .alert").fadeIn();
           });
 
           return false;
+        });
+
+        $("#new-employee #confirm").on("click", function() {
+          $(".screen").fadeOut();
+          $(".editor").fadeOut();
+          $(".editor").css("top", "-600px");
+        });
+
+        $("#btn-new-employee").on("click", function() {
+          $(".screen").fadeIn();
+          $("#new-employee").fadeIn();
+          $("#new-employee").css("top", "20vh");
         });
 
         $('#employees-table').DataTable( {
@@ -266,12 +342,12 @@
             {
               data: 'admin',
               render: function(data, type, row) {
-                var c = "fa-square-o";
+                var c = "fa-square";
                 if(data) {
-                  c = "fa-check-square-o";
+                  c = "fa-check-square";
                 }
 
-                return '<i class="fa ' + c + '" aria-hidden="true" data-employee-id="' + row.id + '"></i>';
+                return '<i class="far ' + c + '" aria-hidden="true" data-employee-id="' + row.id + '"></i>';
               }
             },
             {
@@ -280,7 +356,7 @@
               searchable: false,
               defaultContent: '',
               render: function(data, type, row) {
-                return '<i class="fa fa-pencil" aria-hidden="true" data-employee-index="' + row.index + '"></i>';
+                return '<i class="fas fa-pencil-alt" aria-hidden="true" data-employee-index="' + row.index + '"></i>';
               }
             },
             {
@@ -289,7 +365,7 @@
               searchable: false,
               defaultContent: '',
               render: function(data, type, row) {
-                return '<i class="fa fa-trash-o" aria-hidden="true" data-employee-id="' + row.id + '"></i>';
+                return '<i class="far fa-trash-alt" aria-hidden="true" data-employee-id="' + row.id + '"></i>';
               }
             }
           ]
@@ -297,14 +373,14 @@
 
         $(".screen").on('click', function() {
           $(".screen").fadeOut();
-          $("#editor").fadeOut();
-          $("#editor").css("top", "-600px");
+          $(".editor").fadeOut();
+          $(".editor").css("top", "-600px");
         });
 
         $("span.btn-info").on('click', function() {
           $(".screen").fadeOut();
-          $("#editor").fadeOut();
-          $("#editor").css("top", "-600px");
+          $(".editor").fadeOut();
+          $(".editor").css("top", "-600px");
         });
 
         $('.input-group-addon').on('click', function() {
@@ -340,10 +416,10 @@
       });
 
       function setClicks() {
-        $(".fa-square-o").off('click');
-        $(".fa-square-o").on('click', function() {
+        $(".fa-square").off('click');
+        $(".fa-square").on('click', function() {
           var icon = $(this);
-          icon.removeClass('fa-square-o');
+          icon.removeClass('fa-square');
           icon.addClass('fa-circle-o-notch');
           icon.addClass('fa-spin');
 
@@ -353,17 +429,17 @@
             if(result.success) {
               icon.removeClass('fa-circle-o-notch');
               icon.removeClass('fa-spin');
-              icon.removeClass('fa-square-o');
-              icon.addClass('fa-check-square-o');
+              icon.removeClass('fa-square');
+              icon.addClass('fa-check-square');
             }
             setClicks();
           });
         });
 
-        $(".fa-check-square-o").off('click');
-        $(".fa-check-square-o").on('click', function() {
+        $(".fa-check-square").off('click');
+        $(".fa-check-square").on('click', function() {
           var icon = $(this);
-          icon.removeClass('fa-square-o');
+          icon.removeClass('fa-square');
           icon.addClass('fa-circle-o-notch');
           icon.addClass('fa-spin');
 
@@ -373,15 +449,15 @@
             if(result.success) {
               icon.removeClass('fa-circle-o-notch');
               icon.removeClass('fa-spin');
-              icon.removeClass('fa-check-square-o');
-              icon.addClass('fa-square-o');
+              icon.removeClass('fa-check-square');
+              icon.addClass('fa-square');
             }
             setClicks();
           });
         });
 
-        $(".fa-trash-o").off('click');
-        $(".fa-trash-o").on('click', function() {
+        $(".fa-trash-alt").off('click');
+        $(".fa-trash-alt").on('click', function() {
           var icon = $(this);
           var employee_id = icon.attr('data-employee-id');
           $.getJSON("/admin/manage/employees/delete?employee=" + employee_id, function(result){
@@ -392,8 +468,8 @@
           });
         });
 
-        $(".fa-pencil").off('click');
-        $(".fa-pencil").on('click', function() {
+        $(".fa-pencil-alt").off('click');
+        $(".fa-pencil-alt").on('click', function() {
           current_list = {};
           var employee = employees[$(this).attr('data-employee-index')];
           $("#editor input[name='id']").val(employee.id);

@@ -14,8 +14,21 @@
     <link rel="stylesheet" href="/css/backend/backend.css">
     <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
     <style>
-      .fa-square-o {
-        cursor: pointer;
+      .fa-square, .fa-check-square {
+        padding-right: 7px;
+      }
+
+      .card {
+        margin-left: 25px;
+      }
+
+      .card-header {
+        font-size: 18pt;
+        padding-bottom: 8px;
+      }
+
+      .skill {
+        font-size: 14pt;
       }
     </style>
 
@@ -33,58 +46,34 @@
   <body>
     <%- include ../../partials/backend-nav.ejs %>
 
-    <!-- Header -->
-    <header class="intro-header manager">
-      <div class="container">
-        <div class="intro-message">
-          <h1>Employee Portal | Accreditation</h1>
-          <hr class="intro-divider">
-
-          <div id='accreditation'>
-            <h3><%= accreditation.title %></h3>
-            <ul>
-            <% for(var j=0; j<accreditation.skills.length; j++) {%>
-              <li><%= accreditation.skills[j] %></li>
-            <% } %>
-            </ul>
-            <h4>Progress</h4>
-            <ul>
-            <% for(var j=0; j<steps.length; j++) {%>
-              <li><%= steps[j].content %>&nbsp;
-                <% if(progress[accreditation.id] && progress[accreditation.id].indexOf(steps[j].id) >= 0){ %>
-                  <i class="fa fa-check-square-o" aria-hidden="true" data-step-id="<%= steps[j].id %>" data-accred-id="<%= accreditation.id %>"></i>
-                <% } else { %>
-                  <i class="icon fa fa-square-o" aria-hidden="true" data-step-id="<%= steps[j].id %>" data-accred-id="<%= accreditation.id %>"></i>
-                <% } %>
-              </li>
-            <% } %>
-            </ul>
-          </div>
-
-          <!-- <script>
-            $(document).ready(function() {
-              $(".icon").on('click', function() {
-                var icon = $(this);
-                icon.removeClass('fa-square-o');
-                icon.addClass('fa-circle-o-notch');
-                icon.addClass('fa-spin');
-
-                var step_id = icon.attr('data-step-id');
-                var accred_id = icon.attr('data-accred-id');
-                $.getJSON("/employee/accreditations/check?accred=" + accred_id + "&step=" + step_id, function(result){
-                  if(result.success) {
-                    icon.removeClass('fa-circle-o-notch');
-                    icon.removeClass('fa-spin');
-                    icon.addClass('fa-check-square-o');
-                  }
-                });
-              });
-
-            });
-          </script> -->
-
+    <div id='accreditation' class="manager">
+      <h1 class="display-4">Employee Portal | Accreditation</h1>
+      <div class="card">
+        <div class="card-header">
+          <%= accreditation.title %>
         </div>
+        <ul class="list-group list-group-flush">
+          <% for(var j=0; j<accreditation.skills.length; j++) {%>
+            <li class="list-group-item skill"><%= accreditation.skills[j] %></li>
+          <% } %>
+        </ul>
       </div>
-    </header>
-
+      <br>
+      <div class="card">
+        <div class="card-header">Progress</div>
+        <ul class="list-group list-group-flush">
+          <% for(var j=0; j<steps.length; j++) {%>
+            <li class="list-group-item skill">
+              <% if(progress[accreditation.id] && progress[accreditation.id].indexOf(steps[j].id) >= 0){ %>
+                <i class="far fa-check-square" aria-hidden="true" data-step-id="<%= steps[j].id %>" data-accred-id="<%= accreditation.id %>"></i>
+              <% } else { %>
+                <i class="icon far fa-square" aria-hidden="true" data-step-id="<%= steps[j].id %>" data-accred-id="<%= accreditation.id %>"></i>
+              <% } %>
+              <%= steps[j].content %>
+            </li>
+          <% } %>
+        </ul>
+      </div>
+    </div>
+  </body>
 </html>

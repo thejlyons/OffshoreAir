@@ -32,8 +32,9 @@ $(document).ready(function(){
 	$('#get-credentials-form').ajaxForm({
 		url: '/lost-password',
 		beforeSubmit : function(formData, jqForm, options){
-			if (ev.validateEmail($('#email-tf').val())){
+			if (ev.validateEmail($('#lost-email-tf').val())){
 				ev.hideEmailAlert();
+				$('#retrieve-password-submit').prop("disabled",true);
 				return true;
 			}	else{
 				ev.showEmailAlert("<b>Error!</b> Please enter a valid email address");

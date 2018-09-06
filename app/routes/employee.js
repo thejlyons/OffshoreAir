@@ -9,7 +9,24 @@ module.exports = function(app) {
   	}	else {
       ACM.getAllLimited(function(err, accreds) {
         if(!err) {
-          res.render('pages/employee/employee', {user: req.session.user, accreditations: accreds});
+          ACM.getAllSteps(function(err, steps) {
+            if(!err) {
+              ACM.getUserProgress(req.session.user.id, function(err, progress) {
+                if(!err) {
+                  res.render('pages/employee/employee', {
+                    user: req.session.user,
+                    accreditations: accreds,
+                    steps: steps,
+                    progress: progress
+                  });
+                } else {
+                  res.render('pages/error', {error: err});
+                }
+              });
+            } else {
+              res.render('pages/error', {error: err});
+            }
+          });
         } else {
           res.render('pages/error', {error: err});
         }

@@ -13,60 +13,113 @@
     <link rel="stylesheet" href="/css/bootstrap-switch.css">
     <link rel="stylesheet" href="/css/backend/backend.css">
 
-    <!-- Bootstrap core CSS -->
-    <!-- <link href="/css/employee.css" rel="stylesheet"> -->
+    <script src="/js/jquery-2.2.3.min.js"></script>
 
-    <!-- Custom fonts for this template -->
-    <link href="//fonts.googleapis.com/css?family=Lato:300,400,700,300italic,400italic,700italic" rel="stylesheet" type="text/css">
+    <style>
+      .accreditation {
+        margin: 0 0 15px 0px;
+        background: white;
+        border-radius: 5px;
+      }
 
-    <!-- Plugin CSS -->
-    <link href="vendor/magnific-popup/magnific-popup.css" rel="stylesheet">
+      .accreditation .accred-progress {
+        text-align: right;
+        padding-top: 14px;
+      }
 
-    <!-- Custom styles for this template -->
-    <!-- <link href="/css/landing-page.css" rel="stylesheet"> -->
-    <!-- <link href="/css/creative.css" rel="stylesheet"> -->
+      .supervisor {
+        margin: 0 0 5px 0;
+      }
 
+      .supervisor a {
+        padding: 0;
+        border: 0;
+        width: 100%;
+      }
+
+      .supervisor a:hover {
+        text-decoration: none;
+        color: #1A5484;
+      }
+
+      .supervisor a:hover span {
+        background: #0D1834;
+      }
+
+      .supervisor span {
+        background: #0D245D;
+        border-radius: 5px 0 0 5px;
+        padding: 15px 10px 15px 20px;
+        color: white;
+        width: 20%;
+        display: inline-block;
+      }
+
+      .supervisor span i {
+        padding-right: 10px;
+      }
+
+      .supervisor p {
+        width: 80%;
+        display: inline-block;
+        padding: 15px;
+        background: white;
+        border-radius: 0 5px 5px 0;
+        text-align: left;
+      }
+
+      .supervisor a:hover p {
+        background: #DFE8F1;
+      }
+    </style>
   </head>
 
   <body id="page-top">
     <%- include ../../partials/backend-nav.ejs %>
-    <!-- Header -->
-    <div id="manager" class="manager">
-      <header class="intro-header">
-        <div class="container">
-          <div class="intro-message">
-            <h1>Employee Portal</h1>
-            <hr class="intro-divider">
-            <ul class="list-inline intro-social-buttons">
-              <% for(var i = 0; i < accreditations.length; i++) { %>
-                <li class="list-inline-item">
-                  <a href="/employee/accreditation/<%= accreditations[i].id %>" class="btn btn-secondary btn-lg">
-                    <i class="fa"></i>
-                    <span class="network-name"><%= accreditations[i].title %></span>
-                  </a>
-                </li>
-              <% } %>
-              <br>
-              <% for(var i = 0; i < accreditations.length; i++) { %>
-                <% if(user.roles.indexOf(accreditations[i].id) >= 0) { %>
-                <li class="list-inline-item">
-                  <a href="/employee/supervisor/<%= accreditations[i].id %>" class="btn btn-secondary btn-lg">
-                    <i class="fa"></i>
-                    <span class="network-name">Supervisor: <%= accreditations[i].title %></span>
-                  </a>
-                </li>
-                <% } %>
-              <% } %>
-            </ul>
+    <% var steps_count = steps.length; %>
+    <div id='manager' class="manager">
+      <h1 class="display-4">Employee Home</h1>
+      <br>
+      <% for(var i = 0; i < accreditations.length; i++) { %>
+        <% var local_progress = 0; %>
+        <% var local_num = 0; %>
+        <% if(progress[accreditations[i].id]) {
+            local_num = progress[accreditations[i].id].length;
+            local_progress = progress[accreditations[i].id].length / steps_count * 100;
+        } %>
+        <div class="accreditation container-fluid">
+          <div class="row">
+            <div class="col-sm-1 accred-progress"><%= local_progress %>%<br><small>complete</small></div>
+            <div class="col-sm-11 details">
+              <h4><a href="/employee/accreditation/<%= accreditations[i].id %>">
+                <%= accreditations[i].title %>
+              </a></h4>
+              <div class="row">
+                <div class="col-sm-8">
+                  <div class="progress">
+                    <div class="progress-bar" role="progressbar" style="width: <%= local_progress %>%;" aria-valuenow="<%= local_progress %>" aria-valuemin="0" aria-valuemax="100"></div>
+                  </div>
+                </div>
+                <div class="col-sm-4">
+                  Completed <%= local_num %>/<%= steps_count %> Steps
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-      </header>
+      <% } %>
+      <br>
+      <br>
+      <% for(var i = 0; i < accreditations.length; i++) { %>
+        <% if(user.roles.indexOf(accreditations[i].id) >= 0) { %>
+          <div class="supervisor">
+            <a href="/employee/supervisor/<%= accreditations[i].id %>" class="btn btn-secondary btn-lg">
+              <span><i class="fas fa-user-check"></i>Supervisor:</span><p><%= accreditations[i].title %></p>
+            </a>
+          </div>
+        <% } %>
+      <% } %>
     </div>
-
-
-    <!-- jQuery -->
-    <!-- <script src="/js/jquery-2.2.3.min.js"></script> -->
-    <script src="/vendor/jquery/jquery.min.js"></script>
 
     <!-- Plugin JavaScript -->
     <script src="//cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.3/jquery.easing.min.js"></script>

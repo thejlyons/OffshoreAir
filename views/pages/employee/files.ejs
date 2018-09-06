@@ -22,52 +22,71 @@
     <!-- Custom styles for this template -->
     <!-- <link href="/css/landing-page.css" rel="stylesheet"> -->
 
+    <script src="/js/jquery-2.2.3.min.js"></script>
+    <style>
+      .file {
+        margin: 0 0 -15px 0px;
+      }
+
+      .file a {
+        padding: 0;
+        border: 0;
+        width: 100%;
+      }
+
+      .file a:hover {
+        text-decoration: none;
+        color: #1A5484;
+      }
+
+      .file span {
+        background: #0D245D;
+        border-radius: 5px 0 0 5px;
+        padding: 15px 10px 15px 20px;
+        color: white;
+        width: 20%;
+        display: inline-block;
+        text-align: left;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        position: relative;
+        top: 20px;
+      }
+
+      .file p {
+        width: 80%;
+        display: inline-block;
+        padding: 15px;
+        background: white;
+        border-radius: 0 5px 5px 0;
+        text-align: left;
+      }
+
+      .file a:hover p {
+        background: #DFE8F1;
+      }
+
+      .file a:hover span {
+        background: #0D1834;
+      }
+    </style>
   </head>
 
   <body>
     <%- include ../../partials/backend-nav.ejs %>
     <div id="manager" class="manager">
-    <!-- Navigation -->
-    <!-- <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
-      <div class="container">
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="nav navbar-nav navbar-right">
-          <a href="/" id="btn-logout" class="navbar-btn btn btn-primary">Back to Home</a>
-        </div>
-      </div>
-    </nav> -->
-
-      <!-- Header -->
-      <header class="intro-header">
-        <div class="container">
-          <div class="intro-message">
-            <h1>Employee Portal</h1>
-          </div>
-        </div>
-      </header>
+      <h1 class="display-4">Employee Files</h1>
 
       <div id='files'>
-        <% for(var i=0; i<files.length; i++) {%>
-           <h3><a href="/files/<%= files[i].link %>"><%= files[i].name %></a></h3>
-           <p><%= files[i].description %></p>
+        <% for(var i=0; i < files.length; i++) { %>
+          <div class="file">
+            <a href="<%= url %><%= files[i].link %>" target="_blank" class="btn btn-secondary btn-lg">
+              <span><%= files[i].name %></span><p><%= files[i].description %></p>
+            </a>
+          </div>
         <% } %>
       </div>
     </div>
-
-<!--
-<html lang="en">
-  <head>
-    <title>Employee Portal | Files</title>
-  </head>
-  <body>
-    <h1>Employee Portal | Files</h1>
-
-
-
-    <a href="/employee">Employee Home</a>
-    <a href="/employee/accreditations">Accreditations</a>
-    <a href="/logout">Logout</a>
   </body>
 </html>

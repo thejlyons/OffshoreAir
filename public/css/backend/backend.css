@@ -12,24 +12,36 @@ hr {
 }
 
 .manager {
-  padding: 20px 20px 20px 270px;
+  padding: 20px 20px 20px 295px;
 }
 
 #nav-panel {
   position: fixed;
-  background-color: #111;
+  background-color: #182B5D;
   top: 0;
   bottom: 0;
   left: 0;
-  width: 250px;
+  width: 275px;
+  color: #BBB;
+  font-size: 12pt;
 }
 
 #nav-panel li {
-  padding-left: 15px;
+  padding: 1px 1px 1px 70px;
+  background-color: #0D1834;
+}
+
+#nav-panel li a:hover {
+  text-decoration: none;
+}
+
+#nav-panel li:first-child {
+  padding-top: 200px !important;
 }
 
 #nav-panel ul {
   list-style: none;
+  padding: 0;
 }
 
 #nav-panel {
@@ -40,4 +52,27 @@ hr {
   position: fixed;
   bottom: 40px;
   left: 40px;
+}
+
+span.nav-header, span.nav-header > a {
+  color: #BBB;
+}
+
+span.nav-header > i, span.nav-header > a i {
+  padding: 5px 10px 10px 25px;
+}
+
+#nav-panel ul > span.expander:hover, span.nav-header:hover > a {
+  color: #779;
+  text-decoration: none;
+}
+
+#nav-panel ul > span.expander {
+  float: right;
+  padding-right: 20px;
+  cursor: pointer;
+}
+
+p.mb-1 {
+  font-size: 14pt;
 }

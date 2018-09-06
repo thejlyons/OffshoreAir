@@ -1,7 +1,8 @@
+<link rel="stylesheet" href="//use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
 <div id="nav-panel">
   <div id="panel">
     <% if(user.admin) { %>
-      <ul><a href="/admin">Admin Home</a>
+      <ul><span class="nav-header"><a href="/admin"><i class="fas fa-user-shield"></i>Admin Home</a></span><span class="expander"><i class="fas fa-plus-circle"></i></span>
         <li><a href="/admin/files">File Manager</a></li>
         <li><a href="/admin/jobs">Jobs Manager</a></li>
         <li><a href="/admin/images">Images Manager</a></li>
@@ -10,7 +11,7 @@
         <li><a href="/admin/employees">Employee Manager</a></li>
       </ul>
     <% } %>
-    <ul><a href="/employee">Employee Home</a>
+    <ul><span class="nav-header"><a href="/employee"><i class="fas fa-id-badge"></i>Employee Home</a></span><span class="expander"><i class="fas fa-plus-circle"></i></span>
       <li><a href="/employee/files">Files</a></li>
       <% for(var i = 0; i < accreditations.length; i++) { %>
         <li>
@@ -21,7 +22,7 @@
       <% } %>
     </ul>
     <% if(user.roles.length > 0) { %>
-      <ul>Supervisor
+      <ul><span class="nav-header"><i class="fas fa-user-check"></i>Supervisor</span><span class="expander"><i class="fas fa-plus-circle"></i></span>
         <% for(var i = 0; i < accreditations.length; i++) { %>
           <% if(user.roles.indexOf(accreditations[i].id) >= 0) { %>
             <li>
@@ -38,3 +39,10 @@
     <a href="/logout">Logout</a>
   </div>
 </div>
+<script>
+  $(document).ready(function() {
+    $("span.expander").click(function() {
+      $(this).parent().find("li").slideToggle();
+    });
+  });
+</script>

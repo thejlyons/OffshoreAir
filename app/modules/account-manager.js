@@ -202,7 +202,7 @@ exports.findById = function(id, callback) {
 }
 
 exports.getAllUsers = function(callback) {
-	db.any('SELECT id, name, password, email, admin, (SELECT array(SELECT accred_id FROM roles_fk WHERE roles_fk.user_id = accounts.id)) AS roles FROM accounts')
+	db.any("SELECT id, name, password, email, admin, (SELECT array(SELECT accred_id FROM roles_fk WHERE roles_fk.user_id = accounts.id)) AS roles FROM accounts WHERE accounts.email <> 'admin'")
     .then(data => {
 			callback(data);
     })

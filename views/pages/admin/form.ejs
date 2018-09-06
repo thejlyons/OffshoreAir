@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="/css/backend/backend.css">
     <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
     <style>
-      .fa-trash-o, .fa-plus-square, .fa-external-link {
+      .fa-trash-alt, .fa-plus-square, .fa-external-link {
         cursor: pointer;
       }
 
@@ -16,7 +16,7 @@
         display: none;
       }
 
-      .fa-trash-o {
+      .fa-trash-alt {
         background: #CA2525;
         border-radius: 3px;
         color: #F3D2D2;
@@ -33,7 +33,7 @@
         color: #3276b1
       }
 
-      .fa-trash-o:hover {
+      .fa-trash-alt:hover {
         background: #9D1515;
       }
 
@@ -52,10 +52,11 @@
         right: 15px;
       }
 
-      .fa-trash-o.large {
+      .fa-trash-alt.large {
         padding: 5px 8px;
         font-size: 16pt;
         float: right;
+        display: none;
       }
 
       .edit {
@@ -186,10 +187,16 @@
         font-size: 14pt;
         float: right;
         margin-right: 10px;
-        z-index: 50;
+      }
+
+      .dropdown-list ul {
+        position: relative;
+        z-index: 1;
       }
 
       .dropdown-list h3 {
+        position: relative;
+        z-index: 1;
         font-size: 21px;
         width: 275px;
         cursor: pointer;
@@ -207,12 +214,13 @@
         width: 88%;
         background: white;
         list-style: none;
+        z-index: 1;
       }
 
       .dropdown .dropdown-list li {
         position: relative;
         background: white;
-        z-index: 15;
+        z-index: 55;
         display: none;
         border-left: 1px solid #CCC;
         border-right: 1px solid #CCC;
@@ -326,6 +334,10 @@
       .edit-padding {
         padding-right: 350px;
       }
+
+      #controls {
+        display: none;
+      }
     </style>
 
     <script src="/js/jquery-2.2.3.min.js"></script>
@@ -349,7 +361,8 @@
         <!-- Filled by EJS dump to form_save and then method revert called once document.ready() -->
       </div>
 
-      <div id='controls' style='position: absolute; bottom: 30px; right: 30px; display: none;'>
+      <div id='controls'>
+      <!-- <div id='controls' style='position: absolute; bottom: 30px; right: 30px; display: none;'> -->
         <button id='revert' type="button" class="btn btn-info">Revert Changes</button>
         <button id='save' type="button" class="btn btn-primary">Save Changes</button>
       </div>
@@ -504,7 +517,7 @@
         var options_html = "";
         $.each(options, function(i, v) {
           options_html += '<p class="mb-1" style="padding-left:18px;">'
-                          + '<span class="edit" data-id="options">' + v + '</span><i class="fa fa-trash-o large option" aria-hidden="true"></i>'
+                          + '<span class="edit" data-id="options">' + v + '</span><i class="far fa-trash-alt large option" aria-hidden="true"></i>'
                         + '</p>';
         });
         return '<li class="list-group-item list-group-item-action flex-column align-items-start" data-id="container" data-question-id=' + id + '>'
@@ -523,7 +536,7 @@
         var options_html = "";
         $.each(options, function(i, v) {
           options_html += '<p class="mb-1" style="padding-left:18px;">'
-                          + '<span class="edit" data-id="options">' + v + '</span><i class="fa fa-trash-o large option" aria-hidden="true"></i>'
+                          + '<span class="edit" data-id="options">' + v + '</span><i class="far fa-trash-alt large option" aria-hidden="true"></i>'
                         + '</p>';
         });
         return '<li class="list-group-item list-group-item-action flex-column align-items-start" data-id="container" data-question-id=' + id + '>'
@@ -552,7 +565,7 @@
 
       function newOption(option) {
         return '<p class="mb-1" style="padding-left:18px;">'
-                  + '<span class="edit" data-id="options">' + option + '</span><i class="fa fa-trash-o large option" aria-hidden="true"></i>'
+                  + '<span class="edit" data-id="options">' + option + '</span><i class="far fa-trash-alt large option" aria-hidden="true"></i>'
                 + '</p>';
       }
 
@@ -564,7 +577,7 @@
           }
         }
         ret = '<span class="right-corner">'
-          + '<i class="fa fa-trash-o large question" aria-hidden="true"></i>'
+          + '<i class="far fa-trash-alt large question" aria-hidden="true"></i>'
           + '<span class="dropdown">'
             + '<ul class="dropdown-list"><h3><span data-id="type_id" data-type-id=' + t.id + '>' + t.hr_type + '</span><i class="fa fa-chevron-down" aria-hidden="true"></i></h3>';
         for(var i = 0; i < types.length; i++) {
@@ -589,7 +602,7 @@
           $('#controls').fadeIn();
           $('.fa-plus-square').fadeIn();
           $('#manager .right-corner').fadeIn();
-          $('.fa-trash-o').fadeIn();
+          $('.fa-trash-alt').fadeIn();
           $('#browse').fadeOut();
           $('#delete-multiple').fadeOut();
           $('#ready i').fadeOut();
@@ -603,7 +616,7 @@
           $('#controls').fadeOut();
           $('.fa-plus-square').fadeOut();
           $('#manager .right-corner').fadeOut();
-          $('.fa-trash-o').fadeOut();
+          $('.fa-trash-alt').fadeOut();
           $('#browse').fadeIn();
           $('#delete-multiple').fadeIn();
           $('#ready i').fadeIn();
@@ -651,8 +664,8 @@
           toggleEdit(false);
         });
 
-        $('.fa-trash-o.question').off('click');
-        $('.fa-trash-o.question').on('click', function() {
+        $('.fa-trash-alt.question').off('click');
+        $('.fa-trash-alt.question').on('click', function() {
           var parent = $(this).closest('[data-id="container"]');
           var fattr = parent.attr('data-question-id');
 
@@ -662,8 +675,8 @@
           parent.remove();
         });
 
-        $('.fa-trash-o.option').off('click');
-        $('.fa-trash-o.option').on('click', function() {
+        $('.fa-trash-alt.option').off('click');
+        $('.fa-trash-alt.option').on('click', function() {
           var parent = $(this).closest('p').remove();
         });
 

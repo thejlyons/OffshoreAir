@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+far fa-trash-alt<!DOCTYPE html>
 <html lang="en">
   <head>
     <title>Admin Portal | Files</title>
@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="/css/backend/backend.css">
     <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
     <style>
-      .fa-trash-o, .fa-plus-square, .fa-external-link {
+      .fa-trash-alt, .fa-plus-square, .fa-external-link-alt {
         cursor: pointer;
       }
 
@@ -16,7 +16,7 @@
         display: none;
       }
 
-      .fa-trash-o {
+      .fa-trash-alt {
         background: #CA2525;
         border-radius: 3px;
         color: #F3D2D2;
@@ -32,16 +32,16 @@
         color: #3276b1
       }
 
-      .fa-trash-o:hover {
+      .fa-trash-alt:hover {
         background: #9D1515;
       }
 
-      .fa-external-link {
+      .fa-external-link-alt {
         color: #428bca;
         padding-left: 25px;
       }
 
-      .fa-external-link:hover {
+      .fa-external-link-alt:hover {
         color: #3276b1;
       }
 
@@ -51,7 +51,7 @@
         right: 15px;
       }
 
-      .fa-trash-o.large {
+      .fa-trash-alt.large {
         padding: 5px 8px;
         font-size: 16pt;
         float: right;
@@ -269,7 +269,7 @@
         color: white !important;
       }
 
-      .link.active .fa-external-link {
+      .link.active .fa-external-link-alt {
         color: white !important;
       }
 
@@ -287,6 +287,10 @@
       a.btn {
         float: right;
         margin-left: 20px;
+      }
+
+      #controls {
+        display: none;
       }
     </style>
 
@@ -311,7 +315,7 @@
         <!-- Filled by EJS dump to file_save and then method revert called once document.ready() -->
       </div>
 
-      <div id='controls' style='position: absolute; bottom: 30px; right: 30px; display: none;'>
+      <div id='controls'>
         <button id='revert' type="button" class="btn btn-info">Revert Changes</button>
         <button id='save' type="button" class="btn btn-primary">Save Changes</button>
       </div>
@@ -325,9 +329,9 @@
           <div id='link-list' class="list-group">
             <% for(var i=0; i<links.length; i++) {%>
             <li class="link list-group-item list-group-item-action flex-column align-items-start" data-id="link" data-link-id=<%= links[i].id %> data-link='<%= links[i].link %>'>
-              <form method="POST" enctype="multipart/form-data" action="/admin/manage/links"><input type="number" name="id" value=<%= links[i].id %> style="display: none;"><i class="fa fa-trash-o large right-corner link" aria-hidden="true"></i></form>
+              <form method="POST" enctype="multipart/form-data" action="/admin/manage/links"><input type="number" name="id" value=<%= links[i].id %> style="display: none;"><i class="far fa-trash-alt large right-corner link" aria-hidden="true"></i></form>
               <div class="d-flex w-100 justify-content-between">
-                <h3 class="mb-1"><%= links[i].link %><a href="<%= url %><%= links[i].link %>" target="_blank"><i class="fa fa-external-link" aria-hidden="true"></i></a></h3>
+                <h3 class="mb-1"><%= links[i].link %><a href="<%= url %><%= links[i].link %>" target="_blank"><i class="fas fa-external-link-alt" aria-hidden="true"></i></a></h3>
               </div>
             </li>
             <% } %>
@@ -343,7 +347,7 @@
               <div id="browse" class="input-group">
                 <label class="input-group-btn">
                   <span class="btn btn-primary">
-                    Browse&hellip; <form id="upload-form" method="post" enctype="multipart/form-data"><input type="file" name="upload" style="display: none;" multiple></form>
+                    Browse&hellip; <form id="upload-form" method="post" enctype="multipart/form-data" style="margin:0;"><input type="file" name="upload" style="display: none;" multiple></form>
                   </span>
                 </label>
                 <input type="text" class="form-control" readonly>
@@ -568,9 +572,9 @@
       function newLink(link_id, link) {
         $("#link-list").append(
           '<li class="link list-group-item list-group-item-action flex-column align-items-start" data-id="link" data-link-id=' + link_id + ' data-link=' + link + '>'
-            + '<form method="POST" enctype="multipart/form-data" action="/admin/manage/links"><input type="number" name="id" value=' + link_id + ' style="display: none;"><i class="fa fa-trash-o large right-corner link" aria-hidden="true"></i></form>'
+            + '<form method="POST" enctype="multipart/form-data" action="/admin/manage/links"><input type="number" name="id" value=' + link_id + ' style="display: none;"><i class="far fa-trash-alt large right-corner link" aria-hidden="true"></i></form>'
             + '<div class="d-flex w-100 justify-content-between">'
-              + '<h3 class="mb-1">' + link + '<a href="<%= url %>' + link + '" target="_blank"><i class="fa fa-external-link" aria-hidden="true"></i></a></h3>'
+              + '<h3 class="mb-1">' + link + '<a href="<%= url %>' + link + '" target="_blank"><i class="fas fa-external-link-alt" aria-hidden="true"></i></a></h3>'
             + '</div>'
           + '</li>'
         );
@@ -603,7 +607,7 @@
 
       function getLinks(link_id, link) {
         ret = '<span class="right-corner">'
-          + '<i class="fa fa-trash-o large file" aria-hidden="true"></i>'
+          + '<i class="far fa-trash-alt large file" aria-hidden="true"></i>'
           + '<span class="dropdown">'
             + '<ul class="dropdown-list"><h3><span data-id="link_id" data-link-id=' + link_id + '>' + link + '</span><i class="fa fa-chevron-down" aria-hidden="true"></i></h3>';
         for(var i = 0; i < link_save.length; i++) {
@@ -626,7 +630,7 @@
           $('#controls').fadeIn();
           $('.fa-plus-square').fadeIn();
           $('#manager .right-corner').fadeIn();
-          $('#links-manager .fa-trash-o').fadeOut();
+          $('#links-manager .fa-trash-alt').fadeOut();
           $('#browse').fadeOut();
           $('#delete-multiple').fadeOut();
           $('#ready i').fadeOut();
@@ -640,7 +644,7 @@
           $('#controls').fadeOut();
           $('.fa-plus-square').fadeOut();
           $('#manager .right-corner').fadeOut();
-          $('#links-manager .fa-trash-o').fadeIn();
+          $('#links-manager .fa-trash-alt').fadeIn();
           $('#browse').fadeIn();
           $('#delete-multiple').fadeIn();
           $('#ready i').fadeIn();
@@ -684,8 +688,8 @@
           });
         });
 
-        $('.fa-trash-o.link').off('click');
-        $('.fa-trash-o.link').on('click', function() {
+        $('.fa-trash-alt.link').off('click');
+        $('.fa-trash-alt.link').on('click', function() {
           var parent = $(this).parent();
           if (parent.is('form')) {
             var id   = parent.find('input').val();
@@ -709,8 +713,8 @@
           revert(false);
         });
 
-        $('.fa-trash-o.file').off('click');
-        $('.fa-trash-o.file').on('click', function() {
+        $('.fa-trash-alt.file').off('click');
+        $('.fa-trash-alt.file').on('click', function() {
           var parent = $(this).closest('[data-id="file"]');
           var fattr = parent.attr('data-file-id');
 

@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="/css/backend/backend.css">
     <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
     <style>
-      .fa-trash-o, .fa-plus-square, .fa-external-link, .dropzone {
+      .fa-trash-alt, .fa-plus-square, .fa-external-link, .dropzone {
         cursor: pointer;
       }
 
@@ -16,7 +16,7 @@
         display: none;
       }
 
-      .fa-trash-o {
+      .fa-trash-alt {
         background: #CA2525;
         border-radius: 3px;
         color: #F3D2D2;
@@ -41,7 +41,7 @@
         color: #3276b1;
       }
 
-      .fa-trash-o:hover {
+      .fa-trash-alt:hover {
         background: #9D1515;
       }
 
@@ -51,7 +51,7 @@
         right: 15px;
       }
 
-      .fa-trash-o.large {
+      .fa-trash-alt.large {
         padding: 5px 8px;
         font-size: 16pt;
         float: right;
@@ -331,6 +331,10 @@
         float: right;
         margin-left: 20px;
       }
+
+      #controls {
+        display: none;
+      }
     </style>
 
     <script src="/js/jquery-2.2.3.min.js"></script>
@@ -353,7 +357,7 @@
         <!-- Filled by EJS dump to job_save and then method revert called once document.ready() -->
       </div>
 
-      <div id='controls' style='position: absolute; bottom: 30px; right: 30px; display: none;'>
+      <div id='controls'>
         <button id='revert' type="button" class="btn btn-info">Revert Changes</button>
         <button id='save' type="button" class="btn btn-primary">Save Changes</button>
       </div>
@@ -497,7 +501,7 @@
         $('#jobs-list').append(
           '<li class="list-group-item list-group-item-action flex-row align-items-start" data-id="job" data-job-id=' + id + '>'
             + '<span class="right-corner">'
-              + '<i class="fa fa-trash-o large file" aria-hidden="true"></i>'
+              + '<i class="far fa-trash-alt large file" aria-hidden="true"></i>'
             + '</span>'
             + '<div class="image-wrapper">'
             + '<form id="dropzone-' + id + '" class="dropzone" method="post" action="/admin/manage/jobs" data-job-id=' + id + '>'
@@ -597,8 +601,8 @@
           }
         });
 
-        $('.fa-trash-o').off('click');
-        $('.fa-trash-o').on('click', function() {
+        $('.fa-trash-alt').off('click');
+        $('.fa-trash-alt').on('click', function() {
           var parent = $(this).closest('[data-id="job"]');
           var attr = parent.attr('data-job-id');
 
