@@ -320,6 +320,12 @@
           $(".screen").fadeOut();
           $(".editor").fadeOut();
           $(".editor").css("top", "-600px");
+
+          $("#new-employee input[name='name']").val("");
+          $("#new-employee input[name='email']").val("");
+          $("#new-employee #btn-submit").fadeIn();
+          $("#new-employee #btn-cancel").fadeIn();
+          $("#new-employee .alert").fadeOut();
         });
 
         $("#btn-new-employee").on("click", function() {
