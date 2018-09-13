@@ -477,7 +477,7 @@ module.exports = function(app) {
     }
   });
 
-  app.post('/admin/manage/employees', function(req, res) {
+  app.post('/admin/employees', function(req, res) {
     if (req.session.user == null || !req.session.user.admin){
       res.redirect('/employee');
     }	else {
