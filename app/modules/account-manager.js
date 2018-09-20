@@ -131,9 +131,9 @@ exports.updatePassword = function(email, newPass, callback){
 }
 
 exports.insertUser = function(name, email, callback) {
-	db.none('INSERT INTO accounts(name, email) VALUES ($1, $2)', [name, email])
-		.then(() => {
-			callback(null);
+	db.one('INSERT INTO accounts(name, email) VALUES ($1, $2) RETURNING id', [name, email])
+		.then(data => {
+			callback(null, data.id);
 		})
 		.catch(error => {
 			callback(error);

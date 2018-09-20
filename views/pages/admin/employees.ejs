@@ -254,6 +254,20 @@
           <label>Email address</label>
           <input type="text" class="form-control" name="email" placeholder="Jane.Doe@gmail.com">
         </div>
+        <div class="form-group">
+          <label>Roles</label>
+          <div class="input-group">
+            <span class="input-group-addon"><i class="fa fa-plus" aria-hidden="true"></i></span>
+            <input type="text" class="form-control" name="roles" disabled>
+          </div>
+          <span class="dropdown">
+            <ul class="dropdown-list">
+              <% for(var i = 0; i < accreditations.length; i++) { %>
+                <li data-accred-id="<%= accreditations[i].id %>"><%= accreditations[i].title %></li>
+              <% } %>
+            </ul>
+          </span>
+        </div>
         <div class="alert alert-success" style="display:none;" role="alert">
           Invite email has been sent.
           <button id='confirm' type="button" class="btn btn-success btn-small">Confirm</button>
@@ -308,7 +322,13 @@
           $("#btn-submit").fadeOut();
           $("#btn-cancel").fadeOut();
           $("#new-employee .fa-spinner").fadeIn();
-          $.post("/admin/manage/employees/new", {"email": $(this).find("input[name='email']").val(), "name": $(this).find("input[name='name']").val()}, function(result) {
+
+          var roles = [];
+          var input_roles = $(this).find("input[name='accred[]']");
+          for(var i = 0; i < input_roles.length; i++) {
+            roles.push($(input_roles[i]).val());
+          }
+          $.post("/admin/manage/employees/new", {"email": $(this).find("input[name='email']").val(), "name": $(this).find("input[name='name']").val(), "roles": roles}, function(result) {
             $("#new-employee .fa-spinner").fadeOut();
             $("#new-employee .alert").fadeIn();
           });
@@ -323,9 +343,12 @@
 
           $("#new-employee input[name='name']").val("");
           $("#new-employee input[name='email']").val("");
+          $("#new-employee input[name='roles']").val("");
+          $("#new-employee input[name='accred[]']").remove();
           $("#new-employee #btn-submit").fadeIn();
           $("#new-employee #btn-cancel").fadeIn();
           $("#new-employee .alert").fadeOut();
+          location.reload();
         });
 
         $("#btn-new-employee").on("click", function() {
@@ -395,7 +418,7 @@
 
         $('.dropdown-list li').on('click', function() {
           var id = $(this).attr('data-accred-id');
-          var input = $("#editor").find('input[name="accred[]"][value="' + id + '"]');
+          var input = $(".editor").find('input[name="accred[]"][value="' + id + '"]');
           if($(this).hasClass('selected')) {
             if(input.length > 0) {
               input.remove();
@@ -407,7 +430,7 @@
                 type: 'hidden',
                 name: 'accred[]',
                 value: id
-              }).appendTo('#editor');
+              }).appendTo('.editor');
             }
             current_list[id] = $(this).html();
           }
@@ -415,7 +438,7 @@
           for(var item in current_list) {
             value += current_list[item] + ", ";
           }
-          $("#editor input[name='roles']").val(value.substring(0, value.length - 2));
+          $(".editor input[name='roles']").val(value.substring(0, value.length - 2));
           $(this).toggleClass('selected');
         });
         setClicks();

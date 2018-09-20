@@ -526,11 +526,13 @@ module.exports = function(app) {
     } else {
       EMD.dispatchUserRequest(req.body.name, req.body.email, function(err) {
         if(err) throw err;
-
-        ATM.insertUser(req.body.name, req.body.email, function(err) {
+        ATM.insertUser(req.body.name, req.body.email, function(err, id) {
           if(err) throw err;
+          ATM.updateRoles(id, req.body.roles, [], function(err) {
+            if(err) throw err;
+            res.send(JSON.stringify({'success': true}));
+          });
         });
-        res.send(JSON.stringify({'success': true}));
       });
     }
   });
