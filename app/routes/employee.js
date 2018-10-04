@@ -1,6 +1,7 @@
 var ATM = require('../modules/account-manager');
 var FIM = require('../modules/file-manager');
 var ACM = require('../modules/accreditation-manager');
+var NHM = require('../modules/new-hire-manager');
 
 module.exports = function(app) {
   app.get('/employee', function(req, res) {
@@ -141,6 +142,62 @@ module.exports = function(app) {
             }
           });
         } else {
+          res.render('pages/error', {error: err});
+        }
+      });
+    }
+  });
+
+  // New Hire - Employee Page
+  app.get('/employee/hire', function(req, res) {
+    if(req.session.user == null || !req.session.user.admin) {
+  		res.redirect('/employee');
+  	}	else {
+      ACM.getAllLimited(function(err, accreds) {
+        if(!err) {
+          NHM.getTasks(function(err, tasks) {
+            if(!err) {
+              NHM.getOwners(function(err, owners) {
+                if(!err) {
+                  NHM.getUserProgress(req.session.user.id, function(err, progress) {
+                    if(!err) {
+                      NHM.isHR(req.session.user, function(err, is_hr) {
+                        if(!err) {
+                          FIM.getFiles(function(err, files) {
+                            if(!err) {
+                              res.render('pages/new-hire', {
+                                user: req.session.user,
+                                url: process.env.AWS_BASE_URL + "files/",
+                                accreditations: accreds,
+                                tasks: tasks,
+                                owners: owners,
+                                progress: progress,
+                                files: files,
+                                user_id: req.session.user.id,
+                                is_hr: is_hr,
+                                is_doug: req.session.user.id == process.env.DOUG_ID
+                              });
+                            }	else {
+                              res.render('pages/error', {error: err});
+                            }
+                          });
+                        }	else {
+                          res.render('pages/error', {error: err});
+                        }
+                      });
+                    }	else {
+                      res.render('pages/error', {error: err});
+                    }
+                  });
+                }	else {
+                  res.render('pages/error', {error: err});
+                }
+              });
+            }	else {
+              res.render('pages/error', {error: err});
+            }
+          });
+        }	else {
           res.render('pages/error', {error: err});
         }
       });

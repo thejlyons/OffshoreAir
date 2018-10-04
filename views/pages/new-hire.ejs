@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>New Hire Checklist</title>
+
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/bootstrap-switch.css">
+    <link rel="stylesheet" href="/css/backend/backend.css">
+    <link rel="stylesheet" href="//use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/v/bs/jq-2.2.4/dt-1.10.15/r-2.1.1/datatables.min.css"/>
+    <style>
+      i.fa-square:not(.disabled), i.fa-check-square:not(.disabled) {
+        cursor: pointer;
+        color: #555 !important;
+      }
+
+      .fa-square, .fa-check-square {
+        font-size: 18pt;
+        padding-right: 8px;
+        position: relative;
+        top: 2px;
+      }
+
+      .table-wrapper {
+        margin-left: 25px;
+      }
+
+      #employees-table {
+        background: white;
+        border-radius: 5px;
+      }
+
+      .card {
+        margin-left: 25px;
+      }
+
+      .card-header {
+        font-size: 18pt;
+        padding-bottom: 8px;
+      }
+
+      .skill {
+        font-size: 14pt;
+      }
+
+      h4 {
+        margin-top: 0px;
+      }
+
+      li.task {
+        width: 70%;
+      }
+
+      .fa-external-link-alt {
+        opacity: 0.8;
+        position: relative;
+        top: -0.5px;
+        left: -2px;
+      }
+    </style>
+
+    <script src="/js/jquery-2.2.3.min.js"></script>
+    <script type="text/javascript" src="//cdn.datatables.net/v/bs/jq-2.2.4/dt-1.10.15/r-2.1.1/datatables.min.js"></script>
+  </head>
+  <body>
+    <%- include ../partials/backend-nav.ejs %>
+    <div id='manager' class="manager">
+      <h1 class="display-4">New Hire Checklist</h1>
+
+      <div class="card">
+        <div class="card-header">Progress</div>
+        <ul id='progress-list' class="list-group list-group-flush">
+          <!-- Filled in in js -->
+        </ul>
+      </div>
+    </div>
+
+    <script>
+      var task_owners = {
+        <% for(var i=0; i<owners.length; i++) {%>
+            <%= owners[i].id %>: "<%= owners[i].owner %>",
+        <% } %>
+      };
+
+      var files = {
+        <% for(var i=0; i<files.length; i++) {%>
+            "<%= files[i].id %>": {
+              "name": "<%= files[i].name %>",
+              "link": "<%= files[i].link %>",
+            },
+        <% } %>
+      };
+
+      var tasks = [
+        <% for(var i=0; i<tasks.length; i++) {%>
+          {
+            "id": <%= tasks[i].id %>,
+            "task": "<%= tasks[i].task %>",
+            "owner_id": <%= tasks[i].owner_id %>,
+            "dependent_on": "<%= tasks[i].dependent_on %>",
+            "attachment_id": "<%= tasks[i].attachment_id %>"
+          },
+        <% } %>
+      ];
+
+      var url = "<%= url %>";
+      var progress = [<% for(var i=0; i<progress.length; i++) { %><%= progress[i].hire_task_id %>,<% } %>];
+      var user_id = <%= user_id %>;
+      var is_employee = <%= user_id == user.id %>;
+      var is_hr = <%= is_hr %>;
+      var is_doug = <%= is_doug %>;
+
+
+      $(document).ready(function() {
+        for(var i = 0; i < tasks.length; i++) {
+          var e = '<li class="list-group-item task">';
+
+          var c = "fa-square";
+          if(progress.indexOf(tasks[i].id) >= 0) {
+            c = "fa-check-square";
+          }
+          var d = "None";
+          var disabled = "";
+          for(var j = 0; j < tasks.length; j++) {
+            if(tasks[j].id == tasks[i].dependent_on) {
+              d = tasks[j].task;
+              if(progress.indexOf(tasks[j].id) == -1) {
+                disabled = " disabled";
+              }
+            }
+          }
+          var a = "";
+          if(files[tasks[i].attachment_id]) {
+            a = '<br>Attachment: ' + files[tasks[i].attachment_id].name + '<a href="' + url + files[tasks[i].attachment_id].link  + '" target="_blank" class="btn btn-secondary btn-sm"><i class="fas fa-external-link-alt" aria-hidden="true"></i></a>';
+          }
+
+          if(task_owners[tasks[i].owner_id] == "Doug" && !is_doug) {
+            disabled = " disabled";
+          } else if(task_owners[tasks[i].owner_id] == "HR" && !is_hr) {
+            disabled = " disabled";
+          } else if(!is_employee) {
+            disabled = " disabled";
+          }
+          e += '<i class="far ' + c + disabled +'" aria-hidden="true" data-task-id="' + tasks[i].id + '" data-user-id="' + user_id + '"></i>' + tasks[i].task
+              + '<br><h4><small>Owner: ' + task_owners[tasks[i].owner_id] + '<br>Dependent on: ' + d + a
+            + '</small></h4></li>';
+          $('#progress-list').append(e);
+        }
+        setClicks();
+      });
+
+      function setClicks() {
+        $(".fa-square:not(.disabled)").off('click');
+        $(".fa-square:not(.disabled)").on('click', function() {
+          var icon = $(this);
+          icon.removeClass('fa-square');
+          icon.removeClass('far');
+          icon.addClass('fas');
+          icon.addClass('fa-circle-notch');
+          icon.addClass('fa-spin');
+
+          var task_id = icon.attr('data-task-id');
+          var user_id = icon.attr('data-user-id');
+          console.log({'task_id': task_id, 'user_id': user_id});
+          $.post("/hire/check", {'task_id': task_id, 'user_id': user_id}, function(result){
+            if(result.success) {
+              icon.removeClass('fa-circle-notch');
+              icon.removeClass('fa-spin');
+              icon.removeClass('fas');
+              icon.addClass('far');
+              icon.addClass('fa-check-square');
+              setClicks();
+            }
+          });
+        });
+
+        $(".fa-check-square:not(.disabled)").off('click');
+        $(".fa-check-square:not(.disabled)").on('click', function() {
+          var icon = $(this);
+          icon.removeClass('fa-check-square');
+          icon.removeClass('fas');
+          icon.addClass('far');
+          icon.addClass('fa-circle-notch');
+          icon.addClass('fa-spin');
+
+          var task_id = icon.attr('data-task-id');
+          var user_id = icon.attr('data-user-id');
+          $.post("/hire/uncheck", {'task_id': task_id, 'user_id': user_id}, function(result){
+            if(result.success) {
+              icon.removeClass('fa-circle-notch');
+              icon.removeClass('fa-spin');
+              icon.removeClass('fas');
+              icon.addClass('far');
+              icon.addClass('fa-square');
+              setClicks();
+            }
+          });
+        });
+      }
+    </script>
+  </body>
+</html>

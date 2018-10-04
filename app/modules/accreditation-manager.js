@@ -9,8 +9,18 @@ CREATE TABLE progress_fk (id SERIAL NOT NULL, user_id integer references account
 const db      = require('./db-connect');
 
 /* Accreditation methods */
+exports.getAllRoles = function(callback) {
+	db.any('SELECT id, title FROM accreditations')
+    .then(data => {
+			callback(null, data);
+    })
+    .catch(error => {
+      callback(error);
+    });
+}
+
 exports.getAllAccreds = function(callback) {
-	db.any('SELECT * FROM accreditations')
+	db.any('SELECT * FROM accreditations WHERE title <> \'HR\'')
     .then(data => {
 			callback(null, data);
     })
@@ -20,7 +30,7 @@ exports.getAllAccreds = function(callback) {
 }
 
 exports.getAllLimited = function(callback) {
-	db.any('SELECT id, title FROM accreditations')
+	db.any('SELECT id, title FROM accreditations WHERE title <> \'HR\'')
     .then(data => {
 			callback(null, data);
     })
@@ -116,12 +126,27 @@ exports.updateAccred = function(accred, callback) {
 }
 
 exports.insertAccred = function(accred, callback) {
-	db.one('INSERT INTO accreditations (title, skills) VALUES ($1, $2) RETURNING id', [accred.title, accred.skills])
+	db.one('INSERT INTO accreditations (title, skills) VALUES ($1, $2::text[]) RETURNING id', [accred.title, accred.skills])
 		.then(data => {
 			callback(null, data.id);
 		})
 		.catch(error => {
 			callback(error);
+		});
+}
+
+exports.createHR = function() {
+	db.oneOrNone('SELECT * FROM accreditations WHERE title=\'HR\'')
+		.then(data => {
+			if (!data) {
+				exports.insertAccred({'title': 'HR', 'skills': []}, function(error, data) {
+					if(error) { console.log(error); }
+					console.log("HR created.");
+				});
+			}
+		})
+		.catch(error => {
+			console.log(error);
 		});
 }
 

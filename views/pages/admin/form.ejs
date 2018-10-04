@@ -187,62 +187,11 @@
         font-size: 14pt;
         float: right;
         margin-right: 10px;
+        height: 30.8px;
       }
 
-      .dropdown-list ul {
-        position: relative;
-        z-index: 1;
-      }
-
-      .dropdown-list h3 {
-        position: relative;
-        z-index: 1;
-        font-size: 21px;
-        width: 275px;
-        cursor: pointer;
-        margin-right: 10px;
-        padding: 3px 0px 3px 7px;
-        border: 1px solid #CCC;
-        border-radius: 4px;
-        display: block;
-        margin: 0;
-      }
-
-      .dropdown .dropdown-list {
-        position: relative;
-        padding: 0px;
-        width: 88%;
-        background: white;
-        list-style: none;
-        z-index: 1;
-      }
-
-      .dropdown .dropdown-list li {
-        position: relative;
-        background: white;
-        z-index: 55;
-        display: none;
-        border-left: 1px solid #CCC;
-        border-right: 1px solid #CCC;
-        padding: 3px 0px 3px 7px;
-        cursor: pointer;
-        overflow: hidden;
-        margin: 0;
-        width: 244px;
-      }
-
-      .dropdown .dropdown-list li:hover {
-        background: #428bca;
-        color: white;
-      }
-
-      .dropdown .dropdown-list li:first-child {
-        border-top: 1px solid #CCC;
-      }
-
-      .dropdown .dropdown-list li:last-child {
-        border-bottom: 1px solid #CCC;
-        border-radius: 0px 0px 4px 4px;
+      .dropdown button.dropdown-toggle {
+        padding: 4.4px 12px;
       }
 
       .fa-chevron-down {
@@ -253,10 +202,6 @@
         border-radius: 0px 4px 4px 0px;
         background: #428bca;
         color: white;
-      }
-
-      .dropdown-list h3:hover .fa-chevron-down {
-        background: #3276b1;
       }
 
       .open {
@@ -369,6 +314,7 @@
 
     </div>
 
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
     <script>
       var form_save = [
         <% for(var i=0; i<questions.length; i++) {%>
@@ -378,6 +324,8 @@
             "placeholder": "<%= questions[i].placeholder %>",
             "options": "<%= questions[i].options %>".split(","),
             "sort_order": <%= questions[i].sort_order %>,
+            "is_email": <%= questions[i].is_email %>,
+            "is_phone": <%= questions[i].is_phone %>,
             "type_id": "<%= questions[i].type_id %>",
           },
         <% } %>
@@ -466,6 +414,20 @@
           });
         }
         var sort_order = parseInt(qdiv.attr('data-sort-order'), 10);
+        var is_email = false;
+        // var is_email = qdiv.find('[data-id="validator"]').attr('data-is');
+        // if(is_email == 'email') {
+        //   is_email = true;
+        // } else {
+        //   is_email = false;
+        // }
+        var is_phone = false;
+        // var is_phone = qdiv.find('[data-id="validator"]').attr('data-is');
+        // if(is_phone == 'phone') {
+        //   is_phone = true;
+        // } else {
+        //   is_phone = false;
+        // }
         var type_id = qdiv.find('[data-id="type_id"]').attr('data-type-id');
 
         var question = {
@@ -474,12 +436,14 @@
           "placeholder": placeholder,
           "options":     options,
           "sort_order":  sort_order,
+          "is_email":    is_email,
+          "is_phone":    is_phone,
           "type_id":     type_id
         };
         return question;
       }
 
-      function newQuestion(id, question, placeholder, options, type_id) {
+      function newQuestion(id, question, placeholder, options, type_id, is_email = false, is_phone = false) {
         type_id = parseInt(type_id, 10);
         var t;
         var text_type;
@@ -492,7 +456,7 @@
           }
         }
         if (typeof t === typeof undefined) {
-          return newQuestionText(id, question, placeholder, text_type.id);
+          return newQuestionText(id, question, placeholder, text_type.id, is_email, is_phone);
         } else if (t.type === "textarea") {
           return newQuestionTextarea(id, question, type_id);
         } else if (t.type === "checkbox") {
@@ -500,7 +464,7 @@
         } else if (t.type === "radio") {
           return newQuestionRadio(id, question, options, type_id);
         } else {
-          return newQuestionText(id, question, placeholder, text_type.id);
+          return newQuestionText(id, question, placeholder, text_type.id, is_email, is_phone);
         }
       }
 
@@ -551,9 +515,9 @@
           + '</li>';
       }
 
-      function newQuestionText(id, question, placeholder, type_id) {
+      function newQuestionText(id, question, placeholder, type_id, is_email = false, is_phone = false) {
         return '<li class="list-group-item list-group-item-action flex-column align-items-start" data-id="container" data-question-id=' + id + '>'
-            + getTypes(type_id)
+            + getTypes(type_id, is_email, is_phone)
             + '<div class="d-flex w-100 justify-content-between">'
               + '<h3 class="mb-1"><span class="edit" data-id="question">' + question + '</span></h3>'
             + '</div>'
@@ -569,7 +533,13 @@
                 + '</p>';
       }
 
-      function getTypes(type_id) {
+      function getTypes(type_id, is_email, is_phone) {
+        var validator = "Select validator";
+        if(is_email) {
+          validator = "Email";
+        } else if (is_phone) {
+          validator = "Phone";
+        }
         var t = -1;
         for (var i = 0; i < types.length; i++) {
           if (type_id === types[i].id) {
@@ -578,13 +548,27 @@
         }
         ret = '<span class="right-corner">'
           + '<i class="far fa-trash-alt large question" aria-hidden="true"></i>'
-          + '<span class="dropdown">'
-            + '<ul class="dropdown-list"><h3><span data-id="type_id" data-type-id=' + t.id + '>' + t.hr_type + '</span><i class="fa fa-chevron-down" aria-hidden="true"></i></h3>';
+            // + '<div class="dropdown">'
+            //   + '<button class="btn btn-default dropdown-toggle" data-id="validator" data-is=' + validator.toLowerCase() + ' type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">'
+            //     + '<span class="title">' + validator + '</span>'
+            //     + '&nbsp;<span class="caret"></span>'
+            //   + '</button>'
+            //   + '<ul class="dropdown-menu dropdown-menu-right">'
+            //     + '<li><a href="#">Email</a></li>'
+            //     + '<li><a href="#">Phone</a></li>'
+            //   + '</ul>'
+            // + '</div>'
+            + '<div class="dropdown">'
+                  + '<button class="btn btn-default dropdown-toggle" data-id="type_id" data-type-id=' + t.id + ' type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">'
+                    + t.hr_type
+                    + '&nbsp;<span class="caret"></span>'
+                  + '</button>'
+                  + '<ul class="dropdown-menu dropdown-menu-right">';
         for(var i = 0; i < types.length; i++) {
-          ret += '<li data-type-id=' + types[i].id + ' title="' + types[i].hr_type + '">' + types[i].hr_type + '</li>'
+          ret += '<li><a href="#" data-type-id=' + types[i].id + ' title="' + types[i].hr_type + '">' + types[i].hr_type + '</a></li>';
         }
         ret += '</ul>'
-          + '</span>'
+            + '</div>'
           + '<br>'
           + '<span class="sorter-container"><i class="fa fa-chevron-down sorter" aria-hidden="true"></i><i class="fa fa-chevron-up sorter" aria-hidden="true"></i></span>'
         + '</span>';
@@ -637,31 +621,25 @@
           toggleEdit(false);
         });
 
-        $('.dropdown-list h3').off('click');
-        $('.dropdown-list h3').on('click', function() {
-          var parent = $(this).parent();
-          $('.dropdown-list').not(parent).each(function() {
-            $(this).find('li').slideUp();
-          });
-          parent.find('li').slideToggle(300);
-          $(this).toggleClass('open');
-        });
-
-        $('.dropdown-list li').off('click');
-        $('.dropdown-list li').on('click', function() {
-          var selected = $(this).parent().find('h3 span');
-          selected.html($(this).attr("title"));
-          var type_id = $(this).attr("data-type-id");
-          selected.attr('data-type-id', type_id);
-          var id = $(this).closest('[data-id="container"]').attr('data-question-id');
-          var question = getQuestion(id);
-          var new_question = newQuestion(question.id, question.question, question.placeholder, question.options, question.type_id);
-          $("[data-question-id='" + id + "']").replaceWith(new_question);
-          $('.dropdown-list li').each(function() {
-            $(this).slideUp();
-          });
+        $('.dropdown li a').off('click');
+        $('.dropdown li a').on('click', function(e) {
+          var selected = $(this).closest('.dropdown').find('.dropdown-toggle');
+          if($(this).attr("title")) {
+            selected.html($(this).attr("title") + '&nbsp;<span class="caret"></span>');
+            var type_id = $(this).attr("data-type-id");
+            selected.attr('data-type-id', type_id);
+            var id = $(this).closest('[data-id="container"]').attr('data-question-id');
+            var question = getQuestion(id);
+            var new_question = newQuestion(question.id, question.question, question.placeholder, question.options, question.type_id);
+            $("[data-question-id='" + id + "']").replaceWith(new_question);
+          } else {
+            var validator = $(this).html();
+            selected.html(validator);
+            selected.attr('data-is', validator.toLowerCase());
+          }
           setClicks();
           toggleEdit(false);
+          e.preventDefault();
         });
 
         $('.fa-trash-alt.question').off('click');

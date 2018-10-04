@@ -4,15 +4,16 @@ module.exports = EM;
 var FM = require('../modules/form-manager');
 
 EM.server = require("emailjs/email").server.connect({
-	host 	    : process.env.EMAIL_HOST,
-	user 	    : process.env.EMAIL_USER,
-	password  : process.env.EMAIL_PASS,
+	host 	    : process.env.SMTP_SERVER,
+	user 	    : process.env.SMTP_USERNAME,
+	password  : process.env.SMTP_PASSWORD,
 	ssl 			: true
 });
 
 EM.dispatchResetPasswordLink = function(account, callback){
+	console.log('Offshore Air <' + process.env.SMTP_USERNAME + '>');
 	EM.server.send({
-		from         : process.env.EMAIL_FROM || 'Offshore Air <do-not-reply@gmail.com>',
+		from         : 'Offshore Air <' + process.env.SMTP_USERNAME + '>' || 'Offshore Air <do-not-reply@gmail.com>',
 		to           : account.email,
 		subject      : 'Password Reset',
 		text         : 'something went wrong... :(',
@@ -64,7 +65,6 @@ EM.composeRequestEmail = function(name, email){
 }
 
 EM.composeEstimateEmail = function(data, questions) {
-	console.log(questions);
 	var html = "<html><body><h3>New estimate</h3><br>";
 	for (id in data) {
 		var question;

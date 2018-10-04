@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Admin Portal | Manage New Hire Tasks</title>
+
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/bootstrap-switch.css">
+    <link rel="stylesheet" href="/css/backend/backend.css">
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+    <style>
+      .far.fa-trash-alt, .fa.fa-plus-square, .fas.fa-chevron-up, .fas.fa-chevron-down {
+        cursor: pointer;
+        display: none;
+      }
+
+      .fa-trash-alt {
+        background: #CA2525;
+        border-radius: 3px;
+        color: #F3D2D2;
+        font-size: 12pt;
+        padding: 3px 6px;
+      }
+
+      .fa-plus-square {
+        color: #428bca;
+      }
+
+      .fa-plus-square:hover {
+        color: #3276b1
+      }
+
+      .fa-trash-alt:hover {
+        background: #9D1515;
+      }
+
+      .right-corner {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+      }
+
+      .fa-trash-alt.large {
+        padding: 5px 8px;
+        font-size: 16pt;
+        display: none;
+      }
+
+      .fas.fa-chevron-up, .fas.fa-chevron-down {
+        font-size: 20pt;
+        padding: 2px;
+        color: #428bca;
+      }
+
+      .fa-chevron-up:hover, .fa-chevron-down:hover {
+        color: #3276b1
+      }
+
+      .edit {
+        -webkit-transition: border-color 1s; /* Safari */
+        transition: border-color 1s;
+        -webkit-transition: background 1s; /* Safari */
+        transition: background 1s;
+        -webkit-transition: color 1s; /* Safari */
+        transition: color 1s;
+        border: 1px solid #FFF;
+      }
+
+      .edit-border {
+        /*background: #428bca;
+        color: #FFF;*/
+        border-color: #428bca !important;
+      }
+
+      #controls {
+        display: none;
+      }
+
+      .dropdown-edit {
+        margin-bottom: 5px;
+        display: block;
+      }
+
+      .dropdown {
+        display: inline;
+      }
+
+      .dropdown button.dropdown-toggle.disabled {
+        opacity: 1;
+        border: 0;
+      }
+
+      .dropdown button.dropdown-toggle {
+        min-width: 140px;
+        text-align: left;
+      }
+
+      .dropdown button.dropdown-toggle.disabled .dropdown-caret {
+        display: none;
+      }
+
+      .dropdown button.dropdown-toggle .dropdown-caret {
+        float: right;
+      }
+
+      .dropdown-menu {
+        margin-top: 14px;
+      }
+    </style>
+
+    <script src="/js/jquery-2.2.3.min.js"></script>
+    <script src="/js/bootstrap-switch.js"></script>
+  </head>
+  <body>
+    <%- include ../../partials/backend-nav.ejs %>
+    <div id='manager' class='manager'>
+      <span style='position: absolute; top: 40px; right: 30px;'>
+        <input id='edit-switch' type="checkbox" data-on-text='View' data-off-text='Edit' data-on-color='default' data-off-color='primary' checked>
+      </span>
+
+      <h1 class="display-4">New Hire Task Manager</h1>
+
+      <p class="lead">To edit the tasks, toggle the switch to edit then save your changes.</p>
+
+      <h2>Tasks&nbsp;<i class="fa fa-plus-square" aria-hidden="true" data-type='tasks'></i></h2>
+      <div id='task-list' class="list-group">
+        <!-- Filled by EJS dump to task_save and then method revert called once document.ready() -->
+      </div>
+
+      <div id='controls'>
+        <button id='revert' type="button" class="btn btn-info">Revert Changes</button>
+        <button id='save' type="button" class="btn btn-primary">Save Changes</button>
+      </div>
+    </div>
+
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    <script>
+      var task_owners = {
+        <% for(var i=0; i<owners.length; i++) {%>
+            "<%= owners[i].id %>": "<%= owners[i].owner %>",
+        <% } %>
+      };
+
+      var files = {
+        <% for(var i=0; i<files.length; i++) {%>
+            "<%= files[i].id %>": {
+              "name": "<%= files[i].name %>",
+              "link": "<%= files[i].link %>",
+            },
+        <% } %>
+      };
+
+      var task_save = [
+        <% for(var i=0; i<tasks.length; i++) {%>
+          {
+            "id": "<%= tasks[i].id %>",
+            "task": "<%= tasks[i].task %>",
+            "owner_id": "<%= tasks[i].owner_id %>",
+            "dependent_on": "<%= tasks[i].dependent_on %>",
+            "attachment_id": "<%= tasks[i].attachment_id %>"
+          },
+        <% } %>
+      ];
+      var task_dels = [];
+      var n = 0;
+
+      $(document).ready(function() {
+        revert(false);
+
+        $("#edit-switch").bootstrapSwitch();
+
+        $('#edit-switch').on('switchChange.bootstrapSwitch', function(event, state) {
+          toggleEdit(state);
+        });
+
+
+        $('#save').on('click', function() {
+          $('#save').prop('disabled', true);
+
+          task_save = getTasks();
+
+          save();
+
+          $('#save').prop('disabled', false);
+          $("#edit-switch").bootstrapSwitch('state', true);
+        });
+
+        $('#revert').on('click', function() {
+          revert(true);
+        });
+
+      });
+
+      function save() {
+        var new_tasks = [];
+        $.each(task_save, function(i, val) {
+          if(val.id.includes("new")) {
+            new_tasks.push(val);
+          }
+        });
+
+        $.post("/admin/manage/hire/task/insert", {"tasks": new_tasks}, function(results) {
+          for(var i = 0; i < results.ids.length; i++) {
+            $("[data-task-id='" + results.ids[i][1] + "']").attr("data-task-id", results.ids[i][0]);
+            $("[data-dependent-on='" + results.ids[i][1] + "']").attr("data-dependent-on", results.ids[i][0]);
+          }
+          task_save = getTasks();
+          $.each(task_save, function(i, val) {
+            if(val.dependent_on == "") {
+              val.dependent_on = undefined;
+            }
+            if(val.attachment_id == "") {
+              val.attachment_id = undefined;
+            }
+            $.post("/admin/manage/hire/task/update", {"task": val}, function(result) {});
+          });
+        });
+
+        if(task_dels.length > 0) {
+          $.post("/admin/manage/hire/task/delete", {"tasks": task_dels}, function(result) {});
+        }
+      }
+
+      function getTasks() {
+        var tasks = [];
+        $('[data-id="task"]').each(function(i) {
+          var id = $(this).attr('data-task-id');
+          var task = $.trim($(this).find('[data-id="content"]').html());
+          var owner_id = $.trim($(this).find('[data-id="owner_id"]').attr('data-owner-id'));
+          var dependent_on = $.trim($(this).find('[data-id="dependent_on"]').attr('data-dependent-on'));
+          var attachment_id = $.trim($(this).find('[data-id="attachment_id"]').attr('data-attachment-id'));
+          var task_order = i+1;
+
+          var task = {
+            'task': task,
+            'owner_id': owner_id,
+            'dependent_on': dependent_on,
+            'attachment_id': attachment_id,
+            'task_order': task_order
+          };
+
+          if(id != 'new') {
+            task['id'] = id;
+          }
+          tasks.push(task);
+        });
+
+        return tasks;
+      }
+
+      function newTask(id, task, owner_id, dependent_on, attachment_id) {
+        $('#task-list').append(
+          '<li class="list-group-item list-group-item-action flex-column align-items-start" data-id="task" data-task-id=' + id + '>'
+            + '<span class="right-corner"><span class="fa-stack fa-lg" style="position: relative; top: -8px; margin-right: 11px;">'
+              + '<i class="fas fa-chevron-up fa-stack-2x" style="margin-bottom: 18px;"></i>'
+              + '<i class="fas fa-chevron-down fa-stack-2x" style="margin-top: 18px;"></i>'
+            + '</span>'
+            + '<i class="far fa-trash-alt large" aria-hidden="true"></i></span>'
+            + '<div class="d-flex w-100 justify-content-between">'
+              + '<h3 class="mb-1" style="padding-right: 100px;">'
+                + '<span class="edit" data-id="content" style="padding: 2px; line-height: 24pt;">' + task + '</span>'
+              + '</h3>'
+              + '<span class="dropdown-edit">Owner: ' + getOwners(owner_id) + '</span>'
+              + '<span class="dropdown-edit">Dependent on: ' + getDependents(id, dependent_on) + '</span>'
+              + '<span class="dropdown-edit">Attachment: ' + getAttachments(id, attachment_id) + '</span>'
+            + '</div>'
+          + '</li>'
+        );
+      }
+
+      function getOwners(owner_id) {
+        var owner = "Select Owner";
+        if (owner_id in task_owners) {
+          owner = task_owners[owner_id];
+        }
+        ret = '<div class="dropdown">'
+                + '<button class="btn btn-default dropdown-toggle disabled" data-id="owner_id" data-owner-id="' + owner_id + '" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">'
+                  + '<span class="dropdown-title">' + owner + '</span>'
+                  + '<span class="dropdown-caret">&nbsp;<span class="caret"></span></span>'
+                + '</button>'
+                + '<ul class="dropdown-menu">';
+        for (var key in task_owners) {
+          if (task_owners.hasOwnProperty(key)) {
+            ret += '<li><a href="#" data-owner-id=' + key + ' title="' + task_owners[key] + '">' + task_owners[key] + '</a></li>';
+          }
+        }
+        ret += '</ul>'
+          + '</div>';
+        return ret;
+      }
+
+      function getDependents(task_id, dependent_on) {
+        var dependent = "Dependent Task";
+        var tasks = "";
+        for(var i = 0; i < task_save.length; i++) {
+          if (dependent_on == task_save[i].id) {
+            dependent = task_save[i].task;
+          }
+          if (task_save[i].id != task_id) {
+            tasks += '<li><a href="#" data-dependent-on=' + task_save[i].id + ' title="' + task_save[i].task + '">' + task_save[i].task + '</a></li>';
+          }
+        }
+        ret = '<div class="dropdown">'
+                + '<button class="btn btn-default dropdown-toggle disabled" data-id="dependent_on" data-dependent-on="' + dependent_on + '" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">'
+                  + '<span class="dropdown-title">' + dependent + '</span>'
+                  + '<span class="dropdown-caret">&nbsp;<span class="caret"></span></span>'
+                + '</button>'
+                + '<ul class="dropdown-menu dependents">'
+                + '<li><a href="#" data-dependent-on="" title="None">None</a></li>'
+                  + tasks
+                + '</ul>'
+              + '</div>';
+        return ret;
+      }
+
+      function getAttachments(task_id, attachment_id) {
+        var attachment = "Select Attachment";
+        if(files[attachment_id]) {
+          attachment = files[attachment_id].name;
+        }
+
+        ret = '<div class="dropdown">'
+                + '<button class="btn btn-default dropdown-toggle disabled" data-id="attachment_id" data-attachment-id="' + attachment_id + '" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">'
+                  + '<span class="dropdown-title">' + attachment + '</span>'
+                  + '<span class="dropdown-caret">&nbsp;<span class="caret"></span></span>'
+                + '</button>'
+                + '<ul class="dropdown-menu dependents">'
+                + '<li><a href="#" data-attachment-id="" title="None">None</a></li>';
+        for(var file in files) {
+          ret += '<li><a href="#" data-attachment-id=' + file + ' title="' + files[file].name + '">' + files[file].name + '</a></li>';
+        }
+        ret += '</ul>'
+              + '</div>';
+        return ret;
+      }
+
+      function toggleEdit(state) {
+        if(!state) {
+          setClicks();
+          $('.edit').attr('contenteditable', true);
+          $('.dropdown button.dropdown-toggle').removeClass('disabled');
+          $('.edit').addClass('edit-border');
+          $('.fa-trash-alt').attr('contenteditable', false);
+          $('.fa-plus-square').attr('contenteditable', false);
+          $('#controls').fadeIn();
+          $('.fa-plus-square').fadeIn();
+          $('.fa-trash-alt').fadeIn();
+          $('.fa-chevron-up').fadeIn();
+          $('.fa-chevron-down').fadeIn();
+        } else {
+          revert(false);
+          $('.edit').attr('contenteditable', false);
+          $('.dropdown button.dropdown-toggle').addClass('disabled');
+          $('.edit').removeClass('edit-border');
+          $('.fa-trash-alt').attr('contenteditable', false);
+          $('#controls').fadeOut();
+          $('.fa-plus-square').fadeOut();
+          $('.fa-trash-alt').fadeOut();
+          $('.fa-chevron-up').fadeOut();
+          $('.fa-chevron-down').fadeOut();
+        }
+      }
+
+      function setClicks() {
+        $('.fa-plus-square[data-type="tasks"]').off('click');
+        $('.fa-plus-square[data-type="tasks"]').on('click', function() {
+          newTask('new' + n, 'New Task', '', '', '');
+          var temp_tasks = [];
+          $('[data-id="task"]').each(function(i, e) {
+            temp_tasks.push({
+              'id': $(e).attr('data-task-id'),
+              'task': $(e).find('[data-id="content"]').html()
+            });
+          });
+          $.each($('[data-id="task"]'), function(i, e) {
+            var id = $(e).attr('data-task-id');
+            var dropdown = $(e).find(".dependents");
+            for(var i = 0; i < temp_tasks.length; i++) {
+              if(temp_tasks[i].id != id && !dropdown.find("[data-dependent-on='" + temp_tasks[i].id + "']").length) {
+                dropdown.append('<li><a href="#" data-dependent-on="' + temp_tasks[i].id + '" title="' + temp_tasks[i].task + '">' + temp_tasks[i].task + '</a></li>');
+              }
+            }
+          });
+          n++;
+          toggleEdit(false);
+        });
+
+        $('.fa-chevron-up').off('click');
+        $('.fa-chevron-up').on('click', function() {
+          $(this).closest('[data-id="task"]').moveUp();
+        });
+
+        $('.fa-chevron-down').off('click');
+        $('.fa-chevron-down').on('click', function() {
+          $(this).closest('[data-id="task"]').moveDown();
+        });
+
+        $('.fa-trash-alt').off('click');
+        $('.fa-trash-alt').on('click', function() {
+          var parent = $(this).closest('li');
+          var attr = parent.attr('data-task-id');
+
+          $(".dependents li a[data-dependent-on='" + attr + "']").remove();
+          $('[data-id="dependent_on"][data-dependent-on="' + attr + '"]').find(".dropdown-title").html("Dependent Task").attr('data-dependent-on', '');
+
+          if (typeof attr !== typeof undefined && attr !== false && !attr.includes("new")) {
+            task_dels.push(attr);
+          }
+          parent.slideUp(300, function() {$(this).remove();});
+        });
+
+        $('#task-list').off('keypress');
+        $('#task-list').on('keypress', function(e) {
+          var key = e.which;
+          if(key == 13) {
+            e.preventDefault();
+            newTask('new' + n, 'New Task', '', '', '');
+            var temp_tasks = [];
+            $('[data-id="task"]').each(function(i, e) {
+              temp_tasks.push({
+                'id': $(e).attr('data-task-id'),
+                'task': $(e).find('[data-id="content"]').html()
+              });
+            });
+            $.each($('[data-id="task"]'), function(i, e) {
+              var id = $(e).attr('data-task-id');
+              var dropdown = $(e).find(".dependents");
+              for(var i = 0; i < temp_tasks.length; i++) {
+                if(temp_tasks[i].id != id && !dropdown.find("[data-dependent-on='" + temp_tasks[i].id + "']").length) {
+                  dropdown.append('<li><a href="#" data-dependent-on="' + temp_tasks[i].id + '" title="' + temp_tasks[i].task + '">' + temp_tasks[i].task + '</a></li>');
+                }
+              }
+            });
+            n++;
+            toggleEdit(false);
+          }
+        });
+
+        $('[data-id="task"]').off('keyup');
+        $('[data-id="task"]').on('keyup', function(e) {
+          var id = $(this).attr("data-task-id");
+          var task = $(this).find('.edit').html();
+          $(".dependents li a[data-dependent-on='" + id + "']").html(task).attr("title", task);
+          $('[data-id="dependent_on"][data-dependent-on="' + id + '"]').find(".dropdown-title").html(task);
+        });
+
+        $('.dropdown li a').off('click');
+        $('.dropdown li a').on('click', function(e) {
+          console.log($(this).attr('title'));
+          var selected = $(this).closest('.dropdown').find('.dropdown-toggle');
+          selected.find('.dropdown-title').html($(this).attr("title"));
+          if (typeof selected.attr('data-owner-id') !== typeof undefined) {
+            selected.attr('data-owner-id', $(this).attr("data-owner-id"));
+          } else if (typeof selected.attr('data-dependent-on') !== typeof undefined) {
+            selected.attr('data-dependent-on', $(this).attr("data-dependent-on"));
+          } else {
+            selected.attr('data-attachment-id', $(this).attr("data-attachment-id"));
+          }
+          e.preventDefault();
+        });
+      }
+
+      function revert(toggle) {
+        $('#task-list').html('');
+
+        $.each(task_save, function(i, value) {
+          newTask(value.id, value.task, value.owner_id, value.dependent_on, value.attachment_id);
+        });
+
+        setClicks();
+        if(toggle) {
+          toggleEdit(false);
+        }
+      }
+
+      $.fn.moveUp = function() {
+        before = $(this).prev();
+        $(this).insertBefore(before);
+      }
+
+      $.fn.moveDown = function() {
+        after = $(this).next();
+        $(this).insertAfter(after);
+      }
+    </script>
+  </body>
+</html>

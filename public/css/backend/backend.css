@@ -24,6 +24,11 @@ hr {
   width: 275px;
   color: #BBB;
   font-size: 12pt;
+  height: 100vh;
+  overflow-x: hidden;
+  overflow-y: auto;
+  /* height: calc(100vh - 85px); */
+  /* min-height: 100vh; */
 }
 
 #nav-panel li {
@@ -46,12 +51,6 @@ hr {
 
 #nav-panel {
   padding-top: 40px;
-}
-
-#nav-panel #footer {
-  position: fixed;
-  bottom: 40px;
-  left: 40px;
 }
 
 span.nav-header, span.nav-header > a {

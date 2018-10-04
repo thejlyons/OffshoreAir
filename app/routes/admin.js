@@ -10,6 +10,7 @@ var EMD = require('../modules/email-dispatcher.js');
 var EFM = require('../modules/form-manager');
 var FIM = require('../modules/file-manager');
 var JOM = require('../modules/job-manager');
+var NHM = require('../modules/new-hire-manager');
 
 module.exports = function(app) {
   app.get('/admin', function(req, res) {
@@ -465,10 +466,26 @@ module.exports = function(app) {
     if (req.session.user == null || !req.session.user.admin){
       res.redirect('/employee');
     }	else {
-      ACM.getAllLimited(function(err, accreds) {
+      ACM.getAllRoles(function(err, roles) {
         if(!err) {
-          ATM.getAllUsers(function(employees) {
-            res.render('pages/admin/employees', {user: req.session.user, employees: employees, accreditations: accreds});
+          ACM.getAllLimited(function(err, accreds) {
+            if(!err) {
+              ATM.getAllUsers(function(err, employees) {
+                if(!err) {
+                  NHM.getAllProgress(function(err, progress, total) {
+                    if(!err) {
+                      res.render('pages/admin/employees', {user: req.session.user, employees: employees, roles: roles, accreditations: accreds, progress: progress, total: total});
+                    }	else {
+                      res.render('pages/error', {error: err});
+                    }
+                  });
+                }	else {
+                  res.render('pages/error', {error: err});
+                }
+              });
+            }	else {
+              res.render('pages/error', {error: err});
+            }
           });
         }	else {
           res.render('pages/error', {error: err});
@@ -502,10 +519,27 @@ module.exports = function(app) {
       ATM.updateAccount(user, function(err) {
         if(!err) {
           ATM.updateRoles(user.id, req.body['accred'], accred_dels, function() {
-            ACM.getAllLimited(function(err, accreds) {
+            ACM.getAllRoles(function(err, roles) {
               if(!err) {
-                ATM.getAllUsers(function(employees) {
-                  res.render('pages/admin/employees', {user: req.session.user, employees: employees, accreditations: accreds});
+                ACM.getAllLimited(function(err, accreds) {
+                  if(!err) {
+                    ATM.getAllUsers(function(err, employees) {
+                      if(!err) {
+                        NHM.getAllProgress(function(err, progress, total) {
+                          if(!err) {
+                            console.log(progress);
+                            res.render('pages/admin/employees', {user: req.session.user, employees: employees, roles: roles, accreditations: accreds, progress: progress, total: total});
+                          }	else {
+                            res.render('pages/error', {error: err});
+                          }
+                        });
+                      }	else {
+                        res.render('pages/error', {error: err});
+                      }
+                    });
+                  }	else {
+                    res.render('pages/error', {error: err});
+                  }
                 });
               }	else {
                 res.render('pages/error', {error: err});
@@ -646,6 +680,161 @@ module.exports = function(app) {
       res.send(JSON.stringify({'success': false}));
     } else {
       ACM.deleteSteps(req.body.steps);
+      res.send(JSON.stringify({'success': true}));
+    }
+  });
+
+  // New Hire - Tasks
+  app.get('/admin/hire/tasks', function(req, res) {
+    if(req.session.user == null || !req.session.user.admin) {
+  		res.redirect('/employee');
+  	}	else {
+      ACM.getAllLimited(function(err, accreds) {
+        if(!err) {
+          NHM.getTasks(function(err, tasks) {
+            if(!err) {
+              NHM.getOwners(function(err, owners) {
+                if(!err) {
+                  FIM.getFiles(function(err, files) {
+                    if(!err) {
+                      res.render('pages/admin/new-hire-tasks', {
+                        user: req.session.user,
+                        accreditations: accreds,
+                        tasks: tasks,
+                        owners: owners,
+                        files: files
+                      });
+                    }	else {
+                      res.render('pages/error', {error: err});
+                    }
+                  });
+                }	else {
+                  res.render('pages/error', {error: err});
+                }
+              });
+            }	else {
+              res.render('pages/error', {error: err});
+            }
+          });
+        }	else {
+          res.render('pages/error', {error: err});
+        }
+      });
+    }
+  });
+
+  app.post('/admin/manage/hire/task/insert', function(req, res) {
+    res.setHeader('Content-Type', 'application/json');
+    console.log(req.body.tasks);
+    if(req.session.user == null || !req.session.user.admin) {
+      res.send(JSON.stringify({'success': false}));
+    } else {
+      if(req.body.tasks) {
+        NHM.insertTasks(req.body.tasks, function(err, ids) {
+          if(err) throw err;
+          console.log(ids);
+          res.send(JSON.stringify({'success': true, 'ids': ids}));
+        });
+      } else {
+        res.send(JSON.stringify({'success': true, 'ids': []}));
+      }
+    }
+  });
+
+  app.post('/admin/manage/hire/task/update', function(req, res) {
+    res.setHeader('Content-Type', 'application/json');
+    if(req.session.user == null || !req.session.user.admin) {
+      res.send(JSON.stringify({'success': false}));
+    } else {
+      NHM.updateTask(req.body.task, function(err) {
+        if(err) throw err;
+        res.send(JSON.stringify({'success': true}));
+      });
+    }
+  });
+
+  app.post('/admin/manage/hire/task/delete', function(req, res) {
+    res.setHeader('Content-Type', 'application/json');
+    if(req.session.user == null || !req.session.user.admin) {
+      res.send(JSON.stringify({'success': false}));
+    } else {
+      NHM.deleteTasks(req.body.tasks);
+      res.send(JSON.stringify({'success': true}));
+    }
+  });
+
+  // New Hire - Employee Page
+  app.get('/admin/hire', function(req, res) {
+    if(req.session.user == null || !req.session.user.admin) {
+  		res.redirect('/employee');
+  	}	else {
+      ACM.getAllLimited(function(err, accreds) {
+        if(!err) {
+          NHM.getTasks(function(err, tasks) {
+            if(!err) {
+              NHM.getOwners(function(err, owners) {
+                if(!err) {
+                  NHM.getUserProgress(req.query.id, function(err, progress) {
+                    if(!err) {
+                      NHM.isHR(req.session.user, function(err, is_hr) {
+                        if(!err) {
+                          FIM.getFiles(function(err, files) {
+                            if(!err) {
+                              res.render('pages/new-hire', {
+                                user: req.session.user,
+                                accreditations: accreds,
+                                tasks: tasks,
+                                files: files,
+                                url: process.env.AWS_BASE_URL + "files/",
+                                owners: owners,
+                                progress: progress,
+                                user_id: req.query.id,
+                                is_hr: is_hr,
+                                is_doug: req.session.user.id == process.env.DOUG_ID
+                              });
+                            }	else {
+                              res.render('pages/error', {error: err});
+                            }
+                          });
+                        }	else {
+                          res.render('pages/error', {error: err});
+                        }
+                      });
+                    }	else {
+                      res.render('pages/error', {error: err});
+                    }
+                  });
+                }	else {
+                  res.render('pages/error', {error: err});
+                }
+              });
+            }	else {
+              res.render('pages/error', {error: err});
+            }
+          });
+        }	else {
+          res.render('pages/error', {error: err});
+        }
+      });
+    }
+  });
+
+  app.post('/hire/check', function(req, res) {
+    res.setHeader('Content-Type', 'application/json');
+    if(req.session.user == null || !req.session.user.admin) {
+      res.send(JSON.stringify({'success': false}));
+    } else {
+      NHM.checkTask(req.body.task_id, req.body.user_id);
+      res.send(JSON.stringify({'success': true}));
+    }
+  });
+
+  app.post('/hire/uncheck', function(req, res) {
+    res.setHeader('Content-Type', 'application/json');
+    if(req.session.user == null || !req.session.user.admin) {
+      res.send(JSON.stringify({'success': false}));
+    } else {
+      NHM.uncheckTask(req.body.task_id, req.body.user_id);
       res.send(JSON.stringify({'success': true}));
     }
   });

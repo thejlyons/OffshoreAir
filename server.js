@@ -48,8 +48,12 @@ require("fs").readdirSync(normalizedPath).forEach(function(file) {
   require("./app/routes/" + file)(app);
 });
 
-var AM = require('./app/modules/account-manager');
-AM.createAdmin(process.env.ADMIN_PASS);
+var ATM = require('./app/modules/account-manager');
+ATM.createAdmin(process.env.ADMIN_PASS);
+var ANM = require('./app/modules/accreditation-manager');
+ANM.createHR();
+var NHM = require('./app/modules/new-hire-manager.js');
+NHM.createOwners();
 
 app.listen(app.get('port'), function() {
   console.log('Node app is running on port', app.get('port'));

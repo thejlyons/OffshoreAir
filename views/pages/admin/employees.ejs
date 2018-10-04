@@ -9,12 +9,12 @@
     <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
     <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/v/bs/jq-2.2.4/dt-1.10.15/r-2.1.1/datatables.min.css"/>
     <style>
-    html, body {
-      width: 100%;
-      margin: 0px;
-      padding: 0px;
-      overflow-x: hidden;
-    }
+      html, body {
+        width: 100%;
+        margin: 0px;
+        padding: 0px;
+        overflow-x: hidden;
+      }
 
       .fa-trash-alt, .fa-square, .fa-pencil-alt, .fa-check-square {
         cursor: pointer;
@@ -64,7 +64,7 @@
 
       .editor {
         display: none;
-        position: fixed;
+        position: absolute;
         left: 0;
         right: 0;
         width: 50%;
@@ -175,6 +175,12 @@
         background: white;
         border-radius: 5px;
       }
+
+      .completed {
+        font-size: 9pt;
+        color: #555;
+        display: block;
+      }
     </style>
 
     <script src="/js/jquery-2.2.3.min.js"></script>
@@ -194,6 +200,7 @@
               <th>Email</th>
               <th>Roles</th>
               <th>Admin</th>
+              <th>New Hire</th>
               <th>Edit</th>
               <th>Delete</th>
             </tr>
@@ -204,6 +211,7 @@
               <th>Email</th>
               <th>Roles</th>
               <th>Admin</th>
+              <th>New Hire</th>
               <th>Edit</th>
               <th>Delete</th>
             </tr>
@@ -229,17 +237,15 @@
           </div>
           <span class="dropdown">
             <ul class="dropdown-list">
-              <% for(var i = 0; i < accreditations.length; i++) { %>
-                <li data-accred-id="<%= accreditations[i].id %>"><%= accreditations[i].title %></li>
+              <% for(var i = 0; i < roles.length; i++) { %>
+                <li data-accred-id="<%= roles[i].id %>"><%= roles[i].title %></li>
               <% } %>
             </ul>
           </span>
         </div>
-        <div class="form-check">
-          <label class="form-check-label">
-            <input type="checkbox" name="admin" class="form-check-input">
-            Admin
-          </label>
+        <div class="custom-control custom-checkbox">
+          <input type="checkbox" class="custom-control-input" name="admin" id="admin-check">
+          <label class="custom-control-label" for="admin-check">Admin</label>
         </div>
         <button class="btn btn-primary">Submit</button>
         <span class="btn btn-info">Cancel</span>
@@ -262,8 +268,8 @@
           </div>
           <span class="dropdown">
             <ul class="dropdown-list">
-              <% for(var i = 0; i < accreditations.length; i++) { %>
-                <li data-accred-id="<%= accreditations[i].id %>"><%= accreditations[i].title %></li>
+              <% for(var i = 0; i < roles.length; i++) { %>
+                <li data-accred-id="<%= roles[i].id %>"><%= roles[i].title %></li>
               <% } %>
             </ul>
           </span>
@@ -282,10 +288,10 @@
 
     <script>
       var accreds = [
-        <% for(var i = 0; i < accreditations.length; i++) { %>
+        <% for(var i = 0; i < roles.length; i++) { %>
           {
-            "id": <%= accreditations[i].id %>,
-            "title": "<%= accreditations[i].title %>"
+            "id": <%= roles[i].id %>,
+            "title": "<%= roles[i].title %>"
           },
         <% } %>
       ];
@@ -297,6 +303,13 @@
             <% } %>
         <% } %>
       ];
+
+      var progress = {
+        <% for(var i=0; i<progress.length; i++) {%>
+            <%= progress[i].user_id %>: <%= progress[i].count %>,
+        <% } %>
+      };
+      var total = <%= total %>;
 
       var current_list = {};
 
@@ -312,7 +325,6 @@
             this.accreds.push(accreds[i]);
           }
         }
-        console.log(this.roles);
         this.admin = admin;
         this.index = index;
       };
@@ -370,6 +382,7 @@
             },
             {
               data: 'admin',
+              width: '25px',
               render: function(data, type, row) {
                 var c = "fa-square";
                 if(data) {
@@ -380,10 +393,27 @@
               }
             },
             {
+              data: 'New Hire',
+              width: '75px',
+              render: function(data, type, row) {
+                var c = 0;
+                var p = 0;
+                if(row.id in progress) {
+                  c = progress[row.id];
+                  p = 100 * progress[row.id] / total;
+                }
+                return `<a href="/admin/hire?id=` + row.id + `" class="completed">Completed ` + c + '/' + total + `</a>
+                        <div class="progress" style="height: 4px; margin-bottom: 0;">
+                          <div class="progress-bar" role="progressbar" style="width: ` + p + `%;" aria-valuenow="` + p + `" aria-valuemin="0" aria-valuemax="100">` + p + `%</div>
+                        </div>`;
+              }
+            },
+            {
               data: 'edit',
               orderable: false,
               searchable: false,
               defaultContent: '',
+              width: '25px',
               render: function(data, type, row) {
                 return '<i class="fas fa-pencil-alt" aria-hidden="true" data-employee-index="' + row.index + '"></i>';
               }
@@ -393,6 +423,7 @@
               orderable: false,
               searchable: false,
               defaultContent: '',
+              width: '25px',
               render: function(data, type, row) {
                 return '<i class="far fa-trash-alt" aria-hidden="true" data-employee-id="' + row.id + '"></i>';
               }
@@ -404,12 +435,14 @@
           $(".screen").fadeOut();
           $(".editor").fadeOut();
           $(".editor").css("top", "-600px");
+          $('.dropdown-list li').slideUp(300);
         });
 
         $("span.btn-info").on('click', function() {
           $(".screen").fadeOut();
           $(".editor").fadeOut();
           $(".editor").css("top", "-600px");
+          $('.dropdown-list li').slideUp(300);
         });
 
         $('.input-group-addon').on('click', function() {
