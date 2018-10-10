@@ -50,6 +50,12 @@ exports.updateQuestion = function(question, callback) {
 	if (!("options" in question)) {
 		question.options = [];
 	}
+	if (!("is_email" in question)) {
+		question.is_email = false;
+	}
+	if (!("is_phone" in question)) {
+		question.is_phone = false;
+	}
 	db.none('UPDATE form_questions SET question = $1, placeholder = $2, options = $3::text[], sort_order = $4, is_email = $5, is_phone = $6, type_id = $7 WHERE id = $8', [question.question, question.placeholder, question.options, question.sort_order, question.is_email, question.is_phone, question.type_id, question.id])
 		.then(() => {
 			callback(null);
@@ -65,6 +71,12 @@ exports.insertQuestion = function(question, callback) {
 	}
 	if (!("options" in question)) {
 		question.options = [];
+	}
+	if (!("is_email" in question)) {
+		question.is_email = false;
+	}
+	if (!("is_phone" in question)) {
+		question.is_phone = false;
 	}
 	db.one('INSERT INTO form_questions (question, placeholder, options, sort_order, is_email, is_phone, type_id) VALUES ($1, $2, $3::text[], $4, $5, $6, $7) RETURNING id', [question.question, question.placeholder, question.options, question.sort_order, question.is_email, question.is_phone, question.type_id])
 		.then(data => {

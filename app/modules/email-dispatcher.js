@@ -23,7 +23,7 @@ EM.dispatchResetPasswordLink = function(account, callback){
 
 EM.dispatchUserRequest = function(name, email, callback) {
 	EM.server.send({
-		from         : process.env.EMAIL_FROM || 'Offshore Air <do-not-reply@gmail.com>',
+		from         : 'Offshore Air <' + process.env.SMTP_USERNAME + '>' || 'Offshore Air <do-not-reply@gmail.com>',
 		to           : email,
 		subject      : 'Offshore Air Invite',
 		text         : 'something went wrong... :(',
@@ -33,7 +33,7 @@ EM.dispatchUserRequest = function(name, email, callback) {
 
 EM.dispatchGetEstimate = function(data, questions, callback) {
 	EM.server.send({
-		from         : process.env.EMAIL_FROM || 'Offshore Air Estimate <do-not-reply@gmail.com>',
+		from         : 'Offshore Air <' + process.env.SMTP_USERNAME + '>' || 'Offshore Air Estimate <do-not-reply@gmail.com>',
 		to           : process.env.ADMIN_EMAIL,
 		subject      : 'Offshore Air Estimate',
 		text         : 'something went wrong... :(',

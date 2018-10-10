@@ -283,6 +283,15 @@
       #controls {
         display: none;
       }
+
+      .dropdown button.dropdown-toggle {
+        min-width: 135px;
+        text-align: left;
+      }
+
+      .dropdown button.dropdown-toggle .dropdown-caret {
+        float: right;
+      }
     </style>
 
     <script src="/js/jquery-2.2.3.min.js"></script>
@@ -414,20 +423,18 @@
           });
         }
         var sort_order = parseInt(qdiv.attr('data-sort-order'), 10);
-        var is_email = false;
-        // var is_email = qdiv.find('[data-id="validator"]').attr('data-is');
-        // if(is_email == 'email') {
-        //   is_email = true;
-        // } else {
-        //   is_email = false;
-        // }
-        var is_phone = false;
-        // var is_phone = qdiv.find('[data-id="validator"]').attr('data-is');
-        // if(is_phone == 'phone') {
-        //   is_phone = true;
-        // } else {
-        //   is_phone = false;
-        // }
+        var is_email = qdiv.find('[data-id="validator"]').attr('data-is');
+        if(is_email == 'email') {
+          is_email = true;
+        } else {
+          is_email = false;
+        }
+        var is_phone = qdiv.find('[data-id="validator"]').attr('data-is');
+        if(is_phone == 'phone') {
+          is_phone = true;
+        } else {
+          is_phone = false;
+        }
         var type_id = qdiv.find('[data-id="type_id"]').attr('data-type-id');
 
         var question = {
@@ -517,7 +524,7 @@
 
       function newQuestionText(id, question, placeholder, type_id, is_email = false, is_phone = false) {
         return '<li class="list-group-item list-group-item-action flex-column align-items-start" data-id="container" data-question-id=' + id + '>'
-            + getTypes(type_id, is_email, is_phone)
+            + getTextTypes(type_id, is_email, is_phone)
             + '<div class="d-flex w-100 justify-content-between">'
               + '<h3 class="mb-1"><span class="edit" data-id="question">' + question + '</span></h3>'
             + '</div>'
@@ -533,7 +540,34 @@
                 + '</p>';
       }
 
-      function getTypes(type_id, is_email, is_phone) {
+      function getTypes(type_id) {
+        var t = -1;
+        for (var i = 0; i < types.length; i++) {
+          if (type_id === types[i].id) {
+            t = types[i];
+          }
+        }
+        ret = '<span class="right-corner">'
+          + '<i class="far fa-trash-alt large question" aria-hidden="true"></i>'
+            + '<div class="dropdown">'
+                  + '<button class="btn btn-default dropdown-toggle" data-id="type_id" data-type-id=' + t.id + ' type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">'
+                    + '<span class="dropdown-title">' + t.hr_type + '</span>'
+                    + '<span class="dropdown-caret">&nbsp;<span class="caret"></span></span>'
+                  + '</button>'
+                  + '<ul class="dropdown-menu dropdown-menu-right">';
+        for(var i = 0; i < types.length; i++) {
+          ret += '<li><a href="#" data-type-id=' + types[i].id + ' title="' + types[i].hr_type + '">' + types[i].hr_type + '</a></li>';
+        }
+        ret += '</ul>'
+            + '</div>'
+          + '<br>'
+          + '<span class="sorter-container"><i class="fa fa-chevron-down sorter" aria-hidden="true"></i><i class="fa fa-chevron-up sorter" aria-hidden="true"></i></span>'
+        + '</span>';
+
+        return ret;
+      }
+
+      function getTextTypes(type_id, is_email, is_phone) {
         var validator = "Select validator";
         if(is_email) {
           validator = "Email";
@@ -548,26 +582,27 @@
         }
         ret = '<span class="right-corner">'
           + '<i class="far fa-trash-alt large question" aria-hidden="true"></i>'
-            // + '<div class="dropdown">'
-            //   + '<button class="btn btn-default dropdown-toggle" data-id="validator" data-is=' + validator.toLowerCase() + ' type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">'
-            //     + '<span class="title">' + validator + '</span>'
-            //     + '&nbsp;<span class="caret"></span>'
-            //   + '</button>'
-            //   + '<ul class="dropdown-menu dropdown-menu-right">'
-            //     + '<li><a href="#">Email</a></li>'
-            //     + '<li><a href="#">Phone</a></li>'
-            //   + '</ul>'
-            // + '</div>'
             + '<div class="dropdown">'
                   + '<button class="btn btn-default dropdown-toggle" data-id="type_id" data-type-id=' + t.id + ' type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">'
-                    + t.hr_type
-                    + '&nbsp;<span class="caret"></span>'
+                    + '<span class="dropdown-title">' + t.hr_type + '</span>'
+                    + '<span class="dropdown-caret">&nbsp;<span class="caret"></span></span>'
                   + '</button>'
                   + '<ul class="dropdown-menu dropdown-menu-right">';
         for(var i = 0; i < types.length; i++) {
           ret += '<li><a href="#" data-type-id=' + types[i].id + ' title="' + types[i].hr_type + '">' + types[i].hr_type + '</a></li>';
         }
         ret += '</ul>'
+            + '</div>'
+            + '<div class="dropdown">'
+              + '<button class="btn btn-default dropdown-toggle" data-id="validator" data-is=' + validator.toLowerCase() + ' type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">'
+                + '<span class="dropdown-title">' + validator + '</span>'
+                + '<span class="dropdown-caret">&nbsp;<span class="caret"></span></span>'
+              + '</button>'
+              + '<ul class="dropdown-menu dropdown-menu-right">'
+                + '<li><a href="#">None</a></li>'
+                + '<li><a href="#">Email</a></li>'
+                + '<li><a href="#">Phone</a></li>'
+              + '</ul>'
             + '</div>'
           + '<br>'
           + '<span class="sorter-container"><i class="fa fa-chevron-down sorter" aria-hidden="true"></i><i class="fa fa-chevron-up sorter" aria-hidden="true"></i></span>'
@@ -625,16 +660,16 @@
         $('.dropdown li a').on('click', function(e) {
           var selected = $(this).closest('.dropdown').find('.dropdown-toggle');
           if($(this).attr("title")) {
-            selected.html($(this).attr("title") + '&nbsp;<span class="caret"></span>');
+            selected.find('.dropdown-title').html($(this).attr("title"));
             var type_id = $(this).attr("data-type-id");
             selected.attr('data-type-id', type_id);
             var id = $(this).closest('[data-id="container"]').attr('data-question-id');
             var question = getQuestion(id);
-            var new_question = newQuestion(question.id, question.question, question.placeholder, question.options, question.type_id);
+            var new_question = newQuestion(question.id, question.question, question.placeholder, question.options, question.type_id, question.is_email, question.is_phone);
             $("[data-question-id='" + id + "']").replaceWith(new_question);
           } else {
             var validator = $(this).html();
-            selected.html(validator);
+            selected.find('.dropdown-title').html(validator);
             selected.attr('data-is', validator.toLowerCase());
           }
           setClicks();
@@ -704,7 +739,7 @@
         $('#question-list').html('');
 
         $.each(form_save, function(i, value) {
-          $('#question-list').append(newQuestion(value.id, value.question, value.placeholder, value.options, value.type_id));
+          $('#question-list').append(newQuestion(value.id, value.question, value.placeholder, value.options, value.type_id, value.is_email, value.is_phone));
         });
 
         setClicks();

@@ -36,7 +36,8 @@
     "passport": "^0.3.2",
     "passport-auth0": "^0.6.0",
     "pg": "6.x",
-    "pg-promise": "^6.3.6"
+    "pg-promise": "^6.3.6",
+    "validator": "^10.8.0"
   },
   "devDependencies": {
     "request": "^2.81.0",

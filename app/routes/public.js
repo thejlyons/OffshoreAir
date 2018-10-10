@@ -1,4 +1,5 @@
 var formidable = require('formidable');
+var validator = require('validator');
 var EM = require('../modules/email-dispatcher');
 var JM = require('../modules/job-manager');
 var FM = require('../modules/form-manager');
@@ -37,7 +38,8 @@ module.exports = function(app){
       res.render('pages/estimate-new', {
         this_title : "Estimates",
         questions: questions,
-        post: false
+        post: false,
+        errors: []
       });
     });
   });
@@ -63,14 +65,41 @@ module.exports = function(app){
       responses[key] = req.body[input];
     }
     FM.getQuestions(function(err, questions) {
-      EM.dispatchGetEstimate(responses, questions, function(err, message) {
-        console.log(err || message);
+      var errors = [];
+      for (id in responses) {
+        var question;
+        for (i in questions) {
+          if (parseInt(id, 10) === parseInt(questions[i].id, 10)) {
+            question = questions[i];
+            break;
+          }
+        }
+        if(question.is_email && !validator.isEmail(responses[id])) {
+          errors.push("Invalid email address.");
+        }
+        if(question.is_phone && !validator.isMobilePhone(responses[id], 'en-US')) {
+          errors.push("Invalid phone number.");
+        }
+      }
+
+      if(errors.length) {
         res.render('pages/estimate-new', {
           this_title : "Estimates",
           questions: questions,
-          post: true
+          post: false,
+          errors: errors
         });
-      });
+      } else {
+        EM.dispatchGetEstimate(responses, questions, function(err, message) {
+          console.log(err || message);
+          res.render('pages/estimate-new', {
+            this_title : "Estimates",
+            questions: questions,
+            post: true,
+            errors: []
+          });
+        });
+      }
     });
   });
 
