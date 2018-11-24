@@ -291,11 +291,13 @@
         $('[data-toggle="tooltip"]').tooltip();
 
         $('[data-type="name"]').on('click', function() {
-          $('textarea[name="body"]').append("{{name}}");
+          var val = $('textarea[name="body"]').val();
+          $('textarea[name="body"]').val(val + "{{name}}");
         });
 
         $('[data-type="link"]').on('click', function() {
-          $('textarea[name="body"]').append("{{Click here}}");
+          var val = $('textarea[name="body"]').val();
+          $('textarea[name="body"]').val(val + "{{Click here}}");
         });
       });
 
