@@ -394,7 +394,7 @@
                   <ul class="dropdown-menu dropdown-menu-right">
                     <% for(var i=0; i<forms.length; i++) {%>
                       <% if(!forms[i].public) { %>
-                        <li><a href="#" data-form-id=<%= forms[i].id %> data-form-name=<%= forms[i].name %>><%= forms[i].name %></a></li>
+                        <li><a href="#" data-form-id=<%= forms[i].id %> data-form-name="<%= forms[i].name %>"><%= forms[i].name %></a></li>
                       <% } %>
                     <% } %>
                   </ul>
