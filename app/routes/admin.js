@@ -734,8 +734,17 @@ module.exports = function(app) {
                       if(!err) {
                         NHM.getAllProgress(function(err, progress, total) {
                           if(!err) {
-                            console.log(progress);
-                            res.render('pages/admin/employees', {user: req.session.user, employees: employees, roles: roles, accreditations: accreds, progress: progress, total: total});
+                            FOM.getForms(function(err, forms) {
+                              res.render('pages/admin/employees', {
+                                user: req.session.user,
+                                employees: employees,
+                                roles: roles,
+                                accreditations: accreds,
+                                progress: progress,
+                                total: total,
+                                forms: forms
+                              });
+                            });
                           }	else {
                             res.render('pages/error', {error: err});
                           }
