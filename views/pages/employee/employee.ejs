@@ -16,69 +16,90 @@
     <script src="/js/jquery-2.2.3.min.js"></script>
 
     <style>
-      .accreditation {
-        margin: 0 0 15px 0px;
-        background: white;
-        border-radius: 5px;
-      }
-
-      .accreditation .accred-progress {
-        text-align: right;
-        padding-top: 14px;
-      }
-
-      .supervisor {
-        margin: 0 0 5px 0;
-      }
-
-      .supervisor a {
+      .option a {
         padding: 0;
         border: 0;
         width: 100%;
       }
 
-      .supervisor a:hover {
+      .option a:hover {
         text-decoration: none;
         color: #1A5484;
       }
 
-      .supervisor a:hover span {
-        background: #0D1834;
-      }
-
-      .supervisor span {
+      .option span {
         background: #0D245D;
         border-radius: 5px 0 0 5px;
         padding: 15px 10px 15px 20px;
         color: white;
-        width: 20%;
+        width: 55px;
         display: inline-block;
+        text-align: left;
+        position: relative;
+        top: -30px;
       }
 
-      .supervisor span i {
-        padding-right: 10px;
-      }
-
-      .supervisor p {
-        width: 80%;
+      .option p {
+        width: calc(100% - 55px);
         display: inline-block;
-        padding: 15px;
+        padding: 15px 20px 15px 10px;
         background: white;
         border-radius: 0 5px 5px 0;
         text-align: left;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
       }
 
-      .supervisor a:hover p {
+      .option a:hover p {
         background: #DFE8F1;
+      }
+
+      .option a:hover span {
+        background: #0D1834;
       }
     </style>
   </head>
 
   <body id="page-top">
     <%- include ../../partials/backend-nav.ejs %>
-    <% var steps_count = steps.length; %>
+
+    <div id="manager" class="manager">
+      <h1 class="display-4">Employee Home</h1>
+      <br>
+      <div id='options' class="row">
+        <div class="col-md-11">
+          <div class="row">
+            <div class="col-md-6 option">
+              <a href="/employee/files" class="btn btn-secondary btn-lg">
+                <span><i class="fa fa-file" aria-hidden="true"></i></span><p>Employee Files</p>
+              </a>
+            </div>
+            <div class="col-md-6 option">
+              <a href="/employee/forms" class="btn btn-secondary btn-lg">
+                <span><i class="fa fa-edit" aria-hidden="true"></i></span><p>Employee Forms</p>
+              </a>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6 option">
+              <a href="/employee/hire" class="btn btn-secondary btn-lg">
+                <span><i class="fa fa-user" aria-hidden="true"></i></span><p>New Hire Progress</p>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- <% var steps_count = steps.length; %>
     <div id='manager' class="manager">
       <h1 class="display-4">Employee Home</h1>
+      <% if(post) { %>
+        <div class="alert alert-success alert-dismissable">
+          <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+          <strong>Success!</strong> Your response has been recorded.
+        </div>
+      <% } %>
       <br>
       <% for(var i = 0; i < accreditations.length; i++) { %>
         <% var local_progress = 0; %>
@@ -119,7 +140,7 @@
           </div>
         <% } %>
       <% } %>
-    </div>
+    </div> -->
 
     <!-- Plugin JavaScript -->
     <script src="//cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.3/jquery.easing.min.js"></script>

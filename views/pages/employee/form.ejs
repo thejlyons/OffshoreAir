@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="page to list accreditations">
+    <meta name="author" content="Scott Corbitt">
+    <title><%= this_title %></title>
+
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/bootstrap-switch.css">
+    <link rel="stylesheet" href="/css/backend/backend.css">
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+
+    <!-- Bootstrap core CSS -->
+    <!-- <link href="/css/employee.css" rel="stylesheet"> -->
+
+    <!-- Custom fonts for this template -->
+    <link href="https://fonts.googleapis.com/css?family=Lato:300,400,700,300italic,400italic,700italic" rel="stylesheet" type="text/css">
+
+    <!-- Custom styles for this template -->
+    <!-- <link href="/css/landing-page.css" rel="stylesheet"> -->
+
+    <style>
+      .col-sm-8 {
+        background: white;
+        padding: 20px;
+        border-radius: 4px;
+        margin-bottom: 25px;
+      }
+    </style>
+
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+  </head>
+  <body>
+    <%- include ./../../partials/backend-nav.ejs %>
+
+    <div class="manager">
+      <h1 class="display-4"><%= this_title %></h1>
+      <h3><em><%= description %></em></h3>
+      <div class="card">
+        <% if(post) { %>
+          <div class="alert alert-success alert-dismissable">
+            <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+            <strong>Success!</strong> Your response has been recorded.
+          </div>
+        <% } %>
+        <% if(errors.length) { %>
+          <% for(var i=0; i<errors.length; i++) { %>
+            <div class="alert alert-danger alert-dismissable">
+              <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+              <strong>Error:</strong> <%= errors[i] %>
+            </div>
+          <% } %>
+        <% } %>
+        <form method="POST">
+          <div class="col-sm-8">
+            <!-- db.any('SELECT form_questions.id, question, placeholder, options, sort_order, type_id, type, hr_type FROM form_questions, form_types WHERE form_questions.type_id = form_types.id') -->
+            <% for(var i=0; i<questions.length; i++) { %>
+              <% if (questions[i].type === "text") { %>
+              	<div class="form-group">
+               		<label for="question<%= questions[i].id %>" class="control-label"><span<% if(questions[i].required) { %> class="required"<% } %>><%= questions[i].question %></span> <small><%= questions[i].description %></small></label>
+              		<input type="text" class="form-control" id="question<%= questions[i].id %>" name="question<%= questions[i].id %>" placeholder="<%= questions[i].placeholder %>" <% if(responses[0]["json_object_agg"] && responses[0]["json_object_agg"][questions[i].id]) { %> value="<%= responses[0]["json_object_agg"][questions[i].id] %>"<% } %><% if(questions[i].required) { %> required<% } %>>
+              	</div>
+              <% } else if (questions[i].type === "checkbox") { %>
+                <div class="form-group">
+                  <label class="control-label"><span<% if(questions[i].required) { %> class="required"<% } %>><%= questions[i].question %></span> <small><%= questions[i].description %></small></label>
+                  <% for(var j=0; j<questions[i].options.length; j++) { %>
+                    <div class="checkbox">
+                      <label><input type="checkbox" name="question<%= questions[i].id %>" value="<%= questions[i].options[j] %>"<% if(responses[0]["json_object_agg"] && responses[0]["json_object_agg"][questions[i].id].indexOf(questions[i].options[j]) > -1) { %> checked<% } %>><%= questions[i].options[j] %></label>
+                    </div>
+                  <% } %>
+                </div>
+              <% } else if (questions[i].type === "radio") { %>
+                <div class="form-group">
+                  <div class="">
+                    <label class="control-label"><span<% if(questions[i].required) { %> class="required"<% } %>><%= questions[i].question %></span> <small><%= questions[i].description %></small></label>
+                    <% for(var j=0; j<questions[i].options.length; j++) { %>
+                      <div class="radio">
+                        <label><input type="radio" name="question<%= questions[i].id %>" value="<%= questions[i].options[j] %>"<% if(responses[0]["json_object_agg"] && responses[0]["json_object_agg"][questions[i].id].indexOf(questions[i].options[j]) > -1) { %> checked<% } %>><%= questions[i].options[j] %></label>
+                      </div>
+                    <% } %>
+                  </div>
+                </div>
+              <% } else if (questions[i].type === "textarea") { %>
+                <div class="form-group">
+                  <div class="">
+                    <label class="control-label"><span<% if(questions[i].required) { %> class="required"<% } %>><%= questions[i].question %></span> <small><%= questions[i].description %></small></label>
+                    <textarea class="form-control" id="question<%= questions[i].id %>" name="question<%= questions[i].id %>" rows="5"><% if(responses[0]["json_object_agg"] && responses[0]["json_object_agg"][questions[i].id]) { %><%= responses[0]["json_object_agg"][questions[i].id] %><% } %></textarea>
+                  </div>
+                </div>
+              <% } %>
+            <% } %>
+            <div class="form-group"> <!-- Submit Button -->
+              <button type="submit" class="btn btn-primary pull-right">Submit Form</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </body>
+</html>

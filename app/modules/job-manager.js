@@ -2,6 +2,7 @@
 Table Schema:
 
 CREATE TABLE jobs (id SERIAL NOT NULL UNIQUE, title text, description text, img text);
+CREATE TABLE jobs_visible(id SERIAL NOT NULL UNIQUE, is_visible boolean);
 */
 
 const db = require('./db-connect');
@@ -79,4 +80,18 @@ exports.deleteJobs = function(del_ids) {
 	for(var i = 0; i < del_ids.length; i++){
 		db.none('DELETE FROM jobs WHERE id = $1', del_ids[i]);
 	}
+}
+
+exports.isVisible = function(callback) {
+	db.one('SELECT is_visible FROM jobs_visible WHERE id = 1')
+		.then(data => {
+			callback(data.is_visible);
+		})
+		.catch(error => {
+			callback(false);
+		});
+}
+
+exports.toggleVisible = function() {
+	db.none('UPDATE jobs_visible SET is_visible = NOT is_visible WHERE id = 1');
 }

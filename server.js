@@ -25,7 +25,7 @@ app.set('view engine', 'ejs');
 var db_url = process.env.DATABASE_URL || "postgres://postgres:killerfly@localhost:5432/postgres";
 
 app.use(session({
-  	secret: 'fadb4443e5d14fe6f7d04637f78077c75c73d1b4',
+  	secret: process.env.SECRET || 'fadb4443e5d14fe6f7d04637f78077c75c73d1b4',
   	proxy: true,
   	resave: true,
   	saveUninitialized: true,

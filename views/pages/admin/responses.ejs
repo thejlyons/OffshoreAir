@@ -1,0 +1,977 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Admin Portal | From</title>
+
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/backend/backend.css">
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/v/bs/jq-2.2.4/dt-1.10.15/r-2.1.1/datatables.min.css"/>
+    <style>
+      .fa-trash-alt, .fa-plus-square, .fa-external-link, .fa-eye, .fa-archive, .fa-window-restore {
+        cursor: pointer;
+      }
+
+      #manager .fa-plus-square, #manager .right-corner {
+        display: none;
+      }
+
+      .fa-trash-alt, .fa-eye, .fa-archive, .fa-window-restore {
+        border-radius: 3px;
+        font-size: 12pt;
+      }
+
+      .fa-window-restore {
+        padding: 7px 7px;
+        color: #FBEEE4;
+        background: #F27107;
+      }
+
+      .fa-window-restore:hover {
+        background: #C96716;
+      }
+
+      .fa-eye {
+        padding: 7px 6px;
+        color: #DFEBF5;
+        background: #428bca;
+      }
+
+      .fa-eye:hover {
+        background: #3276b1
+      }
+
+      .fa-archive {
+        padding: 7px 7px;
+        color: #F8ECDD;
+        background: #FFA228;
+      }
+
+      .fa-archive:hover {
+        background: #DA8210
+      }
+
+      .fa-trash-alt {
+        padding: 7px 8px;
+        background: #CA2525;
+        color: #F4DBDB;
+      }
+
+      .fa-trash-alt:hover {
+        background: #9D1515;
+      }
+
+      .fa-external-link {
+        color: #428bca;
+        padding-left: 25px;
+      }
+
+      .fa-external-link:hover {
+        color: #3276b1;
+      }
+
+      .right-corner {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+      }
+
+      .fa-trash-alt.large {
+        padding: 5px 8px;
+        font-size: 16pt;
+        float: right;
+        display: none;
+      }
+
+      .edit {
+        -webkit-transition: border-color 1s; /* Safari */
+        transition: border-color 1s;
+        border: 1px solid #FFF;
+      }
+
+      .edit-border {
+        border-color: #428bca !important;
+      }
+
+      hr.middle-fade {
+        border: 0;
+        height: 1px;
+        background: #999;
+        background-image: linear-gradient(to right, #ccc, #999, #ccc);
+      }
+
+      #dropzone {
+        position: relative;
+        height: 27vw;
+        background: white;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+      }
+
+      #dropzone .dz-preview {
+        visibility: hidden;
+        display: none;
+      }
+
+      #dropzone .dz-message {
+        font-size: 4vw;
+        padding-top: 15vw;
+        text-align: center;
+
+        background-color: #AAA;
+        opacity: 0.6;
+        color: transparent;
+        text-shadow: 0px 2px 3px rgba(255,255,255,0.5);
+        -webkit-background-clip: text;
+            -moz-background-clip: text;
+                 background-clip: text;
+
+       -webkit-transition: background-color 0.6s; /* Safari */
+       transition: background-color 0.6s;
+      }
+
+      #dropzone.dz-drag-hover .dz-message {
+        background-color: #777 !important;
+      }
+
+      #dropzone::before {
+        padding-top: 2vw;
+        margin: auto;
+        text-align: center;
+        font-size: 9vw;
+        position: absolute;
+        z-index: 10;
+        top: 15px;
+        left: 15px;
+        right: 15px;
+        bottom: 15px;
+        border-radius: 4px;
+        border: 8px dashed #CCC;
+        content: " ";
+        opacity: 0.6;
+        -webkit-transition: background-color 0.6s, border-color 0.6s; /* Safari */
+        transition: background-color 0.6s, border-color 0.6s;
+      }
+
+      #dropzone.dz-drag-hover::before {
+        border-color: #AAA !important;
+      }
+
+      #dropzone .icon {
+        font-size: 10vw;
+        padding-top: 2vw;
+        text-align: center;
+        position: absolute;
+        z-index: 10;
+        top: 15px;
+        left: 15px;
+        right: 15px;
+        bottom: 15px;
+      }
+
+      #dropzone .icon i {
+        background-color: #AAA;
+        opacity: 0.6;
+        color: transparent;
+        text-shadow: 0px 2px 3px rgba(255,255,255,0.5);
+        -webkit-background-clip: text;
+        -moz-background-clip: text;
+        background-clip: text;
+
+        -webkit-transition: display 1s, background-color 0.6s; /* Safari */
+        transition: display 1s, background-color 0.6s;
+      }
+
+      #dropzone.dz-drag-hover .icon i {
+        background-color: #777 !important;
+      }
+
+      #dropzone #disabled {
+        font-size: 7vw !important;
+        padding-top: 1.5vw !important;
+      }
+
+      #dropzone #disabled i, #dropzone #loader i {
+        display: none;
+      }
+
+      #dropzone.dropped #ready i {
+        display: none !important;
+      }
+
+      .jumbotron {
+        position: relative;
+        width: 75%;
+        margin: 15px auto;
+        padding-bottom: 90px;
+        border-radius: 4px;
+      }
+
+      .dropdown {
+        font-size: 14pt;
+        float: right;
+        margin-right: 10px;
+        height: 30.8px;
+      }
+
+      .dropdown button.dropdown-toggle {
+        padding: 4.4px 12px;
+      }
+
+      .fa-chevron-down {
+        position: relative;
+        top: -4px;
+        float: right;
+        padding: 5px;
+        border-radius: 0px 4px 4px 0px;
+        background: #428bca;
+        color: white;
+      }
+
+      .open {
+        border-bottom-left-radius: 0px !important;
+      }
+
+      .link {
+        cursor: pointer;
+        -webkit-user-select: none; /* Chrome/Safari */
+        -moz-user-select: none; /* Firefox */
+        -ms-user-select: none; /* IE10+ */
+
+        /* Rules below not implemented in browsers yet */
+        -o-user-select: none;
+        user-select: none;
+      }
+
+      .link.active {
+        background: #428bca !important;
+        color: white !important;
+      }
+
+      .link.active .fa-external-link {
+        color: white !important;
+      }
+
+      .delete {
+        color: white;
+        background: #CA2525;
+        float: right;
+      }
+
+      .delete:hover {
+        color: white;
+        background: #9D1515;
+      }
+
+      a.btn {
+        float: right;
+        margin-left: 20px;
+      }
+
+      .sorter-container {
+        position: absolute;
+        top: 40px;
+        right: 0px;
+      }
+
+      .sorter {
+        float: none;
+        color: white;
+        background: #428bca;
+        border-radius: 0px;
+        font-size: 14pt;
+        padding: 7px;
+        border-radius: 0px 4px 4px 0px;
+        cursor: pointer;
+        position: relative;
+        top: 0;
+      }
+
+      .sorter.fa-chevron-down {
+        border-radius: 4px 0px 0px 4px;
+        border-right: 1px solid #3276b1;
+      }
+
+      .sorter:hover {
+        background: #3276b1;
+      }
+
+      [data-id="container"] {
+        min-height: 100px;
+      }
+
+      .edit-padding {
+        padding-right: 350px;
+      }
+
+      #controls {
+        display: none;
+      }
+
+      .dropdown button.dropdown-toggle {
+        min-width: 135px;
+        text-align: left;
+      }
+
+      .dropdown button.dropdown-toggle .dropdown-caret {
+        float: right;
+      }
+
+      .required::after {
+        content: ' *';
+        color: red;
+      }
+
+      .required-toggle {
+        position: absolute;
+        top: 45px;
+        right: 75px;
+        font-size: 14pt;
+      }
+
+      .fa-square, .fa-check-square {
+        cursor: pointer;
+      }
+
+      .dropdown-toggle {
+        padding: 7px 14px;
+      }
+
+      .bootstrap-switch {
+        float: right;
+        margin-top: 7px;
+      }
+
+      #form-name:not(.edit-border), #form-description:not(.edit-border) {
+        border: #E2E2E2;
+      }
+
+      .public-toggle, #description-wrapper {
+        font-size: 14pt;
+      }
+
+      .tooltip {
+        text-align: left;
+      }
+
+      #form-preview {
+        margin-left: 5px;
+        font-size: 10pt;
+        position: relative;
+        top: -15px;
+      }
+
+      .response-table {
+        background: white;
+        border-radius: 5px;
+        width: 100% !important;
+      }
+
+      .button-columns {
+        text-align: center;
+      }
+
+      .dataTables_wrapper {
+        display: none;
+      }
+
+      .center-body {
+        text-align: center;
+      }
+
+      .fa-circle-notch {
+        font-size: 18pt;
+        color: #bbb;
+      }
+
+      .response {
+        background: #F7F7F7;
+        padding: 7px 9px;
+        width: 100%;
+        margin: 8px 0;
+        border-radius: 6px;
+      }
+
+      .response-question {
+        color: #111;
+        font-size: 14pt;
+      }
+
+      .response-answer {
+        color: #444;
+        font-size: 13pt;
+      }
+
+      #form-select {
+        margin-top: 8px;
+      }
+    </style>
+
+    <script src="/js/jquery-2.2.3.min.js"></script>
+    <script type="text/javascript" src="//cdn.datatables.net/v/bs/jq-2.2.4/dt-1.10.15/r-2.1.1/datatables.min.js"></script>
+  </head>
+  <body>
+    <%- include ../../partials/backend-nav.ejs %>
+    <div id='manager' class='manager'>
+      <span style='position: absolute; top: 40px; right: 30px;'>
+        <button id="download" class="btn btn-info" style="display: none">Download Spreadsheet</button>
+        <div class="btn-group" role="group">
+          <button id="btn-archived-hide" class="btn btn-primary active">Hide Archived</button>
+          <button id="btn-archived-show" class="btn btn-primary">Show Archived</button>
+        </div>
+        <br>
+        <div id="form-select" class="pull-right btn-group">
+          <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <span class="selected">Select Form...</span> <span class="caret"></span>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-right">
+            <% for(var i=0; i<forms.length; i++) {%>
+              <li><a href="#" data-form-id=<%= forms[i].id %>><%= forms[i].name %></a></li>
+            <% } %>
+          </ul>
+        </div>
+      </span>
+
+      <h1 class="display-4"><span id="form-name"></span> Responses</h1>
+
+      <p class="lead">To view responses, select a form on the right.</p>
+      <h2>Responses</h2>
+      <br>
+
+      <div class="row">
+        <div class="col-md-11">
+          <div id="table-wrapper" class="content"></div>
+        </div>
+      </div>
+
+      <div id="modal_view" class="modal fade" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <form method="POST" enctype="multipart/form-data">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title"></h4>
+              </div>
+              <div class="modal-body"></div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              </div>
+            </form>
+          </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+      </div><!-- /.modal -->
+
+      <div id="modal_archive" class="modal fade" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <form method="POST" enctype="multipart/form-data">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title"></h4>
+              </div>
+              <div class="modal-body"></div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button id="btn-archive-submit" type="button" class="btn btn-warning" data-dismiss="modal">Archive</button>
+              </div>
+            </form>
+          </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+      </div><!-- /.modal -->
+
+      <div id="modal_restore" class="modal fade" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <form method="POST" enctype="multipart/form-data">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title"></h4>
+              </div>
+              <div class="modal-body"></div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button id="btn-restore-submit" type="button" class="btn btn-warning" data-dismiss="modal">Restore</button>
+              </div>
+            </form>
+          </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+      </div><!-- /.modal -->
+
+      <div id="modal_delete" class="modal fade" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <form method="POST" enctype="multipart/form-data">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title"></h4>
+              </div>
+              <div class="modal-body"></div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button id="btn-delete-submit" type="button" class="btn btn-danger" data-dismiss="modal">Delete</button>
+              </div>
+            </form>
+          </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+      </div><!-- /.modal -->
+    </div>
+
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    <script>
+      var all_forms = {
+        <% for(var i=0; i<forms.length; i++) {%>
+          "<%= forms[i].id %>": {
+            "id": <%= forms[i].id %>,
+            "name": "<%= forms[i].name %>",
+            "description": "<%= forms[i].description %>",
+            "removable": <%= forms[i].removable %>,
+            "public": <%= forms[i].public %>,
+            "submissions": [],
+            "questions": []
+          },
+        <% } %>
+      };
+
+      <% for(var i=0; i<submissions.length; i++) {%>
+        all_forms["<%= submissions[i].form_id %>"]["submissions"]["<%= submissions[i].id %>"] = {
+          "id": <%= submissions[i].id %>,
+          "archived": <%= submissions[i].archived %>,
+          "form_id": <%= submissions[i].form_id %>,
+          "user_name": "<%= submissions[i].name %>",
+          "user_id": <% if (submissions[i].user_id) { %><%= submissions[i].user_id %><% } else { %>""<% } %>,
+          "submitted_at": Date.parse("<%= submissions[i].submitted_at %>"),
+          "responses": <%- JSON.stringify(submissions[i].responses) %>
+        };
+      <% } %>
+
+      var current_form;
+      var showing_archived = false;
+
+      $(document).ready(function() {
+        $('.btn-group li a').on('click', function(e) {
+          $("#download").show();
+          $(".dataTables_wrapper").hide();
+          current_form = $(this).data('form-id');
+          $('#form-select .selected').html(all_forms[current_form].name);
+          $("#form-name").html(all_forms[current_form].name);
+          $("#response-table-" + current_form + "_wrapper").show();
+        });
+
+        $.each(all_forms, function(i, form) {
+          if(form.public) {
+            createTable(i);
+          } else {
+            createEmployeeTable(i);
+          }
+        });
+        hideArchived();
+
+        $('#btn-archive-submit').on('click', function() {
+          var submission_id = $(this).data('submission-id');
+          $.post("/admin/manage/response/archive/" + submission_id, function(result) {
+            if(!result['success']) {
+              $("#table-wrapper").prepend(`
+                <div class="alert alert-danger alert-dismissible" role="alert">
+                  <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                  <strong>Error:</strong> Could not archive the submission.
+                </div>
+              `);
+            } else {
+              var d = all_forms[current_form].datatable.row("tr[data-submission-id=" + submission_id + "]").data();
+              d.archived = true;
+              all_forms[current_form].datatable.row("tr[data-submission-id=" + submission_id + "]").data(d).draw();
+              setArchived();
+              $("#table-wrapper").prepend(`
+                <div class="alert alert-success alert-dismissible" role="alert">
+                  <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                  The submission has been archived.
+                </div>
+              `);
+            }
+          });
+        });
+
+        $('#btn-restore-submit').on('click', function() {
+          var submission_id = $(this).data('submission-id');
+          $.post("/admin/manage/response/restore/" + submission_id, function(result) {
+            if(!result['success']) {
+              $("#table-wrapper").prepend(`
+                <div class="alert alert-danger alert-dismissible" role="alert">
+                  <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                  <strong>Error:</strong> Could not restore the submission.
+                </div>
+              `);
+            } else {
+              var d = all_forms[current_form].datatable.row("tr[data-submission-id=" + submission_id + "]").data();
+              d.archived = false;
+              all_forms[current_form].datatable.row("tr[data-submission-id=" + submission_id + "]").data(d).draw();
+              setArchived();
+              $("#table-wrapper").prepend(`
+                <div class="alert alert-success alert-dismissible" role="alert">
+                  <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                  The submission has been restored.
+                </div>
+              `);
+            }
+          });
+        });
+
+        $('#btn-delete-submit').on('click', function() {
+          var submission_id = $(this).data('submission-id');
+          $.post("/admin/manage/response/delete/" + submission_id, function(result) {
+            if(!result['success']) {
+              $("#table-wrapper").prepend(`
+                <div class="alert alert-danger alert-dismissible" role="alert">
+                  <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                  <strong>Error:</strong> Could not delete the submission.
+                </div>
+              `);
+            } else {
+              all_forms[current_form].datatable.row("tr[data-submission-id=" + submission_id + "]").remove().draw();
+              $("#table-wrapper").prepend(`
+                <div class="alert alert-success alert-dismissible" role="alert">
+                  <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                  The submission has been deleted.
+                </div>
+              `);
+            }
+          });
+        });
+
+        $('#download').on('click', function() {
+          var form = $(document.createElement('form'));
+          $(form).attr("method", "POST");
+          $(form).css("display", "none");
+
+          var input_form_id = $("<input>")
+            .attr("type", "number")
+            .attr("name", "form_id")
+            .val(current_form);
+          $(form).append($(input_form_id));
+
+          var input_download = $("<input>")
+            .attr("type", "checkbox")
+            .attr("name", "download")
+            .attr("value", "download")
+            .prop("checked", true);
+          $(form).append($(input_download));
+
+          form.appendTo(document.body);
+          $(form).submit();
+        });
+
+        $("#btn-archived-hide").on('click', function() {
+          $(this).addClass('active');
+          $("#btn-archived-show").removeClass('active');
+          showing_archived = false;
+          setArchived();
+        });
+
+        $("#btn-archived-show").on('click', function() {
+          $(this).addClass('active');
+          $("#btn-archived-hide").removeClass('active');
+          showing_archived = true;
+          setArchived();
+        });
+      });
+
+      function createEmployeeTable(form_id) {
+        var first_fields = [];
+        $.each(all_forms[form_id].submissions, function(i, submission) {
+          if(submission != undefined && submission.responses != null) {
+            for(var j=0; j<3; j++) {
+              if(submission.responses != null && submission.responses[j] != undefined) {
+                first_fields.push(submission.responses[j].question);
+              }
+            }
+            return false;
+          }
+        });
+        $("#table-wrapper").append(`
+          <table id="response-table-` + form_id + `" class="response-table table table-striped table-bordered">
+            <thead>
+              <tr>
+                <th>Employee</th>
+                <th>` + first_fields.join("</th><th>") + `</th>
+                <th>Submitted At</th>
+                <th>View</th>
+                <th>Archive</th>
+                <th>Delete</th>
+              </tr>
+            </thead>
+            <tfoot>
+              <tr>
+                <th>Employee</th>
+                <th>` + first_fields.join("</th><th>") + `</th>
+                <th style="width: 115px;">Submitted At</th>
+                <th style="width: 5px;">View</th>
+                <th style="width: 5px;">Archive</th>
+                <th style="width: 5px;">Delete</th>
+              </tr>
+            </tfoot>
+          </table>
+        `);
+        fillEmployeeTable(form_id, first_fields);
+      }
+
+      function fillEmployeeTable(form_id, first_fields) {
+        first_data = [];
+        for(var i = 0; i<first_fields.length; i++) {
+          first_data.push({
+            data: first_fields[i],
+            render: function(data, type, row, meta) {
+              if(row.responses && row.responses[meta.col-1]) {
+                return row.responses[meta.col-1].response;
+              } else {
+                return "";
+              }
+            }
+          });
+        }
+        all_forms[form_id].datatable = $('#response-table-' + form_id).DataTable( {
+          data: Object.values(all_forms[form_id].submissions),
+          createdRow: function(row, data, dataIndex) {
+            $(row).attr('data-submission-id', data.id);
+          },
+          columns: [{ data: 'user_name' }].concat(first_data.concat([
+            { data: 'submitted_at' },
+            {
+              data: 'view',
+              className: "button-columns",
+              orderable: false,
+              searchable: false,
+              defaultContent: '',
+              width: '25px',
+              render: function(data, type, row) {
+                return '<i class="fas fa-eye" data-submission-id="' + row.id + '"></i>';
+              }
+            },
+            {
+              data: 'archive',
+              className: "button-columns",
+              orderable: false,
+              searchable: false,
+              defaultContent: '',
+              width: '25px',
+              render: function(data, type, row) {
+                if(!row.archived) {
+                  return '<i class="fas fa-archive" data-submission-id="' + row.id + '"></i>';
+                } else {
+                  return '<i class="far fa-window-restore" data-submission-id="' + row.id + '"></i>';
+                }
+              }
+            },
+            {
+              data: 'delete',
+              className: "button-columns",
+              orderable: false,
+              searchable: false,
+              defaultContent: '',
+              width: '25px',
+              render: function(data, type, row) {
+                return '<i class="far fa-trash-alt" data-submission-id="' + row.id + '"></i>';
+              }
+            },
+            {
+              data: 'archived',
+              visible: false
+            }
+          ]))
+        });
+      }
+
+      function createTable(form_id) {
+        var first_fields = [];
+        $.each(all_forms[form_id].submissions, function(i, submission) {
+          if(submission != undefined && submission.responses != null) {
+            for(var j=0; j<3; j++) {
+              if(submission.responses != null && submission.responses[j] != undefined) {
+                first_fields.push(submission.responses[j].question);
+              }
+            }
+            return false;
+          }
+        });
+        $("#table-wrapper").append(`
+          <table id="response-table-` + form_id + `" class="response-table table table-striped table-bordered">
+            <thead>
+              <tr>
+                <th>` + first_fields.join("</th><th>") + `</th>
+                <th>Submitted At</th>
+                <th>View</th>
+                <th>Archive</th>
+                <th>Delete</th>
+              </tr>
+            </thead>
+            <tfoot>
+              <tr>
+                <th>` + first_fields.join("</th><th>") + `</th>
+                <th style="width: 115px;">Submitted At</th>
+                <th style="width: 5px;">View</th>
+                <th style="width: 5px;">Archive</th>
+                <th style="width: 5px;">Delete</th>
+              </tr>
+            </tfoot>
+          </table>
+        `);
+        fillTable(form_id, first_fields);
+      }
+
+      function fillTable(form_id, first_fields) {
+        first_data = [];
+        for(var i = 0; i<first_fields.length; i++) {
+          first_data.push({
+            data: first_fields[i],
+            render: function(data, type, row, meta) {
+              if(row.responses && row.responses[meta.col]) {
+                return row.responses[meta.col].response;
+              } else {
+                return "";
+              }
+            }
+          });
+        }
+        all_forms[form_id].datatable = $('#response-table-' + form_id).DataTable( {
+          data: Object.values(all_forms[form_id].submissions),
+          createdRow: function(row, data, dataIndex) {
+            $(row).attr('data-submission-id', data.id);
+          },
+          columns: first_data.concat([
+            { data: 'submitted_at' },
+            {
+              data: 'view',
+              className: "button-columns",
+              orderable: false,
+              searchable: false,
+              defaultContent: '',
+              width: '25px',
+              render: function(data, type, row) {
+                // return row.id;
+                return '<i class="fas fa-eye" data-submission-id="' + row.id + '"></i>';
+              }
+            },
+            {
+              data: 'archive',
+              className: "button-columns",
+              orderable: false,
+              searchable: false,
+              defaultContent: '',
+              width: '25px',
+              render: function(data, type, row) {
+                if(!row.archived) {
+                  return '<i class="fas fa-archive" data-submission-id="' + row.id + '"></i>';
+                } else {
+                  return '<i class="far fa-window-restore" data-submission-id="' + row.id + '"></i>';
+                }
+              }
+            },
+            {
+              data: 'delete',
+              className: "button-columns",
+              orderable: false,
+              searchable: false,
+              defaultContent: '',
+              width: '25px',
+              render: function(data, type, row) {
+                return '<i class="far fa-trash-alt" data-submission-id="' + row.id + '"></i>';
+              }
+            },
+            {
+              data: 'archived',
+              visible: false
+            }
+          ])
+        });
+      }
+
+      function setClicks() {
+        $('.fa-eye').off('click');
+        $('.fa-eye').on('click', function() {
+          $('#modal_view .modal-body').addClass('center-body');
+          $('#modal_view .modal-body').html('<i class="fas fa-spin fa-circle-notch"></i>');
+          $('#modal_view .modal-title').html(all_forms[current_form].name + " responses from " + all_forms[current_form]["submissions"][$(this).data('submission-id')].user_name)
+          $('#modal_view').modal('show');
+          $.post("/admin/manage/response/view/" + $(this).data('submission-id'), function(result) {
+            $('#modal_view .modal-body').removeClass('center-body');
+            if(result.responses != undefined) {
+              $('#modal_view .modal-body').html("");
+              $.each(result.responses, function(i, response) {
+                $('#modal_view .modal-body').append(`
+                  <div class="response">
+                    <div class="response-question">` + response.question + `</div>
+                    <div class="response-response">` + response.response + `</div>
+                  </div>
+                `);
+              });
+            } else {
+              $('#modal_view .modal-body').html("Responses could not be found.");
+            }
+          });
+        });
+
+        $('.fa-archive').off('click');
+        $('.fa-archive').on('click', function() {
+          $('#modal_archive .modal-body').html("You will still have the option of viewing the responses in the table. However, they will not be visible by default.");
+          $('#modal_archive .modal-title').html("Are you sure you want to archive this submission?");
+          $("#btn-archive-submit").data('submission-id', $(this).data('submission-id'));
+          $('#modal_archive').modal('show');
+        });
+
+        $('.fa-window-restore').off('click');
+        $('.fa-window-restore').on('click', function() {
+          $('#modal_restore .modal-body').html("The responses will once again be available in the table by default.");
+          $('#modal_restore .modal-title').html("Are you sure you want to restore this submission?");
+          $("#btn-restore-submit").data('submission-id', $(this).data('submission-id'));
+          $('#modal_restore').modal('show');
+        });
+
+        $('.fa-trash-alt').off('click');
+        $('.fa-trash-alt').on('click', function() {
+          $('#modal_delete .modal-body').html("None of the responses associated with this submission will be available if deleted.");
+          $('#modal_delete .modal-title').html("Are you sure you want to delete this submission?");
+          $("#btn-delete-submit").data('submission-id', $(this).data('submission-id'));
+          $('#modal_delete').modal('show');
+        });
+      }
+
+      function toggleArchived() {
+        showing_archived = !showing_archived;
+        setArchived();
+      }
+
+      function setArchived() {
+        if(showing_archived) {
+          showArchived();
+        } else {
+          hideArchived();
+        }
+      }
+
+      function hideArchived() {
+        $.fn.dataTable.ext.search.pop();
+        $.fn.dataTable.ext.search.push(
+          function(settings, data, dataIndex) {
+            return (data[data.length-1] == 'false');
+          }
+        );
+        $.each(all_forms, function(i, form) {
+          form.datatable.draw();
+        });
+        setClicks();
+      }
+
+      function showArchived() {
+        $.fn.dataTable.ext.search.pop();
+        $.fn.dataTable.ext.search.push(
+          function(settings, data, dataIndex) {
+            return true;
+          }
+        );
+        $.each(all_forms, function(i, form) {
+          form.datatable.draw();
+        });
+        setClicks();
+      }
+    </script>
+  </body>
+</html>

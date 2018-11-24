@@ -292,6 +292,50 @@
       .dropdown button.dropdown-toggle .dropdown-caret {
         float: right;
       }
+
+      .required::after {
+        content: ' *';
+        color: red;
+      }
+
+      .required-toggle {
+        position: absolute;
+        top: 45px;
+        right: 75px;
+        font-size: 14pt;
+      }
+
+      .fa-square, .fa-check-square {
+        cursor: pointer;
+      }
+
+      .dropdown-toggle {
+        padding: 7px 14px;
+      }
+
+      .bootstrap-switch {
+        float: right;
+        margin-top: 7px;
+      }
+
+      #form-name:not(.edit-border), #form-description:not(.edit-border) {
+        border: #E2E2E2;
+      }
+
+      .public-toggle, #description-wrapper {
+        font-size: 14pt;
+      }
+
+      .tooltip {
+        text-align: left;
+      }
+
+      #form-preview {
+        margin-left: 5px;
+        font-size: 10pt;
+        position: relative;
+        top: -15px;
+      }
     </style>
 
     <script src="/js/jquery-2.2.3.min.js"></script>
@@ -302,13 +346,32 @@
     <%- include ../../partials/backend-nav.ejs %>
     <div id='manager' class='manager'>
       <span style='position: absolute; top: 40px; right: 30px;'>
+        <button type="button" id="btn-form-delete" class="btn btn-danger" style="display: none">
+          Delete Form
+        </button>
+        <button type="button" id="btn-form-create" class="btn btn-primary">
+          Create New Form
+        </button>
+        <div id="form-select" class="btn-group">
+          <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <span class="selected">Select Form...</span> <span class="caret"></span>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-right">
+            <% for(var i=0; i<forms.length; i++) {%>
+              <li><a href="#" data-form-id=<%= forms[i].id %>><%= forms[i].name %></a></li>
+            <% } %>
+          </ul>
+        </div>
+        <br>
         <input id='edit-switch' type="checkbox" data-on-text='View' data-off-text='Edit' data-on-color='default' data-off-color='primary' checked>
       </span>
 
-      <h1 class="display-4">Form Manager</h1>
+      <h1 class="display-4"><span class="edit" id="form-name">Form</span> Manager<a id="form-preview" href="#" target="_blank" style="display: none;">Preview <i class="fas fa-external-link-alt"></i></a></h1>
 
       <p class="lead">To edit the questions, toggle the switch to edit then save your changes.</p>
-
+      <span id="description-wrapper" style="display: none">Description: <span class="edit" id="form-description"></span></span>
+      <br>
+      <span class="public-toggle" style="display: none" data-toggle="tooltip" data-placement="bottom" title="If this box is checked, the form will be available to the public. Otherwise, only employees will be able to access it."><i class="far fa-square" data-type="public-toggle" aria-hidden="true"></i> Form available to the public</span>
       <h2>Questions&nbsp;<i class="fa fa-plus-square" aria-hidden="true" data-type='questions'></i></h2>
       <br>
       <div id='question-list' class="list-group">
@@ -323,22 +386,57 @@
 
     </div>
 
+    <div id="modal_delete" class="modal fade" tabindex="-1" role="dialog">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <form method="POST" enctype="multipart/form-data">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+              <h4 class="modal-title">Are you sure you want to delete "<span id="modal-form-name"></span>"?</h4>
+            </div>
+            <div class="modal-body">
+              All associated questions and responses will also be deleted.
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              <button id="btn-modal-delete" class="btn btn-danger">Delete</button>
+            </div>
+          </form>
+        </div><!-- /.modal-content -->
+      </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+
     <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
     <script>
-      var form_save = [
-        <% for(var i=0; i<questions.length; i++) {%>
-          {
-            "id": <%= questions[i].id %>,
-            "question": "<%= questions[i].question %>",
-            "placeholder": "<%= questions[i].placeholder %>",
-            "options": "<%= questions[i].options %>".split(","),
-            "sort_order": <%= questions[i].sort_order %>,
-            "is_email": <%= questions[i].is_email %>,
-            "is_phone": <%= questions[i].is_phone %>,
-            "type_id": "<%= questions[i].type_id %>",
-          },
+      var all_forms = {
+        <% for(var i=0; i<forms.length; i++) {%>
+            <%= forms[i].id %>: {
+              "id": <%= forms[i].id %>,
+              "name": "<%= forms[i].name %>",
+              "description": "<%= forms[i].description %>",
+              "removable": <%= forms[i].removable %>,
+              "public": <%= forms[i].public %>,
+              "questions": []
+            },
         <% } %>
-      ];
+      };
+      <% for(var i=0; i<questions.length; i++) {%>
+        all_forms[<%= questions[i].form_id %>]["questions"].push({
+          "id": <%= questions[i].id %>,
+          "question": "<%= questions[i].question %>",
+          "placeholder": "<%= questions[i].placeholder %>",
+          "description": "<%= questions[i].description %>",
+          "required": <%= questions[i].required %>,
+          "options": "<%= questions[i].options %>".split(","),
+          "sort_order": <%= questions[i].sort_order %>,
+          "is_email": <%= questions[i].is_email %>,
+          "is_phone": <%= questions[i].is_phone %>,
+          "type_id": "<%= questions[i].type_id %>"
+        });
+      <% } %>
+
+      var current_form;
+      var form_save = [];
 
       sortSave();
 
@@ -357,15 +455,26 @@
       $(document).ready(function() {
         revert(false);
 
+        $('.public-toggle').tooltip();
         $("#edit-switch").bootstrapSwitch();
 
         $('#edit-switch').on('switchChange.bootstrapSwitch', function(event, state) {
-          toggleEdit(state);
+          if(current_form != undefined) {
+            toggleEdit(state);
+          }
         });
 
         $('#save').on('click', function() {
           $('#save').prop('disabled', true);
 
+          all_forms[current_form].name = $.trim($('#form-name').html());
+          all_forms[current_form].description = ($("#form-description").find('span').html() != undefined) ? $.trim($("#form-description").find('span').html()) : $.trim($("#form-description").html());
+          if(all_forms[current_form].description.toLowerCase() == "none") {
+            all_forms[current_form].description = "";
+          }
+          all_forms[current_form].public = $('[data-type="public-toggle"]').hasClass('fa-check-square');
+          $('[data-form-id="' + current_form + '"]').html(all_forms[current_form].name);
+          $('#form-select .selected').html(all_forms[current_form].name);
           form_save = getQuestions();
           sortSave();
           save();
@@ -377,12 +486,44 @@
         $('#revert').on('click', function() {
           revert(true);
         });
+
+        $('#btn-form-create').on('click', function() {
+          $.post("/admin/manage/form/create", function(result) {
+            all_forms[result.id] = {
+              "id": result.id,
+              "name": result.name,
+              "description": "None",
+              "removable": true,
+              "public": true,
+              "questions": []
+            };
+
+            current_form = result.id;
+            var selected = $('#form-select').find('.dropdown-toggle');
+            $('#form-select').find('.dropdown-menu').append('<li><a href="#" data-form-id=' + result.id + '>' + result.name + '</a></li>');
+            revert(false);
+          });
+        });
+
+        $('#btn-form-delete').on('click', function() {
+          $('#modal-form-name').html(all_forms[current_form].name);
+          $('#modal_delete').modal('show');
+        });
+
+        $('#btn-modal-delete').on('click', function() {
+          $.post("/admin/manage/form/delete-form", {'id': current_form}, function(result) {
+            location.reload();
+          });
+        });
       });
 
       function save() {
+        $.post("/admin/manage/form", {"form": all_forms[current_form]}, function(result) {
+          console.log(result);
+        });
         $.each(form_save, function(i, val) {
           if(val.id.includes("new")) {
-            $.post("/admin/manage/form/insert", {"question": val}, function(result) {
+            $.post("/admin/manage/form/insert", {"question": val, "form_id": current_form}, function(result) {
               $("[data-question-id='" + val.id + "']").attr("data-question-id", result.id);
               console.log(result);
             });
@@ -398,6 +539,8 @@
             console.log(result);
           });
         }
+
+        all_forms[current_form].questions = form_save;
       }
 
       function getQuestions() {
@@ -411,15 +554,23 @@
 
       function getQuestion(id) {
         var qdiv = $("[data-question-id='" + id + "']");
-        var question = $.trim(qdiv.find('[data-id="question"]').html());
+        var question = (qdiv.find('[data-id="question"]').find('span').html() != undefined) ? $.trim(qdiv.find('[data-id="question"]').find('span').html()) : $.trim(qdiv.find('[data-id="question"]').html());
         var placeholder = "";
         if (qdiv.find('[data-id="placeholder"]') !== 'undefined') {
-          placeholder = $.trim(qdiv.find('[data-id="placeholder"]').html());
+          placeholder = (qdiv.find('[data-id="placeholder"]').find('span').html() != undefined) ? $.trim(qdiv.find('[data-id="placeholder"]').find('span').html()) : $.trim(qdiv.find('[data-id="placeholder"]').html());
         }
+        var description = "";
+        if (qdiv.find('[data-id="description"]') !== 'undefined') {
+          description = (qdiv.find('[data-id="description"]').find('span').html() != undefined) ? $.trim(qdiv.find('[data-id="description"]').find('span').html()) : $.trim(qdiv.find('[data-id="description"]').html());
+        }
+        if (description == "None") {
+          description = "";
+        }
+        var required = qdiv.find('[data-id="question"]').parent().hasClass('required');
         var options = [];
         if (qdiv.find('[data-id="options"]') !== 'undefined') {
           $.each(qdiv.find('[data-id="options"]'), function(i, v) {
-            options.push($.trim($(v).html()));
+            options.push(($(v).find('span').html() != undefined) ? $.trim($(v).find('span').html()).replace('&nbsp;', '') : $.trim($(v).html()).replace('&nbsp;', ''));
           });
         }
         var sort_order = parseInt(qdiv.attr('data-sort-order'), 10);
@@ -439,8 +590,10 @@
 
         var question = {
           'id':          id,
-          "question":    question,
-          "placeholder": placeholder,
+          "question":    question.replace('&nbsp;', ''),
+          "placeholder": placeholder.replace('&nbsp;', ''),
+          "description": description.replace('&nbsp;', ''),
+          "required":    required,
           "options":     options,
           "sort_order":  sort_order,
           "is_email":    is_email,
@@ -450,7 +603,7 @@
         return question;
       }
 
-      function newQuestion(id, question, placeholder, options, type_id, is_email = false, is_phone = false) {
+      function newQuestion(id, question, description, placeholder, options, type_id, required = false, is_email = false, is_phone = false) {
         type_id = parseInt(type_id, 10);
         var t;
         var text_type;
@@ -463,39 +616,55 @@
           }
         }
         if (typeof t === typeof undefined) {
-          return newQuestionText(id, question, placeholder, text_type.id, is_email, is_phone);
+          return newQuestionText(id, question, description, placeholder, text_type.id, required, is_email, is_phone);
         } else if (t.type === "textarea") {
-          return newQuestionTextarea(id, question, type_id);
+          return newQuestionTextarea(id, question, description, type_id, required);
         } else if (t.type === "checkbox") {
-          return newQuestionCheckbox(id, question, options, type_id);
+          return newQuestionCheckbox(id, question, description, options, type_id, required);
         } else if (t.type === "radio") {
-          return newQuestionRadio(id, question, options, type_id);
+          return newQuestionRadio(id, question, description, options, type_id, required);
         } else {
-          return newQuestionText(id, question, placeholder, text_type.id, is_email, is_phone);
+          return newQuestionText(id, question, description, placeholder, text_type.id, required, is_email, is_phone);
         }
       }
 
-      function newQuestionTextarea(id, question, type_id) {
+      function newQuestionTextarea(id, question, description, type_id, required = false) {
+        var d = "None";
+        if(description != "") {
+          d = description;
+        }
+        var r = (required) ? " required" : "";
         return '<li class="list-group-item list-group-item-action flex-column align-items-start" data-id="container" data-question-id=' + id + '>'
-            + getTypes(type_id)
+            + getTypes(type_id, required)
             + '<div class="d-flex w-100 justify-content-between">'
-              + '<h3 class="mb-1"><span class="edit" data-id="question">' + question + '</span></h3>'
+              + '<h3 class="mb-1' + r + '"><span class="edit" data-id="question">' + question + '</span></h3>'
+              + '<p class="mb-1" style="padding-left:18px;">'
+                + 'Description: <span class="edit" data-id="description">' + d + '</span>'
+              + '</p>'
             + '</div>'
           + '</li>';
       }
 
-      function newQuestionCheckbox(id, question, options, type_id) {
+      function newQuestionCheckbox(id, question, description, options, type_id, required = false) {
+        var d = "None";
+        if(description != "") {
+          d = description;
+        }
         var options_html = "";
         $.each(options, function(i, v) {
           options_html += '<p class="mb-1" style="padding-left:18px;">'
                           + '<span class="edit" data-id="options">' + v + '</span><i class="far fa-trash-alt large option" aria-hidden="true"></i>'
                         + '</p>';
         });
+        var r = (required) ? " required" : "";
         return '<li class="list-group-item list-group-item-action flex-column align-items-start" data-id="container" data-question-id=' + id + '>'
-            + getTypes(type_id)
+            + getTypes(type_id, required)
             + '<div class="d-flex w-100 justify-content-between">'
-              + '<h3 class="mb-1"><span class="edit" data-id="question">' + question + '</span></h3>'
+              + '<h3 class="mb-1' + r + '"><span class="edit" data-id="question">' + question + '</span></h3>'
             + '</div>'
+            + '<p class="mb-1" style="padding-left:18px;">'
+              + 'Description: <span class="edit" data-id="description">' + d + '</span>'
+            + '</p>'
             + '<div class="options">'
               + '<h3>Options <i class="fa fa-plus-square" aria-hidden="true" data-type="option"></i></h3>'
               + options_html
@@ -503,18 +672,26 @@
           + '</li>';
       }
 
-      function newQuestionRadio(id, question, options, type_id) {
+      function newQuestionRadio(id, question, description, options, type_id, required = false) {
+        var d = "None";
+        if(description != "") {
+          d = description;
+        }
         var options_html = "";
         $.each(options, function(i, v) {
           options_html += '<p class="mb-1" style="padding-left:18px;">'
                           + '<span class="edit" data-id="options">' + v + '</span><i class="far fa-trash-alt large option" aria-hidden="true"></i>'
                         + '</p>';
         });
+        var r = (required) ? " required" : "";
         return '<li class="list-group-item list-group-item-action flex-column align-items-start" data-id="container" data-question-id=' + id + '>'
-            + getTypes(type_id)
+            + getTypes(type_id, required)
             + '<div class="d-flex w-100 justify-content-between">'
-              + '<h3 class="mb-1"><span class="edit" data-id="question">' + question + '</span></h3>'
+              + '<h3 class="mb-1' + r + '"><span class="edit" data-id="question">' + question + '</span></h3>'
             + '</div>'
+            + '<p class="mb-1" style="padding-left:18px;">'
+              + 'Description: <span class="edit" data-id="description">' + d + '</span>'
+            + '</p>'
             + '<div class="options">'
               + '<h3>Options <i class="fa fa-plus-square" aria-hidden="true" data-type="option"></i></h3>'
               + options_html
@@ -522,12 +699,20 @@
           + '</li>';
       }
 
-      function newQuestionText(id, question, placeholder, type_id, is_email = false, is_phone = false) {
+      function newQuestionText(id, question, description, placeholder, type_id, required = false, is_email = false, is_phone = false) {
+        var d = "None";
+        if(description != "") {
+          d = description;
+        }
+        var r = (required) ? " required" : "";
         return '<li class="list-group-item list-group-item-action flex-column align-items-start" data-id="container" data-question-id=' + id + '>'
-            + getTextTypes(type_id, is_email, is_phone)
+            + getTextTypes(type_id, required, is_email, is_phone)
             + '<div class="d-flex w-100 justify-content-between">'
-              + '<h3 class="mb-1"><span class="edit" data-id="question">' + question + '</span></h3>'
+              + '<h3 class="mb-1' + r + '"><span class="edit" data-id="question">' + question + '</span></h3>'
             + '</div>'
+            + '<p class="mb-1" style="padding-left:18px;">'
+              + 'Description: <span class="edit" data-id="description">' + d + '</span>'
+            + '</p>'
             + '<p class="mb-1" style="padding-left:18px;">'
               + 'Placeholder: <span class="edit" data-id="placeholder">' + placeholder + '</span>'
             + '</p>'
@@ -540,12 +725,16 @@
                 + '</p>';
       }
 
-      function getTypes(type_id) {
+      function getTypes(type_id, required) {
         var t = -1;
         for (var i = 0; i < types.length; i++) {
           if (type_id === types[i].id) {
             t = types[i];
           }
+        }
+        var c = 'fa-square';
+        if(required) {
+          c = 'fa-check-square';
         }
         ret = '<span class="right-corner">'
           + '<i class="far fa-trash-alt large question" aria-hidden="true"></i>'
@@ -561,13 +750,13 @@
         ret += '</ul>'
             + '</div>'
           + '<br>'
-          + '<span class="sorter-container"><i class="fa fa-chevron-down sorter" aria-hidden="true"></i><i class="fa fa-chevron-up sorter" aria-hidden="true"></i></span>'
+          + '<span class="required-toggle">Required: <i class="far ' + c + '" aria-hidden="true"></i></span><span class="sorter-container"><i class="fa fa-chevron-down sorter" aria-hidden="true"></i><i class="fa fa-chevron-up sorter" aria-hidden="true"></i></span>'
         + '</span>';
 
         return ret;
       }
 
-      function getTextTypes(type_id, is_email, is_phone) {
+      function getTextTypes(type_id, required, is_email, is_phone) {
         var validator = "Select validator";
         if(is_email) {
           validator = "Email";
@@ -579,6 +768,10 @@
           if (type_id === types[i].id) {
             t = types[i];
           }
+        }
+        var c = 'fa-square';
+        if(required) {
+          c = 'fa-check-square';
         }
         ret = '<span class="right-corner">'
           + '<i class="far fa-trash-alt large question" aria-hidden="true"></i>'
@@ -605,7 +798,7 @@
               + '</ul>'
             + '</div>'
           + '<br>'
-          + '<span class="sorter-container"><i class="fa fa-chevron-down sorter" aria-hidden="true"></i><i class="fa fa-chevron-up sorter" aria-hidden="true"></i></span>'
+          + '<span class="required-toggle">Required: <i class="far ' + c + '" aria-hidden="true"></i></span><span class="sorter-container"><i class="fa fa-chevron-down sorter" aria-hidden="true"></i><i class="fa fa-chevron-up sorter" aria-hidden="true"></i></span>'
         + '</span>';
 
         return ret;
@@ -614,6 +807,7 @@
       function toggleEdit(state) {
         if(!state) {
           setClicks();
+          $('.public-toggle').show();
           $('.edit').attr('contenteditable', true);
           $('.edit').addClass('edit-border');
           $('.right-corner').attr('contenteditable', false);
@@ -629,6 +823,7 @@
           $("[data-id='container']").addClass('edit-padding');
         } else {
           revert(false);
+          $('.public-toggle').hide();
           $('.edit').attr('contenteditable', false);
           $('.edit').removeClass('edit-border');
           $('.right-corner').attr('contenteditable', false);
@@ -648,7 +843,7 @@
         $('.fa-plus-square').off('click');
         $('.fa-plus-square').on('click', function() {
           if($(this).attr('data-type') === "questions") {
-            $('#question-list').append(newQuestion('new' + n, 'What is your question?', 'Answer here', [], 1));
+            $('#question-list').append(newQuestion('new' + n, 'What is your question?', 'None', 'Answer here', [], 1,));
             n++;
           } else {
             $(this).closest("div.options").append(newOption("New Option"));
@@ -665,7 +860,7 @@
             selected.attr('data-type-id', type_id);
             var id = $(this).closest('[data-id="container"]').attr('data-question-id');
             var question = getQuestion(id);
-            var new_question = newQuestion(question.id, question.question, question.placeholder, question.options, question.type_id, question.is_email, question.is_phone);
+            var new_question = newQuestion(question.id, question.question, question.description, question.placeholder, question.options, question.type_id, question.required, question.is_email, question.is_phone);
             $("[data-question-id='" + id + "']").replaceWith(new_question);
           } else {
             var validator = $(this).html();
@@ -674,6 +869,14 @@
           }
           setClicks();
           toggleEdit(false);
+          e.preventDefault();
+        });
+
+        $('.btn-group li a').off('click');
+        $('.btn-group li a').on('click', function(e) {
+          current_form = $(this).data('form-id');
+          var selected = $(this).closest('.btn-group').find('.dropdown-toggle');
+          revert(false);
           e.preventDefault();
         });
 
@@ -699,7 +902,19 @@
           if(key == 13) {
             e.preventDefault();
             e.stopPropagation();
-            $('#question-list').append(newQuestion('new' + n, 'What is your question?', 'Answer here', [], 1));
+            $('#question-list').append(newQuestion('new' + n, 'What is your question?', 'None', 'Answer here', [], 1));
+            n++;
+            toggleEdit(false);
+          }
+        });
+
+        $('[data-id="question"], [data-id="description"]').off('keypress')
+        $('[data-id="question"], [data-id="description"]').on('keypress', function(e) {
+          var key = e.which;
+          if(key == 13) {
+            e.preventDefault();
+            e.stopPropagation();
+            $('#question-list').append(newQuestion('new' + n, 'What is your question?', 'None', 'Answer here', [], 1));
             n++;
             toggleEdit(false);
           }
@@ -732,14 +947,67 @@
           setClicks();
         });
 
+        $('.fa-square').off('click');
+        $('.fa-square').on('click', function() {
+          if($(this).data("type") == "public-toggle") {
+            all_forms[current_form].public = true;
+          } else {
+            var parent = $(this).closest('[data-id="container"]').find('[data-id="question"]').parent();
+            parent.addClass('required');
+          }
+          $(this).removeClass('fa-square');
+          $(this).addClass('fa-check-square');
+          setClicks();
+        });
+
+        $('.fa-check-square').off('click');
+        $('.fa-check-square').on('click', function() {
+          if($(this).data("type") == "public-toggle") {
+            all_forms[current_form].public = false;
+          } else {
+            var parent = $(this).closest('[data-id="container"]').find('[data-id="question"]').parent();
+            parent.removeClass('required');
+          }
+          $(this).removeClass('fa-check-square');
+          $(this).addClass('fa-square');
+          setClicks();
+        });
+
         setSortOrder();
       }
 
       function revert(toggle) {
+        if(current_form != undefined) {
+          $('#description-wrapper').show();
+          if(all_forms[current_form].description) {
+            $('#form-description').html(all_forms[current_form].description);
+          } else {
+            $('#form-description').html("None");
+          }
+          if(all_forms[current_form].removable) {
+            $("#btn-form-delete").show();
+          } else {
+            $("#btn-form-delete").hide();
+          }
+          if(all_forms[current_form].public) {
+            $("#form-preview").attr('href', '/form?formid=' + all_forms[current_form].id);
+            $('[data-type="public-toggle"]').removeClass('fa-square');
+            $('[data-type="public-toggle"]').addClass('fa-check-square');
+          } else {
+            $("#form-preview").attr('href', '/employee/form?formid=' + all_forms[current_form].id);
+            $('[data-type="public-toggle"]').removeClass('fa-check-square');
+            $('[data-type="public-toggle"]').addClass('fa-square');
+          }
+          $("#form-preview").show();
+          form_save = all_forms[current_form].questions;
+          $('#form-select .selected').html(all_forms[current_form].name);
+          $("#form-name").html(all_forms[current_form].name);
+        }
+
         $('#question-list').html('');
 
         $.each(form_save, function(i, value) {
-          $('#question-list').append(newQuestion(value.id, value.question, value.placeholder, value.options, value.type_id, value.is_email, value.is_phone));
+          $('#question-list').append(newQuestion(value.id, value.question, value.description, value.placeholder, value.options, value.type_id, value.required, value.is_email, value.is_phone));
         });
 
         setClicks();
@@ -755,10 +1023,39 @@
       }
 
       function sortSave() {
-        form_save = form_save.sort(function (a, b) {
-          return a.sort_order - b.sort_order;
+        Reflect.ownKeys(all_forms).forEach(key => {
+          all_forms[key].questions = all_forms[key].questions.sort(function (a, b) {
+            return a.sort_order - b.sort_order;
+          });
         });
       }
+
+      // function loadForm(selected) {
+      //   if(all_forms[current_form].description) {
+      //     $('#form-description').html(all_forms[current_form].description);
+      //   } else {
+      //     $('#form-description').html("None");
+      //   }
+      //   if(all_forms[current_form].removable) {
+      //     $("#btn-form-delete").show();
+      //   } else {
+      //     $("#btn-form-delete").hide();
+      //   }
+      //   if(all_forms[current_form].public) {
+      //     $("#form-preview").attr('href', '/form?formid=' + all_forms[current_form].id);
+      //     $('[data-type="public-toggle"]').removeClass('fa-square');
+      //     $('[data-type="public-toggle"]').addClass('fa-check-square');
+      //   } else {
+      //     $("#form-preview").attr('href', '/employee/form?formid=' + all_forms[current_form].id);
+      //     $('[data-type="public-toggle"]').removeClass('fa-check-square');
+      //     $('[data-type="public-toggle"]').addClass('fa-square');
+      //   }
+      //   $("#form-preview").show();
+      //   form_save = all_forms[current_form].questions;
+      //   selected.find('.selected').html(all_forms[current_form].name);
+      //   $("#form-name").html(all_forms[current_form].name);
+      //   revert(false);
+      // }
     </script>
   </body>
 </html>

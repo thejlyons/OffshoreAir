@@ -1,6 +1,7 @@
+.navbar {
+  border-radius: 0 !important;
+}
 
-
-/*stole this from creative.css*/
 .navbar-default {
   background-color: white;
   border-color: rgba(34, 34, 34, 0.05);

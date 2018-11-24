@@ -277,6 +277,15 @@
       #controls {
         display: none;
       }
+
+      #jobs_toggle {
+        float: right;
+        margin-bottom: 7px;
+      }
+
+      .lead {
+        width: 85%;
+      }
     </style>
 
     <script src="/js/jquery-2.2.3.min.js"></script>
@@ -287,12 +296,20 @@
     <%- include ../../partials/backend-nav.ejs %>
     <div id='manager' class='manager'>
       <span style='position: absolute; top: 40px; right: 30px;'>
+        <button id="jobs_toggle" type="button" class="btn btn-primary<% if(is_visible) { %> active <% }%>" data-toggle="button" aria-pressed="<%= is_visible %>" autocomplete="off">
+          <% if(is_visible) { %>
+            Hide Page
+          <% } else { %>
+            Show page
+          <% }%>
+        </button>
+        <br>
         <input id='edit-switch' type="checkbox" data-on-text='View' data-off-text='Edit' data-on-color='default' data-off-color='primary' checked>
       </span>
 
       <h1 class="display-4">Jobs Manager</h1>
 
-      <p class="lead">To edit the jobs, toggle the switch to edit then save your changes.</p>
+      <p class="lead">To edit the jobs, toggle the switch to edit then save your changes. If needed, you can remove the Sample Work page from the public side. To do this, press 'Hide Page' on the left. To show the page again, press 'Show Page.'</p>
 
       <h2>Jobs&nbsp;<i class="fa fa-plus-square" aria-hidden="true" data-type='jobs'></i></h2>
       <div id='jobs-list' class="list-group">
@@ -305,6 +322,7 @@
       </div>
     </div>
 
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/dropzone/5.1.1/min/dropzone.min.js"></script>
     <script>
       var job_save = [
@@ -558,6 +576,15 @@
         $('.upload-form').on('submit', function(e) {
           e.preventDefault();
         });
+
+        $('#jobs_toggle').off('click');
+        $('#jobs_toggle').on('click', function() {
+          var btn = ($(this).attr('aria-pressed') == 'true') ? "Show Page" : "Hide Page";
+          $(this).html(btn);
+          $(this).removeClass('focus');
+          $.post("/admin/manage/jobs/toggle");
+        });
+
       }
 
       function revert(toggle) {

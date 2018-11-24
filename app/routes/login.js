@@ -1,16 +1,23 @@
 var ACM = require('../modules/account-manager');
 var EMD = require('../modules/email-dispatcher');
+var NHM = require('../modules/new-hire-manager.js');
 
 module.exports = function(app) {
   app.get('/login', function (req, res) {
-    if (req.cookies.user == undefined || req.cookies.pass == undefined){
+    console.log(req.cookies.user);
+    if (req.session.user == null && (req.cookies.email == undefined || req.cookies.pass == undefined)){
       res.render('pages/login');
 		}	else{
 	    // attempt automatic login //
-      ACM.autoLogin(req.cookies.email, req.cookies.pass, function(o) {
+      var email = (req.session.user == null) ? req.cookies.email : req.session.user.email;
+      var pass = (req.session.user == null) ? req.cookies.pass : req.session.user.password;
+      ACM.autoLogin(email, pass, function(o) {
 				if (o != null) {
-          req.session.user = o;
-					res.redirect('/admin');
+          NHM.isHR(o, function(err, is_hr) {
+            o.is_hr = is_hr;
+            req.session.user = o;
+  					res.redirect('/admin');
+          });
 				}	else {
 					res.render('pages/login');
 				}
@@ -20,15 +27,18 @@ module.exports = function(app) {
 
   app.post('/login', function(req, res){
 		ACM.manualLogin(req.body['email'], req.body['pass'], function(e, o){
-			if (!o){
+			if (!o) {
 				res.status(400).send(e);
-			}	else{
-				req.session.user = o;
-				if (req.body['remember-me'] == 'true'){
-					res.cookie('email', o.email,    { maxAge: 900000 });
-					res.cookie('pass',  o.password, { maxAge: 900000 });
-				}
-        res.redirect('/admin');
+			}	else {
+        NHM.isHR(o, function(err, is_hr) {
+          o.is_hr = is_hr;
+          req.session.user = o;
+          if (req.body['remember-me'] == 'true'){
+            res.cookie('email', o.email,    { maxAge: 900000 });
+            res.cookie('pass',  o.password, { maxAge: 900000 });
+          }
+          res.redirect('/admin');
+        });
 			}
 		});
 	});

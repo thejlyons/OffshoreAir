@@ -57,6 +57,67 @@
         top: -0.5px;
         left: -2px;
       }
+
+      small a {
+        border: 0 !important;
+        padding: 0 5px !important;
+      }
+
+      .btn-attachment {
+        background: #428bca;
+        border-radius: 3px;
+        color: white;
+        font-size: 12pt;
+        padding: 4px 6px;
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        cursor: pointer;
+      }
+
+      .btn-attachment .fa-plus {
+        font-size: 8pt;
+        position: relative;
+        top: -2px;
+        right: 1px;
+      }
+
+      .btn-attachment:hover {
+        background: #3276b1
+      }
+
+      .fa-plus-square {
+        color: #428bca;
+      }
+
+      .fa-plus-square:hover {
+        color: #3276b1
+      }
+
+      .fa-trash-alt:hover {
+        background: #9D1515;
+      }
+
+      .right-corner {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+      }
+
+      div.attachment.hr {
+        border-top: 1px solid #d9d9d9;
+        margin-bottom: 7px;
+      }
+      .fa-times {
+        float: right;
+        margin-right: 8px;
+        color: #a9a9a9;
+        cursor: pointer;
+      }
+
+      .fa-times:hover {
+        color: #6a6a6a;
+      }
     </style>
 
     <script src="/js/jquery-2.2.3.min.js"></script>
@@ -75,6 +136,29 @@
       </div>
     </div>
 
+    <div id="modal_attachment" class="modal fade" tabindex="-1" role="dialog">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <form method="POST" enctype="multipart/form-data">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+              <h4 class="modal-title">Add Attachment</h4>
+            </div>
+            <div class="modal-body">
+              <input type="hidden" name="user_id" value="<%= user_id %>">
+              <input type="hidden" name="task_id" value="">
+              <input type="file" id="attachment" name="attachment">
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              <input type="submit" class="btn btn-primary" value="Add Attachment">
+            </div>
+          </form>
+        </div><!-- /.modal-content -->
+      </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
     <script>
       var task_owners = {
         <% for(var i=0; i<owners.length; i++) {%>
@@ -98,7 +182,14 @@
             "task": "<%= tasks[i].task %>",
             "owner_id": <%= tasks[i].owner_id %>,
             "dependent_on": "<%= tasks[i].dependent_on %>",
-            "attachment_id": "<%= tasks[i].attachment_id %>"
+            "attachment_id": "<%= tasks[i].attachment_id %>",
+            "link": "<%= tasks[i].link %>",
+            "attachments": [<% for(var j=0; j<tasks[i].attachments.length; j++) { %>
+              {
+                "id": "<%= tasks[i].attachments[j].id %>",
+                "aws_endpoint": "<%= tasks[i].attachments[j].aws_endpoint %>"
+              },
+            <% } %>]
           },
         <% } %>
       ];
@@ -113,7 +204,7 @@
 
       $(document).ready(function() {
         for(var i = 0; i < tasks.length; i++) {
-          var e = '<li class="list-group-item task">';
+          var e = '<li class="list-group-item task"><span class="btn-attachment" data-task-id="' + tasks[i].id + '"><i class="fas fa-plus"></i><i class="fas fa-paperclip"></i></span>';
 
           var c = "fa-square";
           if(progress.indexOf(tasks[i].id) >= 0) {
@@ -131,7 +222,11 @@
           }
           var a = "";
           if(files[tasks[i].attachment_id]) {
-            a = '<br>Attachment: ' + files[tasks[i].attachment_id].name + '<a href="' + url + files[tasks[i].attachment_id].link  + '" target="_blank" class="btn btn-secondary btn-sm"><i class="fas fa-external-link-alt" aria-hidden="true"></i></a>';
+            a = '<br>Document:<a href="' + url + 'files/' + files[tasks[i].attachment_id].link  + '" target="_blank" class="btn btn-secondary btn-sm">' + files[tasks[i].attachment_id].name + '</a>';
+          }
+          var l = "";
+          if(tasks[i].link) {
+            l = '<br>Link:<a href="' + tasks[i].link  + '" target="_blank" class="btn btn-secondary btn-sm">' + tasks[i].link + '</a>';
           }
 
           if(task_owners[tasks[i].owner_id] == "Doug" && !is_doug) {
@@ -142,14 +237,30 @@
             disabled = " disabled";
           }
           e += '<i class="far ' + c + disabled +'" aria-hidden="true" data-task-id="' + tasks[i].id + '" data-user-id="' + user_id + '"></i>' + tasks[i].task
-              + '<br><h4><small>Owner: ' + task_owners[tasks[i].owner_id] + '<br>Dependent on: ' + d + a
-            + '</small></h4></li>';
+              + '<br><h4><small>Owner: ' + task_owners[tasks[i].owner_id] + '<br>Dependent on: ' + d + a + l
+            + '</small></h4>';
+          if(tasks[i].attachments.length > 0){
+            e += '<div class="attachment hr"></div>Attachments:<br>';
+            for(var j=0; j<tasks[i].attachments.length; j++) {
+              var name = tasks[i].attachments[j].aws_endpoint.split("/");
+              name = name[name.length-1];
+              e += '<div class="attachment link"><a target="_blank" href="' + url + tasks[i].attachments[j].aws_endpoint + '">' + name + '</a><i class="fas fa-times" data-id=' + tasks[i].attachments[j].id + '></i></div>';
+            }
+          }
+          e += '</li>';
           $('#progress-list').append(e);
         }
         setClicks();
       });
 
       function setClicks() {
+        $(".btn-attachment").off('click');
+        $(".btn-attachment").on('click', function() {
+          var task_id = $(this).data('task-id');
+          $('#modal_attachment').find('input[name="task_id"]').val(task_id);
+          $('#modal_attachment').modal('show');
+        });
+
         $(".fa-square:not(.disabled)").off('click');
         $(".fa-square:not(.disabled)").on('click', function() {
           var icon = $(this);
@@ -161,7 +272,6 @@
 
           var task_id = icon.attr('data-task-id');
           var user_id = icon.attr('data-user-id');
-          console.log({'task_id': task_id, 'user_id': user_id});
           $.post("/hire/check", {'task_id': task_id, 'user_id': user_id}, function(result){
             if(result.success) {
               icon.removeClass('fa-circle-notch');
@@ -195,6 +305,12 @@
               setClicks();
             }
           });
+        });
+
+        $(".fa-times").off('click');
+        $(".fa-times").on('click', function() {
+          $.post("/hire/attachment/delete", {"id": $(this).data('id')}, function(result) {});
+          $(this).closest('div.attachment.link').slideUp(300, function() { $(this).remove(); });
         });
       }
     </script>

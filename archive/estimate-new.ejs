@@ -70,12 +70,12 @@
           <% for(var i=0; i<questions.length; i++) { %>
             <% if (questions[i].type === "text") { %>
             	<div class="form-group"> <!-- <% questions[i].question %> -->
-            		<label for="question<%= questions[i].id %>" class="control-label"><%= questions[i].question %></label>
-            		<input type="text" class="form-control" id="question<%= questions[i].id %>" name="question<%= questions[i].id %>" placeholder="<%= questions[i].placeholder %>">
+            		<label for="question<%= questions[i].id %>" class="control-label"><span<% if(questions[i].required) { %> class="required"<% } %>><%= questions[i].question %></span> <small><%= questions[i].description %></small></label>
+            		<input type="text" class="form-control" id="question<%= questions[i].id %>" name="question<%= questions[i].id %>" placeholder="<%= questions[i].placeholder %>"<% if(questions[i].required) { %> required<% } %>>
             	</div>
             <% } else if (questions[i].type === "checkbox") { %>
               <div class="form-group">
-                <label class="control-label"><%= questions[i].question %></label>
+                <label class="control-label"><span<% if(questions[i].required) { %> class="required"<% } %>><%= questions[i].question %></span> <small><%= questions[i].description %></small></label>
                 <% for(var j=0; j<questions[i].options.length; j++) { %>
                   <div class="checkbox">
                     <label><input type="checkbox" name="question<%= questions[i].id %>" value="<%= questions[i].options[j] %>"><%= questions[i].options[j] %></label>
@@ -85,7 +85,7 @@
             <% } else if (questions[i].type === "radio") { %>
               <div class="form-group">
                 <div class="">
-                  <label class="control-label"><%= questions[i].question %></label>
+                  <label class="control-label"><span<% if(questions[i].required) { %> class="required"<% } %>><%= questions[i].question %></span> <small><%= questions[i].description %></small></label>
                   <% for(var j=0; j<questions[i].options.length; j++) { %>
                     <div class="radio">
                       <label><input type="radio" name="question<%= questions[i].id %>" value="<%= questions[i].options[j] %>"><%= questions[i].options[j] %></label>
@@ -96,7 +96,7 @@
             <% } else if (questions[i].type === "textarea") { %>
               <div class="form-group">
                 <div class="">
-                  <label class="control-label"><%= questions[i].question %></label>
+                  <label class="control-label"><span<% if(questions[i].required) { %> class="required"<% } %>><%= questions[i].question %></span> <small><%= questions[i].description %></small></label>
                   <textarea class="form-control" id="question<%= questions[i].id %>" name="question<%= questions[i].id %>" rows="5"></textarea>
                 </div>
               </div>

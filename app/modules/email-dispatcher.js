@@ -2,6 +2,7 @@ var EM = {};
 module.exports = EM;
 
 var FM = require('../modules/form-manager');
+var MM = require('../modules/email-manager');
 
 EM.server = require("emailjs/email").server.connect({
 	host 	    : process.env.SMTP_SERVER,
@@ -11,9 +12,8 @@ EM.server = require("emailjs/email").server.connect({
 });
 
 EM.dispatchResetPasswordLink = function(account, callback){
-	console.log('Offshore Air <' + process.env.SMTP_USERNAME + '>');
 	EM.server.send({
-		from         : 'Offshore Air <' + process.env.SMTP_USERNAME + '>' || 'Offshore Air <do-not-reply@gmail.com>',
+		from         : 'Offshore Air Password Reset <' + process.env.SMTP_USERNAME + '>' || 'Offshore Air Password Reset <do-not-reply@' + process.env.SMTP_DOMAIN + '>',
 		to           : account.email,
 		subject      : 'Password Reset',
 		text         : 'something went wrong... :(',
@@ -22,18 +22,21 @@ EM.dispatchResetPasswordLink = function(account, callback){
 }
 
 EM.dispatchUserRequest = function(name, email, callback) {
-	EM.server.send({
-		from         : 'Offshore Air <' + process.env.SMTP_USERNAME + '>' || 'Offshore Air <do-not-reply@gmail.com>',
-		to           : email,
-		subject      : 'Offshore Air Invite',
-		text         : 'something went wrong... :(',
-		attachment   : EM.composeRequestEmail(name, email)
-	}, callback );
+	MM.getEmail(1, function(err, email_data) {
+		if(err) throw err;
+		EM.server.send({
+			from         : email_data.from_title + ' <' + email_data.from_address + '@' + process.env.SMTP_DOMAIN + '>' || 'Offshore Air <do-not-reply@' + process.env.SMTP_DOMAIN + '>',
+			to           : email,
+			subject      : email_data.subject,
+			text         : 'something went wrong... :(',
+			attachment   : EM.composeRequestEmail(name, email, email_data.body)
+		}, callback );
+	});
 }
 
 EM.dispatchGetEstimate = function(data, questions, callback) {
 	EM.server.send({
-		from         : 'Offshore Air <' + process.env.SMTP_USERNAME + '>' || 'Offshore Air Estimate <do-not-reply@gmail.com>',
+		from         : 'Offshore Air Estimate <' + process.env.SMTP_USERNAME + '>' || 'Offshore Air Estimate <do-not-reply@' + process.env.SMTP_DOMAIN + '>',
 		to           : process.env.ADMIN_EMAIL,
 		subject      : 'Offshore Air Estimate',
 		text         : 'something went wrong... :(',
@@ -51,15 +54,15 @@ EM.composeEmail = function(account){
 	return  [{data:html, alternative:true}];
 }
 
-EM.composeRequestEmail = function(name, email){
+EM.composeRequestEmail = function(name, email, body){
 	var link = process.env.BASE_URL+'signup?email='+email;
+	body = body.replace('{{name}}', name);
+	while(body.indexOf("{{") != -1) {
+		var temp = body.substring(body.indexOf("{{")+2, body.indexOf("}}"));
+		body = body.replace("{{" + temp + "}}", "<a href='" + link + "'>" + temp + "</a>")
+	}
 	var html = "<html><body>";
-		html += "Hello " + name + ",<br><br>";
-		html += "You have been invited to join the Offshore Air employee portal.<br><br>";
-		html += "<a href='"+link+"'>Click here to join</a><br><br>";
-		html += "Or copy and paste the link below:<br>";
-		html += "<a href='"+link+"'>"+link+"</a><br><br>";
-		html += " ";
+		html += body;
 		html += "</body></html>";
 	return  [{data:html, alternative:true}];
 }

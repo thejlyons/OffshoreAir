@@ -3,26 +3,33 @@
   <div id="panel">
     <% if(user.admin) { %>
       <ul><span class="nav-header"><a href="/admin"><i class="fas fa-user-shield"></i>Admin Home</a></span><span class="expander"><i class="fas fa-plus-circle"></i></span>
-        <li><a href="/admin/files">File Manager</a></li>
-        <li><a href="/admin/jobs">Jobs Manager</a></li>
-        <li><a href="/admin/images">Images Manager</a></li>
-        <li><a href="/admin/form">Form Manager</a></li>
-        <li><a href="/admin/accreditations">Accreditation Manager</a></li>
+        <li><a href="/admin/email">Email Manager</a></li>
         <li><a href="/admin/employees">Employee Manager</a></li>
-        <li><a href="/admin/hire/tasks">New Hire - Tasks</a></li>
+        <li><a href="/admin/files">File Manager</a></li>
+        <li><a href="/admin/form">Form Manager</a></li>
+        <li><a href="/admin/responses">Form Responses</a></li>
+        <li><a href="/admin/images">Images Manager</a></li>
+        <li><a href="/admin/jobs">Jobs Manager</a></li>
+        <li><a href="/admin/hire/tasks">New Hire Tasks</a></li>
+      </ul>
+    <% } %>
+    <% if(user.is_hr && !user.admin) { %>
+      <ul><span class="nav-header"><i class="fas fa-user-shield"></i>HR Tools</span><span class="expander"><i class="fas fa-plus-circle"></i></span>
+        <li><a href="/admin/employees">Employee Manager</a></li>
       </ul>
     <% } %>
     <ul><span class="nav-header"><a href="/employee"><i class="fas fa-id-badge"></i>Employee Home</a></span><span class="expander"><i class="fas fa-plus-circle"></i></span>
       <li><a href="/employee/files">Files</a></li>
+      <li><a href="/employee/forms">Forms</a></li>
       <li><a href="/employee/hire">New Hire Progress</a></li>
-      <% for(var i = 0; i < accreditations.length; i++) { %>
+      <!-- <% for(var i = 0; i < accreditations.length; i++) { %>
         <li>
           <a href="/employee/accreditation/<%= accreditations[i].id %>">
             <%= accreditations[i].title %>
           </a>
         </li>
-      <% } %>
-    </ul>
+      <% } %>-->
+    </ul><!--
     <% if(user.roles.length > 0) { %>
       <ul><span class="nav-header"><i class="fas fa-user-check"></i>Supervisor</span><span class="expander"><i class="fas fa-plus-circle"></i></span>
         <% for(var i = 0; i < accreditations.length; i++) { %>
@@ -35,7 +42,7 @@
           <% } %>
         <% } %>
       </ul>
-    <% } %>
+    <% } %>-->
     <span class="nav-header"><a href="/logout"><i class="fas fa-door-open"></i>Logout</a></span>
   </div>
 </div>

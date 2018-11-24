@@ -105,6 +105,10 @@
       .dropdown-menu {
         margin-top: 14px;
       }
+
+      .edit.link {
+        padding: 3px 6px;
+      }
     </style>
 
     <script src="/js/jquery-2.2.3.min.js"></script>
@@ -156,7 +160,8 @@
             "task": "<%= tasks[i].task %>",
             "owner_id": "<%= tasks[i].owner_id %>",
             "dependent_on": "<%= tasks[i].dependent_on %>",
-            "attachment_id": "<%= tasks[i].attachment_id %>"
+            "attachment_id": "<%= tasks[i].attachment_id %>",
+            "link": "<%= tasks[i].link %>"
           },
         <% } %>
       ];
@@ -228,6 +233,10 @@
           var owner_id = $.trim($(this).find('[data-id="owner_id"]').attr('data-owner-id'));
           var dependent_on = $.trim($(this).find('[data-id="dependent_on"]').attr('data-dependent-on'));
           var attachment_id = $.trim($(this).find('[data-id="attachment_id"]').attr('data-attachment-id'));
+          var link = $.trim($(this).find('[data-id="link"]').html());
+          if(link == "None") {
+            link = "";
+          }
           var task_order = i+1;
 
           var task = {
@@ -235,6 +244,7 @@
             'owner_id': owner_id,
             'dependent_on': dependent_on,
             'attachment_id': attachment_id,
+            'link': link,
             'task_order': task_order
           };
 
@@ -247,7 +257,8 @@
         return tasks;
       }
 
-      function newTask(id, task, owner_id, dependent_on, attachment_id) {
+      function newTask(id, task, owner_id, dependent_on, attachment_id, link) {
+        var l = (link) ? link : 'None';
         $('#task-list').append(
           '<li class="list-group-item list-group-item-action flex-column align-items-start" data-id="task" data-task-id=' + id + '>'
             + '<span class="right-corner"><span class="fa-stack fa-lg" style="position: relative; top: -8px; margin-right: 11px;">'
@@ -259,9 +270,10 @@
               + '<h3 class="mb-1" style="padding-right: 100px;">'
                 + '<span class="edit" data-id="content" style="padding: 2px; line-height: 24pt;">' + task + '</span>'
               + '</h3>'
-              + '<span class="dropdown-edit">Owner: ' + getOwners(owner_id) + '</span>'
-              + '<span class="dropdown-edit">Dependent on: ' + getDependents(id, dependent_on) + '</span>'
-              + '<span class="dropdown-edit">Attachment: ' + getAttachments(id, attachment_id) + '</span>'
+              + '<span class="dropdown-edit owner">Owner: ' + getOwners(owner_id) + '</span>'
+              + '<span class="dropdown-edit dependent">Dependent on: ' + getDependents(id, dependent_on) + '</span>'
+              + '<span class="dropdown-edit attachment">Optional Document: ' + getAttachments(id, attachment_id) + '</span>'
+              + 'Optional Link: <span class="edit link" data-id="link">' + l + '</span>'
             + '</div>'
           + '</li>'
         );
@@ -288,19 +300,23 @@
         return ret;
       }
 
-      function getDependents(task_id, dependent_on) {
+      function getDependents(task_id, dependent_on, disabled = true) {
         var dependent = "Dependent Task";
         var tasks = "";
-        for(var i = 0; i < task_save.length; i++) {
-          if (dependent_on == task_save[i].id) {
-            dependent = task_save[i].task;
+        var dclass = disabled ? " disabled" : "";
+        $('[data-id="task"]').each(function(i) {
+          var id = $(this).attr('data-task-id');
+          var task = $.trim($(this).find('[data-id="content"]').html());
+          if (dependent_on == id) {
+            dependent = task;
           }
-          if (task_save[i].id != task_id) {
-            tasks += '<li><a href="#" data-dependent-on=' + task_save[i].id + ' title="' + task_save[i].task + '">' + task_save[i].task + '</a></li>';
+          if (id == task_id) {
+            return false;
           }
-        }
+          tasks += '<li><a href="#" data-dependent-on=' + id + ' title="' + task + '">' + task + '</a></li>';
+        });
         ret = '<div class="dropdown">'
-                + '<button class="btn btn-default dropdown-toggle disabled" data-id="dependent_on" data-dependent-on="' + dependent_on + '" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">'
+                + '<button class="btn btn-default dropdown-toggle' + dclass + '" data-id="dependent_on" data-dependent-on="' + dependent_on + '" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">'
                   + '<span class="dropdown-title">' + dependent + '</span>'
                   + '<span class="dropdown-caret">&nbsp;<span class="caret"></span></span>'
                 + '</button>'
@@ -363,7 +379,7 @@
       function setClicks() {
         $('.fa-plus-square[data-type="tasks"]').off('click');
         $('.fa-plus-square[data-type="tasks"]').on('click', function() {
-          newTask('new' + n, 'New Task', '', '', '');
+          newTask('new' + n, 'New Task', '', '', '', '');
           var temp_tasks = [];
           $('[data-id="task"]').each(function(i, e) {
             temp_tasks.push({
@@ -387,11 +403,21 @@
         $('.fa-chevron-up').off('click');
         $('.fa-chevron-up').on('click', function() {
           $(this).closest('[data-id="task"]').moveUp();
+          $('[data-id="task"]').each(function(i, e) {
+            var id = $(e).data('task-id');
+            var dependent_on = $.trim($(e).find('[data-id="dependent_on"]').attr('data-dependent-on'));
+            $(e).find('.dropdown-edit.dependent').html('Dependent on: ' + getDependents(id, dependent_on, false));
+          });
         });
 
         $('.fa-chevron-down').off('click');
         $('.fa-chevron-down').on('click', function() {
           $(this).closest('[data-id="task"]').moveDown();
+          $('[data-id="task"]').each(function(i, e) {
+            var id = $(e).data('task-id');
+            var dependent_on = $.trim($(e).find('[data-id="dependent_on"]').attr('data-dependent-on'));
+            $(e).find('.dropdown-edit.dependent').html('Dependent on: ' + getDependents(id, dependent_on, false));
+          });
         });
 
         $('.fa-trash-alt').off('click');
@@ -413,7 +439,7 @@
           var key = e.which;
           if(key == 13) {
             e.preventDefault();
-            newTask('new' + n, 'New Task', '', '', '');
+            newTask('new' + n, 'New Task', '', '', '', '');
             var temp_tasks = [];
             $('[data-id="task"]').each(function(i, e) {
               temp_tasks.push({
@@ -463,7 +489,7 @@
         $('#task-list').html('');
 
         $.each(task_save, function(i, value) {
-          newTask(value.id, value.task, value.owner_id, value.dependent_on, value.attachment_id);
+          newTask(value.id, value.task, value.owner_id, value.dependent_on, value.attachment_id, value.link);
         });
 
         setClicks();

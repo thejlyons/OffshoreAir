@@ -1,7 +1,7 @@
 /*
 Table Schema:
 
-CREATE TABLE accounts (id SERIAL NOT NULL UNIQUE, name text, password text, email text, date timestamp default current_timestamp, admin BOOLEAN DEFAULT FALSE);
+CREATE TABLE accounts (id SERIAL NOT NULL UNIQUE, name text, password text, email text, date timestamp default current_timestamp, admin BOOLEAN DEFAULT FALSE, active BOOLEAN DEFAULT TRUE);
 CREATE TABLE roles_fk (id SERIAL NOT NULL, user_id integer references accounts(id) ON DELETE CASCADE, accred_id integer references accreditations(id) ON DELETE CASCADE);
 */
 
@@ -10,15 +10,37 @@ const db      = require('./db-connect');
 
 /* login validation methods */
 exports.createAdmin = function(pass) {
-	db.none("DELETE FROM accounts WHERE email = 'admin'")
-		.then(() => {
-			saltAndHash(pass, function(hash){
-				db.one('INSERT INTO accounts(name, email, password) VALUES ($1, $2, $3) RETURNING *', ['Administrator', 'admin', hash])
-					.then(data => {
-						db.none("UPDATE accounts SET admin = 't' WHERE id = $1", [data.id]);
-					});
-			});
-		});
+	db.oneOrNone("SELECT * FROM accounts WHERE email = 'admin'")
+    .then(data => {
+			if(data) {
+				validatePassword(pass, data.password, function(err, res) {
+					if(!res) {
+						saltAndHash(pass, function(hash){
+							db.none('UPDATE accounts SET password = $1 WHERE id = $2', [hash, data.id]);
+						});
+					}
+				});
+			}	else {
+				saltAndHash(pass, function(hash){
+					db.one('INSERT INTO accounts(name, email, password) VALUES ($1, $2, $3) RETURNING *', ['Administrator', 'admin', hash])
+						.then(data => {
+							db.none("UPDATE accounts SET admin = 't' WHERE id = $1", [data.id]);
+						});
+				});
+			}
+    })
+    .catch(error => {
+        console.log(error);
+    });
+	// db.none("DELETE FROM accounts WHERE email = 'admin'")
+	// 	.then(() => {
+	// 		saltAndHash(pass, function(hash){
+	// 			db.one('INSERT INTO accounts(name, email, password) VALUES ($1, $2, $3) RETURNING *', ['Administrator', 'admin', hash])
+	// 				.then(data => {
+	// 					db.none("UPDATE accounts SET admin = 't' WHERE id = $1", [data.id]);
+	// 				});
+	// 		});
+	// 	});
 }
 
 exports.autoLogin = function(email, pass, callback) {
@@ -202,7 +224,7 @@ exports.findById = function(id, callback) {
 }
 
 exports.getAllUsers = function(callback) {
-	db.any("SELECT id, name, password, email, admin, (SELECT array(SELECT accred_id FROM roles_fk WHERE roles_fk.user_id = accounts.id)) AS roles FROM accounts WHERE accounts.email <> 'admin'")
+	db.any("SELECT id, name, password, email, admin, active, (SELECT array(SELECT accred_id FROM roles_fk WHERE roles_fk.user_id = accounts.id)) AS roles FROM accounts WHERE accounts.email <> 'admin'")
     .then(data => {
 			callback(null, data);
     })
@@ -213,6 +235,26 @@ exports.getAllUsers = function(callback) {
 
 exports.makeUserAdmin = function(set, user_id, callback) {
 	db.none('UPDATE accounts SET admin = $1 WHERE id = $2', [set, user_id])
+    .then(() => {
+			callback(null);
+    })
+    .catch(error => {
+			callback(error)
+    });
+}
+
+exports.archiveUser = function(user_id, callback) {
+	db.none('UPDATE accounts SET active = \'f\' WHERE id = $1', user_id)
+    .then(() => {
+			callback(null);
+    })
+    .catch(error => {
+			callback(error)
+    });
+}
+
+exports.restoreUser = function(user_id, callback) {
+	db.none('UPDATE accounts SET active = \'t\' WHERE id = $1', user_id)
     .then(() => {
 			callback(null);
     })

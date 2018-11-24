@@ -24,38 +24,35 @@
 
     <script src="/js/jquery-2.2.3.min.js"></script>
     <style>
-      .file {
+      /* .form {
         margin: 5px;
-      }
+      } */
 
-      .file a {
+      .form a {
         padding: 0;
         border: 0;
         width: 100%;
       }
 
-      .file a:hover {
+      .form a:hover {
         text-decoration: none;
         color: #1A5484;
       }
 
-      .file span {
+      .form span {
         background: #0D245D;
         border-radius: 5px 0 0 5px;
         padding: 15px 10px 15px 20px;
         color: white;
-        width: 20%;
+        width: 55px;
         display: inline-block;
         text-align: left;
-        overflow: hidden;
-        white-space: nowrap;
-        text-overflow: ellipsis;
         position: relative;
-        top: -10px;
+        top: -30px;
       }
 
-      .file p {
-        width: 80%;
+      .form p {
+        width: calc(100% - 55px);
         display: inline-block;
         padding: 15px 20px 15px 10px;
         background: white;
@@ -66,11 +63,11 @@
         text-overflow: ellipsis;
       }
 
-      .file a:hover p {
+      .form a:hover p {
         background: #DFE8F1;
       }
 
-      .file a:hover span {
+      .form a:hover span {
         background: #0D1834;
       }
     </style>
@@ -79,16 +76,26 @@
   <body>
     <%- include ../../partials/backend-nav.ejs %>
     <div id="manager" class="manager">
-      <h1 class="display-4">Employee Files</h1>
+      <h1 class="display-4">Employee Forms</h1>
       <br>
-      <div id='files' class="row">
-        <% for(var i=0; i < files.length; i++) { %>
-          <div class="file col-md-11">
-            <a href="<%= url %><%= files[i].link %>" target="_blank" class="btn btn-secondary btn-lg">
-              <span><%= files[i].name %></span><p><%= files[i].description %></p>
-            </a>
-          </div>
-        <% } %>
+      <div id='forms' class="row">
+        <div class="col-md-11">
+          <% for(var i=0; i < forms.length; i++) { %>
+            <% if(!forms[i].public) { %>
+              <% if(i%2 == 0) { %>
+                <div class="row">
+              <% } %>
+              <div class="col-md-6 form">
+                <a href="/employee/form?formid=<%= forms[i].id %>" class="btn btn-secondary btn-lg">
+                  <span><i class="far fa-edit"></i></span><p><%= forms[i].name %></p>
+                </a>
+              </div>
+              <% if(i%2 == 1 || i == forms.length-1) { %>
+                </div>
+              <% } %>
+            <% } %>
+          <% } %>
+        </div>
       </div>
     </div>
   </body>

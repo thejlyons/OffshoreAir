@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>Admin Portal | Images</title>
+    <title>Admin Portal | Email</title>
 
     <link rel="stylesheet" href="/css/bootstrap.min.css">
     <link rel="stylesheet" href="/css/bootstrap-switch.css">
@@ -234,6 +234,23 @@
         padding: 20px;
         border-radius: 4px;
       }
+
+      #email-request #body {
+        height: 100px;
+      }
+
+      input[type="submit"] {
+        margin-top: 10px;
+        float: right;
+      }
+
+      label {
+        margin: 20px 0 10px 0;
+      }
+
+      .variable {
+        margin-left: 10px;
+      }
     </style>
 
     <script src="/js/jquery-2.2.3.min.js"></script>
@@ -243,50 +260,42 @@
   <body>
     <%- include ../../partials/backend-nav.ejs %>
     <div id='manager' class='manager'>
-      <h1 class="display-4">Image Manager</h1>
-      <br>
-
-      <div id='img-list' class="container">
-        <div class="row">
-          <% for(var i = 0; i < images.length; i++) { %>
-            <div class="col-md-4" style="margin-bottom: 15px;">
-              <form id="dropzone-<%= i %>" class="dropzone" method="post" action="/admin/images">
-                <img style="width: 100%" src="<%= url %><%= images[i] %>" alt="<%= images[i] %>">
-                <i class="fa fa-upload" aria-hidden="true"></i>
-                <div class="dz-message" data-dz-message></div>
-                <div class="fallback">'
-                  <input type="file" name="upload" hidden>
-                </div>
-                <input type="text" name="key" value='<%= images[i] %>' hidden>
-              </form>
+      <h1 class="display-4">Email Manager</h1>
+      <form id="email-request" class="email row" method="post">
+        <div class="col-md-11">
+          <input name="id" type="hidden" value="<%= request_email.id %>">
+          <label for="from">From:</label>
+          <div class="row">
+            <div class="col-lg-6">
+              <input name="from_title" type="text" class="form-control" placeholder="Offshore Air" value="<%= request_email.from_title %>">
             </div>
-            <% if(i % 3 == 2 && i != 0) {%>
-              <div class="clearfix"></div>
-            <% } %>
-          <% } %>
+            <div class="col-lg-6">
+              <div class="input-group">
+                <input name="from_address" type="text" class="form-control" placeholder="no-reply" value="<%= request_email.from_address %>">
+                <span class="input-group-addon" id="from">@mg.offshoreair.com</span>
+              </div>
+            </div>
+          </div>
+          <label for="subject">Subject:</label>
+          <input id="subject" name="subject" type="text" class="form-control" placeholder="Offshore Air Invite" value="<%= request_email.subject %>">
+          <label for="body">Email:</label><span class="variable btn btn-sm btn-default" data-type="name" data-toggle="tooltip" data-placement="top" title="Special text that will show the employee's name in the actual email. Do NOT change the text in brackets.">+ Employee Name</span><span class="variable btn btn-sm btn-default" data-type="link" data-toggle="tooltip" data-placement="top" title="Special text that will show the invite link. You MAY change the text in brackets.">+ Invite Link</span>
+          <textarea name="body" class="form-control" rows="8" cols="50"><%= request_email.body %></textarea>
+          <input type="submit" class="btn btn-primary" value="Save Changes">
         </div>
-      </div>
+      </form>
     </div>
 
-    <script src="//cdnjs.cloudflare.com/ajax/libs/dropzone/5.1.1/min/dropzone.min.js"></script>
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
     <script>
-      Dropzone.autoDiscover = false;
-
       $(document).ready(function() {
-        $(".dropzone").each(function(i) {
-          var id = '#' + $(this).attr('id');
-          var dz = $(this).dropzone({clickable: id + ' *'})[0];
-          var key = $(this).find('img').attr('alt');
-          dz.dropzone.on('complete', function (file, response) {
-            updateImage(i, key + "?" + Date.now());
-          });
-          dz.dropzone.on('addedfile', function (file) {
-            loading(id);
-          });
+        $('[data-toggle="tooltip"]').tooltip();
 
-          $(this).on('drop', function() {
-            loading(id);
-          });
+        $('[data-type="name"]').on('click', function() {
+          $('textarea[name="body"]').append("{{name}}");
+        });
+
+        $('[data-type="link"]').on('click', function() {
+          $('textarea[name="body"]').append("{{Click here}}");
         });
       });
 
@@ -308,12 +317,9 @@
       function updateImage(id, img) {
         $.ajax({
           type          : 'GET',
-          url           : "<%= url %>" + img,
+          url           : "" + img,
           success       : function (data) {
             retries = 3;
-            console.log('success');
-            console.log(id);
-            $('#dropzone-' + id + ' img').attr('src', '<%= url %>' + img);
             doneLoading('#dropzone-' + id);
           },
           error         : function(xhr, textStatus, errorThrown) {
