@@ -223,6 +223,16 @@ exports.findById = function(id, callback) {
 	});
 }
 
+exports.getHrEmails = function(callback) {
+	db.any('SELECT ARRAY(SELECT email FROM accounts, roles_fk WHERE user_id = accounts.id AND accred_id = (SELECT id FROM accreditations WHERE title = \'HR\') AND email <> \'admin\')')
+    .then(data => {
+			callback(null, data);
+    })
+    .catch(error => {
+      callback(error);
+    });
+}
+
 exports.getAllUsers = function(callback) {
 	db.any("SELECT id, name, password, email, admin, active, (SELECT array(SELECT accred_id FROM roles_fk WHERE roles_fk.user_id = accounts.id)) AS roles FROM accounts WHERE accounts.email <> 'admin'")
     .then(data => {

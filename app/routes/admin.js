@@ -1004,62 +1004,60 @@ module.exports = function(app) {
 
   // New Hire - Employee Page
   app.get('/admin/hire', function(req, res) {
-    if(req.session.user == null || !req.session.user.admin) {
+    if(req.session.user == null || (!req.session.user.admin && !req.session.user.is_hr)) {
   		res.redirect('/employee');
   	}	else {
-      ACM.getAllLimited(function(err, accreds) {
-        if(!err) {
-          NHM.getTasks(function(err, tasks) {
-            if(!err) {
-              NHM.getOwners(function(err, owners) {
-                if(!err) {
-                  NHM.getUserProgress(req.query.id, function(err, progress) {
-                    if(!err) {
-                      // NHM.isHR(req.session.user, function(err, is_hr) {
-                      //   if(!err) {
-                          FIM.getFiles(function(err, files) {
-                            if(!err) {
-                              res.render('pages/new-hire', {
-                                user: req.session.user,
-                                accreditations: accreds,
-                                tasks: tasks,
-                                files: files,
-                                url: process.env.AWS_BASE_URL,
-                                owners: owners,
-                                progress: progress,
-                                user_id: req.query.id,
-                                is_hr: req.session.user.is_hr,
-                                is_doug: req.session.user.id == process.env.DOUG_ID || req.session.user.admin
-                              });
-                            }	else {
-                              res.render('pages/error', {error: err});
-                            }
-                          });
-                      //   }	else {
-                      //     res.render('pages/error', {error: err});
-                      //   }
-                      // });
-                    }	else {
-                      res.render('pages/error', {error: err});
-                    }
-                  });
-                }	else {
-                  res.render('pages/error', {error: err});
-                }
-              });
-            }	else {
-              res.render('pages/error', {error: err});
-            }
-          });
-        }	else {
-          res.render('pages/error', {error: err});
-        }
+      ATM.findById(req.query.id, function(err, employee) {
+        if(err) throw err;
+        ACM.getAllLimited(function(err, accreds) {
+          if(!err) {
+            NHM.getEmployeeTasks(req.query.id, function(err, tasks) {
+              if(!err) {
+                NHM.getOwners(function(err, owners) {
+                  if(!err) {
+                    NHM.getUserProgress(req.query.id, function(err, progress) {
+                      if(!err) {
+                        FIM.getFiles(function(err, files) {
+                          if(!err) {
+                            res.render('pages/new-hire', {
+                              user: req.session.user,
+                              accreditations: accreds,
+                              tasks: tasks,
+                              files: files,
+                              url: process.env.AWS_BASE_URL,
+                              owners: owners,
+                              progress: progress,
+                              user_name: employee.name,
+                              user_id: req.query.id,
+                              is_hr: req.session.user.is_hr,
+                              is_doug: req.session.user.id == process.env.DOUG_ID || req.session.user.admin
+                            });
+                          }	else {
+                            res.render('pages/error', {error: err});
+                          }
+                        });
+                      }	else {
+                        res.render('pages/error', {error: err});
+                      }
+                    });
+                  }	else {
+                    res.render('pages/error', {error: err});
+                  }
+                });
+              }	else {
+                res.render('pages/error', {error: err});
+              }
+            });
+          }	else {
+            res.render('pages/error', {error: err});
+          }
+        });
       });
     }
   });
 
   app.post('/admin/hire', function(req, res) {
-    if(req.session.user == null || !req.session.user.admin) {
+    if(req.session.user == null || (!req.session.user.admin && !req.session.user.is_hr)) {
   		res.redirect('/employee');
   	}	else {
       var form = new formidable.IncomingForm();
@@ -1136,10 +1134,24 @@ module.exports = function(app) {
 
   app.post('/hire/check', function(req, res) {
     res.setHeader('Content-Type', 'application/json');
-    if(req.session.user == null) {
+    if (req.session.user == null) {
       res.send(JSON.stringify({'success': false}));
     } else {
       NHM.checkTask(req.body.task_id, req.body.user_id);
+      NHM.getNextTask(req.body.task_id, function(err, next_task) {
+        if (err) throw err;
+        if (next_task) {
+          if (next_task.owners[next_task.owner_id] == "HR") {
+            ATM.getHrEmails(function(err, hr_emails) {
+              ATM.findById(req.body.user_id, function(err, employee) {
+                EMD.dispatchNewHireStepHR(hr_emails[0].array, employee, next_task);
+              });
+            });
+          } else if (next_task.owners[next_task.owner_id] == "New Employee") {
+            EMD.dispatchNewHireStepEmployee(req.session.user.email, next_task);
+          }
+        }
+      });
       res.send(JSON.stringify({'success': true}));
     }
   });

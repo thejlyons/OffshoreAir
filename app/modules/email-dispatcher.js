@@ -44,6 +44,26 @@ EM.dispatchGetEstimate = function(data, questions, callback) {
 	}, callback );
 }
 
+EM.dispatchNewHireStepHR = function(hr_emails, employee, next_task) {
+	EM.server.send({
+		from         : 'Offshore Air <' + process.env.SMTP_USERNAME + '>' || 'Offshore Air <do-not-reply@' + process.env.SMTP_DOMAIN + '>',
+		to           : hr_emails,
+		subject      : 'Offshore Air New Hire Task',
+		text         : 'something went wrong... :(',
+		attachment   : EM.composeNewHireStepHR(employee, next_task)
+	});
+}
+
+EM.dispatchNewHireStepEmployee = function(employee_email, next_task) {
+	EM.server.send({
+		from         : 'Offshore Air <' + process.env.SMTP_USERNAME + '>' || 'Offshore Air <do-not-reply@' + process.env.SMTP_DOMAIN + '>',
+		to           : employee_email,
+		subject      : 'Offshore Air New Hire Task',
+		text         : 'something went wrong... :(',
+		attachment   : EM.composeNewHireStepEmployee(next_task)
+	});
+}
+
 // Emails
 EM.composeEmail = function(account){
 	var link = process.env.BASE_URL + 'reset-password?e=' + account.email+'&p=' + account.password;
@@ -80,5 +100,25 @@ EM.composeEstimateEmail = function(data, questions) {
 		html += question.question + ":<br><strong>" + data[id] + "</strong><br><br>";
 	}
 	html += "</body></html>";
+	return  [{data:html, alternative:true}];
+}
+
+EM.composeNewHireStepHR = function(employee, next_task){
+	var link = process.env.BASE_URL + 'admin/hire?id=' + employee.id;
+	var html = "<html><body>";
+		html += "The next task is available in the new hire process for <strong>" + employee.name + ".</strong><br>";
+		html += "Next Task: <strong>" + next_task.task + ".</strong><br>";
+		html += "<a href='" + link + "'>Click here</a> to view the New Hire Task page for " + employee.name + ".<br><br>";
+		html += "</body></html>";
+	return  [{data:html, alternative:true}];
+}
+
+EM.composeNewHireStepEmployee = function(next_task){
+	var link = process.env.BASE_URL + 'employee/hire';
+	var html = "<html><body>";
+		html += "Your next task is available in the new hire process.<br>";
+		html += "Next Task: <strong>" + next_task.task + ".</strong><br>";
+		html += "<a href='" + link + "'>Click here</a> to view the New Hire Task page.<br><br>";
+		html += "</body></html>";
 	return  [{data:html, alternative:true}];
 }

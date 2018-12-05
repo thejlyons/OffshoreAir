@@ -11,9 +11,35 @@ const db = require('./db-connect');
 
 /* Task methods */
 exports.getTasks = function(callback) {
-	db.any('SELECT *, ARRAY(SELECT json_build_object(\'id\', hire_Attachments.id, \'aws_endpoint\', aws_endpoint) FROM hire_attachments WHERE hire_attachments.task_id=hire_task.id) AS attachments FROM hire_task')
+	db.any('SELECT * FROM hire_task')
     .then(data => {
 			callback(null, data);
+    })
+    .catch(error => {
+        callback(error);
+    });
+}
+
+exports.getEmployeeTasks = function(user_id, callback) {
+	db.any('SELECT *, ARRAY(SELECT json_build_object(\'id\', hire_Attachments.id, \'aws_endpoint\', aws_endpoint) FROM hire_attachments WHERE hire_attachments.task_id=hire_task.id AND hire_attachments.user_id=$1) AS attachments FROM hire_task', user_id)
+    .then(data => {
+			callback(null, data);
+    })
+    .catch(error => {
+        callback(error);
+    });
+}
+
+exports.getNextTask = function(task, callback) {
+	db.one('SELECT task_order FROM hire_task WHERE id = $1', [task])
+    .then(data => {
+			db.oneOrNone('SELECT task, owner_id, (SELECT json_object_agg(hire_task_owner.id, owner) FROM hire_task_owner) AS owners FROM hire_task WHERE task_order = $1', [data.task_order+1])
+		    .then(data => {
+					callback(null, data);
+		    })
+		    .catch(error => {
+		        callback(error);
+		    });
     })
     .catch(error => {
         callback(error);

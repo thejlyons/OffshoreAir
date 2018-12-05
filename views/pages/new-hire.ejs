@@ -126,7 +126,7 @@
   <body>
     <%- include ../partials/backend-nav.ejs %>
     <div id='manager' class="manager">
-      <h1 class="display-4">New Hire Checklist</h1>
+      <h1 class="display-4">New Hire Checklist for <%= user_name %></h1>
 
       <div class="card">
         <div class="card-header">Progress</div>
@@ -233,7 +233,7 @@
             disabled = " disabled";
           } else if(task_owners[tasks[i].owner_id] == "HR" && !is_hr) {
             disabled = " disabled";
-          } else if(!is_employee) {
+          } else if(task_owners[tasks[i].owner_id] == "New Employee" && !is_employee) {
             disabled = " disabled";
           }
           e += '<i class="far ' + c + disabled +'" aria-hidden="true" data-task-id="' + tasks[i].id + '" data-user-id="' + user_id + '"></i>' + tasks[i].task
