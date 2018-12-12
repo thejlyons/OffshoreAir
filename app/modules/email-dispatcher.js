@@ -22,7 +22,7 @@ EM.dispatchResetPasswordLink = function(account, callback){
 }
 
 EM.dispatchUserRequest = function(name, email, callback) {
-	MM.getEmail(1, function(err, email_data) {
+	MM.getEmail(process.env.EMAIL_REQUEST_ID, function(err, email_data) {
 		if(err) throw err;
 		EM.server.send({
 			from         : email_data.from_title + ' <' + email_data.from_address + '@' + process.env.SMTP_DOMAIN + '>' || 'Offshore Air <do-not-reply@' + process.env.SMTP_DOMAIN + '>',
@@ -30,6 +30,22 @@ EM.dispatchUserRequest = function(name, email, callback) {
 			subject      : email_data.subject,
 			text         : 'something went wrong... :(',
 			attachment   : EM.composeRequestEmail(name, email, email_data.body)
+		}, callback );
+	});
+}
+
+EM.dispatchEstimateConfirm = function(submission_email, callback) {
+	MM.getEmail(process.env.EMAIL_CONFIRM_ID, function(err, email_data) {
+		if(err) throw err;
+
+		console.log(email_data);
+		console.log(submission_email);
+		EM.server.send({
+			from         : email_data.from_title + ' <' + email_data.from_address + '@' + process.env.SMTP_DOMAIN + '>' || 'Offshore Air <do-not-reply@' + process.env.SMTP_DOMAIN + '>',
+			to           : submission_email,
+			subject      : email_data.subject,
+			text         : 'something went wrong... :(',
+			attachment   : EM.composeEstimateConfirm(email_data.body)
 		}, callback );
 	});
 }
@@ -84,6 +100,14 @@ EM.composeRequestEmail = function(name, email, body){
 	var html = "<html><body>";
 		html += body;
 		html += "</body></html>";
+	return  [{data:html, alternative:true}];
+}
+
+EM.composeEstimateConfirm = function(body){
+	var html = "<html><body>";
+		html += body;
+		html += "</body></html>";
+	console.log(body);
 	return  [{data:html, alternative:true}];
 }
 

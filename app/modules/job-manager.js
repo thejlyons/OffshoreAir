@@ -33,6 +33,7 @@ exports.getImageByID = function(id, callback) {
 }
 
 exports.updateJob = function(job, callback) {
+	console.log(job.description);
 	db.none('UPDATE jobs SET title = $1, img = $2, description = $3 WHERE id = $4', [job.title, job.img, job.description, job.id])
 		.then(() => {
 			callback(null);

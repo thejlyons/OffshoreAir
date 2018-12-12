@@ -703,7 +703,7 @@
               <tr>
                 <th>Employee</th>
                 <th>` + first_fields.join("</th><th>") + `</th>
-                <th style="width: 115px;">Submitted At</th>
+                <th style="width: 165px;">Submitted At</th>
                 <th style="width: 5px;">View</th>
                 <th style="width: 5px;">Archive</th>
                 <th style="width: 5px;">Delete</th>
@@ -734,7 +734,19 @@
             $(row).attr('data-submission-id', data.id);
           },
           columns: [{ data: 'user_name' }].concat(first_data.concat([
-            { data: 'submitted_at' },
+            {
+              data: 'submitted_at',
+              render: function(data, type, row) {
+                var sa = new Date(row.submitted_at);
+                var dt = (sa.getMonth()+1)  + "/"
+                            + sa.getDate() + "/"
+                            + sa.getFullYear() + " "
+                            + (sa.getHours()<12?sa.getHours():sa.getHours()-12) + ":"
+                            + (sa.getMinutes()<10?'0':'') + sa.getMinutes() + " "
+                            + (sa.getHours()<12?"AM":"PM");
+                return dt;
+              }
+            },
             {
               data: 'view',
               className: "button-columns",
@@ -806,7 +818,7 @@
             <tfoot>
               <tr>
                 <th>` + first_fields.join("</th><th>") + `</th>
-                <th style="width: 115px;">Submitted At</th>
+                <th style="width: 165px;">Submitted At</th>
                 <th style="width: 5px;">View</th>
                 <th style="width: 5px;">Archive</th>
                 <th style="width: 5px;">Delete</th>
@@ -837,7 +849,19 @@
             $(row).attr('data-submission-id', data.id);
           },
           columns: first_data.concat([
-            { data: 'submitted_at' },
+            {
+              data: 'submitted_at',
+              render: function(data, type, row) {
+                var sa = new Date(row.submitted_at);
+                var dt = (sa.getMonth()+1)  + "/"
+                            + sa.getDate() + "/"
+                            + sa.getFullYear() + " "
+                            + (sa.getHours()<12?sa.getHours():sa.getHours()-12) + ":"
+                            + (sa.getMinutes()<10?'0':'') + sa.getMinutes() + " "
+                            + (sa.getHours()<12?"AM":"PM");
+                return dt;
+              }
+            },
             {
               data: 'view',
               className: "button-columns",

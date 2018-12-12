@@ -336,6 +336,14 @@
         position: relative;
         top: -15px;
       }
+
+      div.edit {
+        display: inline-block !important;
+      }
+
+      div.mb-1 {
+        margin-bottom: 12px;
+      }
     </style>
 
     <script src="/js/jquery-2.2.3.min.js"></script>
@@ -366,10 +374,10 @@
         <input id='edit-switch' type="checkbox" data-on-text='View' data-off-text='Edit' data-on-color='default' data-off-color='primary' checked>
       </span>
 
-      <h1 class="display-4"><span class="edit" id="form-name">Form</span> Manager<a id="form-preview" href="#" target="_blank" style="display: none;">Preview <i class="fas fa-external-link-alt"></i></a></h1>
+      <h1 class="display-4"><div class="edit" id="form-name">Form</div> Manager<a id="form-preview" href="#" target="_blank" style="display: none;">Preview <i class="fas fa-external-link-alt"></i></a></h1>
 
       <p class="lead">To edit the questions, toggle the switch to edit then save your changes.</p>
-      <span id="description-wrapper" style="display: none">Description: <span class="edit" id="form-description"></span></span>
+      <span id="description-wrapper" style="display: none">Description: <div class="edit" id="form-description"></div></span>
       <br>
       <span class="public-toggle" style="display: none" data-toggle="tooltip" data-placement="bottom" title="If this box is checked, the form will be available to the public. Otherwise, only employees will be able to access it."><i class="far fa-square" data-type="public-toggle" aria-hidden="true"></i> Form available to the public</span>
       <h2>Questions&nbsp;<i class="fa fa-plus-square" aria-hidden="true" data-type='questions'></i></h2>
@@ -412,8 +420,8 @@
         <% for(var i=0; i<forms.length; i++) {%>
             <%= forms[i].id %>: {
               "id": <%= forms[i].id %>,
-              "name": "<%= forms[i].name %>",
-              "description": "<%= forms[i].description %>",
+              "name": `<%- forms[i].name %>`,
+              "description": `<%- forms[i].description %>`,
               "removable": <%= forms[i].removable %>,
               "public": <%= forms[i].public %>,
               "questions": []
@@ -423,9 +431,9 @@
       <% for(var i=0; i<questions.length; i++) {%>
         all_forms[<%= questions[i].form_id %>]["questions"].push({
           "id": <%= questions[i].id %>,
-          "question": "<%= questions[i].question %>",
-          "placeholder": "<%= questions[i].placeholder %>",
-          "description": "<%= questions[i].description %>",
+          "question": `<%- questions[i].question %>`,
+          "placeholder": `<%- questions[i].placeholder %>`,
+          "description": `<%- questions[i].description %>`,
           "required": <%= questions[i].required %>,
           "options": "<%= questions[i].options %>".split(","),
           "sort_order": <%= questions[i].sort_order %>,
@@ -637,10 +645,10 @@
         return '<li class="list-group-item list-group-item-action flex-column align-items-start" data-id="container" data-question-id=' + id + '>'
             + getTypes(type_id, required)
             + '<div class="d-flex w-100 justify-content-between">'
-              + '<h3 class="mb-1' + r + '"><span class="edit" data-id="question">' + question + '</span></h3>'
-              + '<p class="mb-1" style="padding-left:18px;">'
-                + 'Description: <span class="edit" data-id="description">' + d + '</span>'
-              + '</p>'
+              + '<h3 class="mb-1' + r + '"><div class="edit" data-id="question">' + question + '</div></h3>'
+              + '<div class="mb-1" style="padding-left:18px;">'
+                + 'Description: <div class="edit" data-id="description">' + d + '</div>'
+              + '</div>'
             + '</div>'
           + '</li>';
       }
@@ -652,19 +660,19 @@
         }
         var options_html = "";
         $.each(options, function(i, v) {
-          options_html += '<p class="mb-1" style="padding-left:18px;">'
-                          + '<span class="edit" data-id="options">' + v + '</span><i class="far fa-trash-alt large option" aria-hidden="true"></i>'
-                        + '</p>';
+          options_html += '<div class="mb-1" style="padding-left:18px;">'
+                          + '<div class="edit" data-id="options">' + v + '</div><i class="far fa-trash-alt large option" aria-hidden="true"></i>'
+                        + '</div>';
         });
         var r = (required) ? " required" : "";
         return '<li class="list-group-item list-group-item-action flex-column align-items-start" data-id="container" data-question-id=' + id + '>'
             + getTypes(type_id, required)
             + '<div class="d-flex w-100 justify-content-between">'
-              + '<h3 class="mb-1' + r + '"><span class="edit" data-id="question">' + question + '</span></h3>'
+              + '<h3 class="mb-1' + r + '"><div class="edit" data-id="question">' + question + '</div></h3>'
             + '</div>'
-            + '<p class="mb-1" style="padding-left:18px;">'
-              + 'Description: <span class="edit" data-id="description">' + d + '</span>'
-            + '</p>'
+            + '<div class="mb-1" style="padding-left:18px;">'
+              + 'Description: <div class="edit" data-id="description">' + d + '</div>'
+            + '</div>'
             + '<div class="options">'
               + '<h3>Options <i class="fa fa-plus-square" aria-hidden="true" data-type="option"></i></h3>'
               + options_html
@@ -679,19 +687,19 @@
         }
         var options_html = "";
         $.each(options, function(i, v) {
-          options_html += '<p class="mb-1" style="padding-left:18px;">'
-                          + '<span class="edit" data-id="options">' + v + '</span><i class="far fa-trash-alt large option" aria-hidden="true"></i>'
-                        + '</p>';
+          options_html += '<div class="mb-1" style="padding-left:18px;">'
+                          + '<div class="edit" data-id="options">' + v + '</div><i class="far fa-trash-alt large option" aria-hidden="true"></i>'
+                        + '</div>';
         });
         var r = (required) ? " required" : "";
         return '<li class="list-group-item list-group-item-action flex-column align-items-start" data-id="container" data-question-id=' + id + '>'
             + getTypes(type_id, required)
             + '<div class="d-flex w-100 justify-content-between">'
-              + '<h3 class="mb-1' + r + '"><span class="edit" data-id="question">' + question + '</span></h3>'
+              + '<h3 class="mb-1' + r + '"><div class="edit" data-id="question">' + question + '</div></h3>'
             + '</div>'
-            + '<p class="mb-1" style="padding-left:18px;">'
-              + 'Description: <span class="edit" data-id="description">' + d + '</span>'
-            + '</p>'
+            + '<div class="mb-1" style="padding-left:18px;">'
+              + 'Description: <div class="edit" data-id="description">' + d + '</div>'
+            + '</div>'
             + '<div class="options">'
               + '<h3>Options <i class="fa fa-plus-square" aria-hidden="true" data-type="option"></i></h3>'
               + options_html
@@ -708,21 +716,21 @@
         return '<li class="list-group-item list-group-item-action flex-column align-items-start" data-id="container" data-question-id=' + id + '>'
             + getTextTypes(type_id, required, is_email, is_phone)
             + '<div class="d-flex w-100 justify-content-between">'
-              + '<h3 class="mb-1' + r + '"><span class="edit" data-id="question">' + question + '</span></h3>'
+              + '<h3 class="mb-1' + r + '"><div class="edit" data-id="question">' + question + '</div></h3>'
             + '</div>'
-            + '<p class="mb-1" style="padding-left:18px;">'
-              + 'Description: <span class="edit" data-id="description">' + d + '</span>'
-            + '</p>'
-            + '<p class="mb-1" style="padding-left:18px;">'
-              + 'Placeholder: <span class="edit" data-id="placeholder">' + placeholder + '</span>'
-            + '</p>'
+            + '<div class="mb-1" style="padding-left:18px;">'
+              + 'Description: <div class="edit" data-id="description">' + d + '</div>'
+            + '</div>'
+            + '<div class="mb-1" style="padding-left:18px;">'
+              + 'Placeholder: <div class="edit" data-id="placeholder">' + placeholder + '</div>'
+            + '</div>'
           + '</li>';
       }
 
       function newOption(option) {
-        return '<p class="mb-1" style="padding-left:18px;">'
-                  + '<span class="edit" data-id="options">' + option + '</span><i class="far fa-trash-alt large option" aria-hidden="true"></i>'
-                + '</p>';
+        return '<div class="mb-1" style="padding-left:18px;">'
+                  + '<div class="edit" data-id="options">' + option + '</div><i class="far fa-trash-alt large option" aria-hidden="true"></i>'
+                + '</div>';
       }
 
       function getTypes(type_id, required) {
@@ -740,8 +748,8 @@
           + '<i class="far fa-trash-alt large question" aria-hidden="true"></i>'
             + '<div class="dropdown">'
                   + '<button class="btn btn-default dropdown-toggle" data-id="type_id" data-type-id=' + t.id + ' type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">'
-                    + '<span class="dropdown-title">' + t.hr_type + '</span>'
                     + '<span class="dropdown-caret">&nbsp;<span class="caret"></span></span>'
+                    + '<span class="dropdown-title">' + t.hr_type + '</span>'
                   + '</button>'
                   + '<ul class="dropdown-menu dropdown-menu-right">';
         for(var i = 0; i < types.length; i++) {
@@ -777,8 +785,8 @@
           + '<i class="far fa-trash-alt large question" aria-hidden="true"></i>'
             + '<div class="dropdown">'
                   + '<button class="btn btn-default dropdown-toggle" data-id="type_id" data-type-id=' + t.id + ' type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">'
-                    + '<span class="dropdown-title">' + t.hr_type + '</span>'
                     + '<span class="dropdown-caret">&nbsp;<span class="caret"></span></span>'
+                    + '<span class="dropdown-title">' + t.hr_type + '</span>'
                   + '</button>'
                   + '<ul class="dropdown-menu dropdown-menu-right">';
         for(var i = 0; i < types.length; i++) {
@@ -788,8 +796,8 @@
             + '</div>'
             + '<div class="dropdown">'
               + '<button class="btn btn-default dropdown-toggle" data-id="validator" data-is=' + validator.toLowerCase() + ' type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">'
-                + '<span class="dropdown-title">' + validator + '</span>'
                 + '<span class="dropdown-caret">&nbsp;<span class="caret"></span></span>'
+                + '<span class="dropdown-title">' + validator + '</span>'
               + '</button>'
               + '<ul class="dropdown-menu dropdown-menu-right">'
                 + '<li><a href="#">None</a></li>'

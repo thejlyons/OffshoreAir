@@ -13,6 +13,7 @@ var FOM = require('../modules/form-manager');
 var FIM = require('../modules/file-manager');
 var JOM = require('../modules/job-manager');
 var NHM = require('../modules/new-hire-manager');
+var PVM = require('../modules/page-view-manager');
 
 module.exports = function(app) {
   app.get('/admin', function(req, res) {
@@ -1176,20 +1177,26 @@ module.exports = function(app) {
           EMM.getEmails(function(err, emails) {
             if(!err) {
               var request_email;
+              var confirm_email;
               for(var i = 0; i<emails.length; i++) {
                 if(emails[i].id == process.env.EMAIL_REQUEST_ID) {
                   request_email = emails[i];
-                  break;
+                }
+                if(emails[i].id == process.env.EMAIL_CONFIRM_ID) {
+                  confirm_email = emails[i];
                 }
               }
               while(request_email.body.indexOf('<br>') != -1) {
                 request_email.body = request_email.body.replace('<br>', '\r');
               }
-              console.log(request_email.body);
+              while(confirm_email.body.indexOf('<br>') != -1) {
+                confirm_email.body = confirm_email.body.replace('<br>', '\r');
+              }
               res.render('pages/admin/email', {
                 user: req.session.user,
                 accreditations: accreds,
-                request_email: request_email
+                request_email: request_email,
+                confirm_email: confirm_email
               });
             }	else {
               res.render('pages/error', {error: err});
@@ -1206,31 +1213,59 @@ module.exports = function(app) {
     if(req.session.user == null || !req.session.user.admin) {
   		res.redirect('/employee');
   	}	else {
-      console.log(req.body.body);
       EMM.updateEmail(req.body, function(err) {
         if(!err) {
           ACM.getAllLimited(function(err, accreds) {
             if(!err) {
               EMM.getEmails(function(err, emails) {
                 var request_email;
+                var confirm_email;
                 for(var i = 0; i<emails.length; i++) {
                   if(emails[i].id == process.env.EMAIL_REQUEST_ID) {
                     request_email = emails[i];
-                    break;
+                  }
+                  if(emails[i].id == process.env.EMAIL_CONFIRM_ID) {
+                    confirm_email = emails[i];
                   }
                 }
                 while(request_email.body.indexOf('<br>') != -1) {
                   request_email.body = request_email.body.replace('<br>', '\r');
                 }
+                while(confirm_email.body.indexOf('<br>') != -1) {
+                  confirm_email.body = confirm_email.body.replace('<br>', '\r');
+                }
                 res.render('pages/admin/email', {
                   user: req.session.user,
                   accreditations: accreds,
-                  request_email: request_email
+                  request_email: request_email,
+                  confirm_email: confirm_email
                 });
               });
             }	else {
               res.render('pages/error', {error: err});
             }
+          });
+        }	else {
+          res.render('pages/error', {error: err});
+        }
+      });
+    }
+  });
+
+  // Page Views
+  app.get('/admin/page-views', function(req, res) {
+    if(req.session.user == null || !req.session.user.admin) {
+  		res.redirect('/employee');
+  	}	else {
+      ACM.getAllLimited(function(err, accreds) {
+        if(!err) {
+          PVM.getViews(function(err, pages, views) {
+            res.render('pages/admin/page-views', {
+              user: req.session.user,
+              accreditations: accreds,
+              pages: pages,
+              views: views
+            });
           });
         }	else {
           res.render('pages/error', {error: err});

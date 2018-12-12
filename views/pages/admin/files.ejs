@@ -245,6 +245,14 @@ far fa-trash-alt<!DOCTYPE html>
       #controls {
         display: none;
       }
+
+      div.edit {
+        display: inline-block !important;
+      }
+
+      div.mb-1 {
+        margin-bottom: 12px;
+      }
     </style>
 
     <script src="/js/jquery-2.2.3.min.js"></script>
@@ -336,10 +344,10 @@ far fa-trash-alt<!DOCTYPE html>
         <% for(var i=0; i<files.length; i++) {%>
           {
             "id": <%= files[i].id %>,
-            "name": "<%= files[i].name %>",
+            "name": `<%- files[i].name %>`,
             "link_id": "<%= files[i].link_id %>",
-            "link": "<%= files[i].link %>",
-            "description": "<%= files[i].description %>"
+            "link": `<%- files[i].link %>`,
+            "description": `<%- files[i].description %>`
           },
         <% } %>
       ];
@@ -348,7 +356,7 @@ far fa-trash-alt<!DOCTYPE html>
         <% for(var i=0; i<links.length; i++) {%>
           {
             "id": <%= links[i].id %>,
-            "link": "<%= links[i].link %>"
+            "link": `<%- links[i].link %>`
           },
         <% } %>
       ];
@@ -514,11 +522,11 @@ far fa-trash-alt<!DOCTYPE html>
           '<li class="list-group-item list-group-item-action flex-column align-items-start" data-id="file" data-file-id=' + id + '>'
             + getLinks(link_id, link)
             + '<div class="d-flex w-100 justify-content-between">'
-              + '<h3 class="mb-1"><span class="edit" data-id="name">' + name + '</span></h3>'
+              + '<h3 class="mb-1"><div class="edit" data-id="name">' + name + '</div></h3>'
             + '</div>'
-            + '<p class="mb-1" style="padding-left:18px;">'
-              + '<span class="edit" data-id="description">' + description + '</span>'
-            + '</p>'
+            + '<div class="mb-1" style="padding-left:18px;">'
+              + '<div class="edit" data-id="description">' + description + '</div>'
+            + '</div>'
           + '</li>'
         );
       }

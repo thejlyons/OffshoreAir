@@ -286,6 +286,14 @@
       .lead {
         width: 85%;
       }
+
+      div.edit {
+        display: inline-block !important;
+      }
+
+      div.mb-1 {
+        margin-bottom: 12px;
+      }
     </style>
 
     <script src="/js/jquery-2.2.3.min.js"></script>
@@ -329,9 +337,9 @@
         <% for(var i=0; i<jobs.length; i++) {%>
           {
             "id": <%= jobs[i].id %>,
-            "title": "<%= jobs[i].title %>",
+            "title": `<%= jobs[i].title %>`,
             "img": "<%= jobs[i].img %>",
-            "description": "<%= jobs[i].description %>"
+            "description": `<%- jobs[i].description %>`
           },
         <% } %>
       ];
@@ -477,11 +485,11 @@
             + '<div style="display:inline-block; padding-left: 20px">'
               + '<div class="d-flex justify-content-between">'
                 + '<h3 class="mb-1">'
-                  + '<span class="edit" data-id="title">' + title + '</span>'
+                  + '<div class="edit" data-id="title">' + title + '</div>'
                 + '</h3>'
               + '</div>'
               + '<p class="mb-1" style="padding-left:18px;">'
-                + '<span class="edit" data-id="description">' + description + '</span>'
+                + '<div class="edit" data-id="description">' + description + '</div>'
               + '</p>'
             + '</div>'
           + '</li>'

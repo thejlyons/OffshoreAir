@@ -75,8 +75,11 @@ module.exports = function(app) {
 				res.status(400).send(e);
 			}	else {
         ACM.getSessionById(o.id, function(user) {
-          req.session.user = user;
-          res.status(200).send('ok');
+          NHM.isHR(user, function(err, is_hr) {
+            user.is_hr = is_hr;
+            req.session.user = user;
+            res.status(200).send('ok');
+          });
         });
 			}
 		});

@@ -3,9 +3,11 @@ var validator = require('validator');
 var EM = require('../modules/email-dispatcher');
 var JM = require('../modules/job-manager');
 var FM = require('../modules/form-manager');
+var PV = require('../modules/page-view-manager');
 
 module.exports = function(app){
   app.get('/story', function(req, res){
+    PV.count('story');
     JM.isVisible(function(is_visible) {
       res.render('pages/story', {
         this_title: "Our Story",
@@ -15,6 +17,7 @@ module.exports = function(app){
   });
 
   app.get('/services', function(req, res){
+    PV.count('services');
     JM.isVisible(function(is_visible) {
       res.render('pages/services', {
         this_title: "Our Services",
@@ -24,6 +27,7 @@ module.exports = function(app){
   });
 
   app.get('/contact', function(req, res){
+    PV.count('contact');
     JM.isVisible(function(is_visible) {
       res.render('pages/contact', {
         this_title : "Contact Us",
@@ -33,6 +37,7 @@ module.exports = function(app){
   });
 
   app.get('/sample-work', function(req, res) {
+    PV.count('sample-work');
     JM.getJobs(function(err, jobs) {
       JM.isVisible(function(is_visible) {
         res.render('pages/sample-work', {
@@ -46,6 +51,7 @@ module.exports = function(app){
   });
 
   app.get('/estimate', function(req, res){
+    PV.count('estimate');
     FM.getFormById(process.env.ESTIMATE_ID, function(err, form) {
       FM.getQuestions(form.id, function(err, questions) {
         JM.isVisible(function(is_visible) {
@@ -83,6 +89,7 @@ module.exports = function(app){
       FM.getQuestions(form.id, function(err, questions) {
         JM.isVisible(function(is_visible) {
           var errors = [];
+          var submission_email;
           for (id in responses) {
             var question;
             for (i in questions) {
@@ -91,11 +98,17 @@ module.exports = function(app){
                 break;
               }
             }
-            if(question.is_email && !validator.isEmail(responses[id])) {
-              errors.push("Invalid email address.");
+            if(question.is_email) {
+              if((question.required || responses[id]) && !validator.isEmail(responses[id])) {
+                errors.push("Invalid email address.");
+              } else {
+                submission_email = responses[id];
+              }
             }
-            if(question.is_phone && !validator.isMobilePhone(responses[id], 'en-US')) {
-              errors.push("Invalid phone number.");
+            if(question.is_phone) {
+              if((question.required || responses[id]) && !validator.isMobilePhone(responses[id], 'en-US')) {
+                errors.push("Invalid email address.");
+              }
             }
           }
 
@@ -106,30 +119,36 @@ module.exports = function(app){
               questions: questions,
               post: false,
               errors: errors,
-              is_visible: is_visible
+              is_visible: is_visible,
+              responses: responses
             });
           } else {
-            // TODO: Add responses to response table
+            PV.count('estimate-post');
             EM.dispatchGetEstimate(responses, questions, function(err, message) {
-              console.log(err || message);
-              FM.insertSubmission(process.env.ESTIMATE_ID, function(err, submission) {
-                for (id in responses) {
-                  var question;
-                  for (i in questions) {
-                    if (parseInt(id, 10) === parseInt(questions[i].id, 10)) {
-                      question = questions[i];
-                      break;
-                    }
-                  }
-                  FM.insertResponse(responses[id], question.id, submission.id);
+              EM.dispatchEstimateConfirm(submission_email, function(err, message) {
+                if(err) {
+                  console.log(err);
                 }
-                res.render('pages/estimate', {
-                  this_title : "Estimates",
-                  description: form.description,
-                  questions: questions,
-                  post: true,
-                  errors: [],
-                  is_visible: is_visible
+                FM.insertSubmission(process.env.ESTIMATE_ID, function(err, submission) {
+                  for (id in responses) {
+                    var question;
+                    for (i in questions) {
+                      if (parseInt(id, 10) === parseInt(questions[i].id, 10)) {
+                        question = questions[i];
+                        break;
+                      }
+                    }
+                    FM.insertResponse(responses[id], question.id, submission.id);
+                  }
+                  res.render('pages/estimate', {
+                    this_title : "Estimates",
+                    description: form.description,
+                    questions: questions,
+                    post: true,
+                    success: "Your submission has been recorded and a confirmation email has been sent to your inbox. Please check your email for further information and we will get back to you shortly.",
+                    errors: [],
+                    is_visible: is_visible
+                  });
                 });
               });
             });
