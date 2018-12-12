@@ -51,7 +51,9 @@ module.exports = function(app){
   });
 
   app.get('/estimate', function(req, res){
-    PV.count('estimate');
+    if (req.query.canary == undefined) {
+      PV.count('estimate');
+    }
     FM.getFormById(process.env.ESTIMATE_ID, function(err, form) {
       FM.getQuestions(form.id, function(err, questions) {
         JM.isVisible(function(is_visible) {
@@ -123,35 +125,52 @@ module.exports = function(app){
               responses: responses
             });
           } else {
-            PV.count('estimate-post');
-            EM.dispatchGetEstimate(responses, questions, function(err, message) {
+            if (req.query.canary == undefined) {
+              PV.count('estimate-post');
+              EM.dispatchGetEstimate(responses, questions, function(err, message) {
+                EM.dispatchEstimateConfirm(submission_email, function(err, message) {
+                  if(err) {
+                    console.log(err);
+                  }
+                  FM.insertSubmission(process.env.ESTIMATE_ID, function(err, submission) {
+                    for (id in responses) {
+                      var question;
+                      for (i in questions) {
+                        if (parseInt(id, 10) === parseInt(questions[i].id, 10)) {
+                          question = questions[i];
+                          break;
+                        }
+                      }
+                      FM.insertResponse(responses[id], question.id, submission.id);
+                    }
+                    res.render('pages/estimate', {
+                      this_title : "Estimates",
+                      description: form.description,
+                      questions: questions,
+                      post: true,
+                      success: "Your submission has been recorded and a confirmation email has been sent to your inbox. Please check your email for further information and we will get back to you shortly.",
+                      errors: [],
+                      is_visible: is_visible
+                    });
+                  });
+                });
+              });
+            } else {
               EM.dispatchEstimateConfirm(submission_email, function(err, message) {
                 if(err) {
                   console.log(err);
                 }
-                FM.insertSubmission(process.env.ESTIMATE_ID, function(err, submission) {
-                  for (id in responses) {
-                    var question;
-                    for (i in questions) {
-                      if (parseInt(id, 10) === parseInt(questions[i].id, 10)) {
-                        question = questions[i];
-                        break;
-                      }
-                    }
-                    FM.insertResponse(responses[id], question.id, submission.id);
-                  }
-                  res.render('pages/estimate', {
-                    this_title : "Estimates",
-                    description: form.description,
-                    questions: questions,
-                    post: true,
-                    success: "Your submission has been recorded and a confirmation email has been sent to your inbox. Please check your email for further information and we will get back to you shortly.",
-                    errors: [],
-                    is_visible: is_visible
-                  });
+                res.render('pages/estimate', {
+                  this_title : "Estimates",
+                  description: form.description,
+                  questions: questions,
+                  post: true,
+                  success: "Your submission has been recorded and a confirmation email has been sent to your inbox. Please check your email for further information and we will get back to you shortly.",
+                  errors: [],
+                  is_visible: is_visible
                 });
               });
-            });
+            }
           }
         });
       });
