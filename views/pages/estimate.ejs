@@ -82,7 +82,7 @@
                 <label class="control-label"><span<% if(questions[i].required) { %> class="required"<% } %>><%= questions[i].question %></span> <small><%= questions[i].description %></small></label>
                 <% for(var j=0; j<questions[i].options.length; j++) { %>
                   <div class="checkbox">
-                    <label><input type="checkbox" name="question<%= questions[i].id %>" value="<%= questions[i].options[j] %>"<% if(typeof responses != 'undefined' && responses[questions[i].id].indexOf(questions[i].options[j]) > -1) { %> checked<% } %>><%= questions[i].options[j] %></label>
+                    <label><input type="checkbox" name="question<%= questions[i].id %>" value="<%= questions[i].options[j] %>"<% if(typeof responses != 'undefined' && responses[questions[i].id] && responses[questions[i].id].indexOf(questions[i].options[j]) > -1) { %> checked<% } %>><%= questions[i].options[j] %></label>
                   </div>
                 <% } %>
               </div>
@@ -92,7 +92,7 @@
                   <label class="control-label"><span<% if(questions[i].required) { %> class="required"<% } %>><%= questions[i].question %></span> <small><%= questions[i].description %></small></label>
                   <% for(var j=0; j<questions[i].options.length; j++) { %>
                     <div class="radio">
-                      <label><input type="radio" name="question<%= questions[i].id %>" value="<%= questions[i].options[j] %>"<% if(typeof responses != 'undefined' && responses[questions[i].id].indexOf(questions[i].options[j]) > -1) { %> checked<% } %>><%= questions[i].options[j] %></label>
+                      <label><input type="radio" name="question<%= questions[i].id %>" value="<%= questions[i].options[j] %>"<% if(typeof responses != 'undefined' && responses[questions[i].id] && responses[questions[i].id].indexOf(questions[i].options[j]) > -1) { %> checked<% } %>><%= questions[i].options[j] %></label>
                     </div>
                   <% } %>
                 </div>

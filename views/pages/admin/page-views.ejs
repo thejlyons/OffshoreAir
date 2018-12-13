@@ -16,7 +16,7 @@
         display: none;
       }
 
-      .fa-trash-alt, .fa-chart-area, .fa-archive, .fa-window-restore {
+      .fa-trash-alt, .fa-chart-area, .fa-archive, .fa-window-restore, .fa-check, .fa-exclamation {
         border-radius: 3px;
         font-size: 12pt;
       }
@@ -32,7 +32,7 @@
       }
 
       .fa-chart-area {
-        padding: 7px 6px;
+        padding: 7px 7px;
         color: #DFEBF5;
         background: #428bca;
       }
@@ -51,10 +51,18 @@
         background: #DA8210
       }
 
-      .fa-trash-alt {
-        padding: 7px 8px;
+      .fa-exclamation {
+        padding: 7px 12px;
         background: #CA2525;
         color: #F4DBDB;
+      }
+
+      .fa-check {
+        background: #56C68E;
+        border-radius: 3px;
+        color: #D2F3D2;
+        font-size: 12pt;
+        padding: 7px 7px;
       }
 
       .fa-trash-alt:hover {
@@ -423,6 +431,7 @@
                   <th>Last 7 Days</th>
                   <th>Last 30 Days</th>
                   <th>Graph</th>
+                  <th>Status</th>
                 </tr>
               </thead>
               <tfoot>
@@ -432,6 +441,7 @@
                   <th>Last 7 Days</th>
                   <th>Last 30 Days</th>
                   <th>Graph</th>
+                  <th>Status</th>
                 </tr>
               </tfoot>
             </table>
@@ -476,7 +486,7 @@
             "id": <%= pages[i].id %>,
             "name": "<%= pages[i].name %>",
             "route": "<%= pages[i].route %>",
-            "views": <%- JSON.stringify(views[pages[i].route]) %>
+            "views": <% if(views[pages[i].route]) { %><%- JSON.stringify(views[pages[i].route]) %><% } else { %>[]<% } %>
           },
         <% } %>
       };
@@ -557,6 +567,28 @@
               width: '25px',
               render: function(data, type, row) {
                 return '<i class="fas fa-chart-area" data-route="' + row.route + '"></i>';
+              }
+            },
+            {
+              data: 'status',
+              orderable: false,
+              searchable: false,
+              width: '25px',
+              render: function(data, type, row) {
+                if(row.route != 'estimate-attempts' && row.route != 'estimate-post') {
+                  var point = '/' + ((row.route == 'estimate') ? 'estimate?canary' : row.route);
+                  if (row.route == 'index') {
+                    point = '/';
+                  }
+                  $.get(point)
+                    .fail(function() {
+                      $(".status[data-route='" + row.route + "']").removeClass('fa-check');
+                      $(".status[data-route='" + row.route + "']").addClass('fa-exclamation');
+                    });
+                  return '<i class="status fas fa-check" data-route="' + row.route + '"></i>';
+                } else {
+                  return '<i class="status fas fa-check" data-route="' + row.route + '"></i>';
+                }
               }
             }
           ]

@@ -9,6 +9,7 @@ INSERT INTO pages (name, route) VALUES
     ('contact', 'contact'),
     ('Sample Work', 'sample-work'),
     ('Estimate', 'estimate'),
+    ('Estimate Attempts', 'estimate-attempts');
     ('Estimate Submissions', 'estimate-post');
 CREATE TABLE page_views (id SERIAL NOT NULL UNIQUE, year integer, month integer, data jsonb, page_id integer references pages(id));
 */

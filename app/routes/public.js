@@ -71,6 +71,9 @@ module.exports = function(app){
   });
 
   app.post('/estimate', function(req, res){
+    if (req.query.canary == undefined) {
+      PV.count('estimate-attempts');
+    }
     var form = new formidable.IncomingForm();
     var fields = [];
 
