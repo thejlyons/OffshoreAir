@@ -4,33 +4,48 @@ module.exports = EM;
 var FM = require('../modules/form-manager');
 var MM = require('../modules/email-manager');
 
-EM.server = require("emailjs/email").server.connect({
-	host 	    : process.env.SMTP_SERVER,
-	user 	    : process.env.SMTP_USERNAME,
-	password  : process.env.SMTP_PASSWORD,
-	ssl 			: true
-});
+// EM.server = require("emailjs/email").server.connect({
+// 	host 	    : process.env.SMTP_SERVER,
+// 	user 	    : process.env.SMTP_USERNAME,
+// 	password  : process.env.SMTP_PASSWORD,
+// 	ssl 			: true
+// });
+
+EM.sgMail = require('@sendgrid/mail');
+EM.sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+
+// EM.dispatchResetPasswordLink = function(account, callback){
+// 	EM.server.send({
+// 		from         : 'Offshore Air Password Reset <' + process.env.SMTP_USERNAME + '>' || 'Offshore Air Password Reset <do-not-reply@' + process.env.SMTP_DOMAIN + '>',
+// 		to           : account.email,
+// 		subject      : 'Password Reset',
+// 		text         : 'something went wrong... :(',
+// 		attachment   : EM.composeEmail(account)
+// 	}, callback );
+// }
 
 EM.dispatchResetPasswordLink = function(account, callback){
-	EM.server.send({
+	EM.sgMail.send({
 		from         : 'Offshore Air Password Reset <' + process.env.SMTP_USERNAME + '>' || 'Offshore Air Password Reset <do-not-reply@' + process.env.SMTP_DOMAIN + '>',
 		to           : account.email,
 		subject      : 'Password Reset',
 		text         : 'something went wrong... :(',
-		attachment   : EM.composeEmail(account)
-	}, callback );
+		html   : EM.composeEmail(account)
+	});
+	callback();
 }
 
 EM.dispatchUserRequest = function(name, email, callback) {
 	MM.getEmail(process.env.EMAIL_REQUEST_ID, function(err, email_data) {
 		if(err) throw err;
-		EM.server.send({
+		EM.sgMail.send({
 			from         : email_data.from_title + ' <' + email_data.from_address + '@' + process.env.SMTP_DOMAIN + '>' || 'Offshore Air <do-not-reply@' + process.env.SMTP_DOMAIN + '>',
 			to           : email,
 			subject      : email_data.subject,
 			text         : 'something went wrong... :(',
-			attachment   : EM.composeRequestEmail(name, email, email_data.body)
-		}, callback );
+			html   : EM.composeRequestEmail(name, email, email_data.body)
+		});
+		callback();
 	});
 }
 
@@ -38,45 +53,45 @@ EM.dispatchEstimateConfirm = function(submission_email, callback) {
 	MM.getEmail(process.env.EMAIL_CONFIRM_ID, function(err, email_data) {
 		if(err) throw err;
 
-		console.log(email_data);
-		console.log(submission_email);
-		EM.server.send({
+		EM.sgMail.send({
 			from         : email_data.from_title + ' <' + email_data.from_address + '@' + process.env.SMTP_DOMAIN + '>' || 'Offshore Air <do-not-reply@' + process.env.SMTP_DOMAIN + '>',
 			to           : submission_email,
 			subject      : email_data.subject,
 			text         : 'something went wrong... :(',
-			attachment   : EM.composeEstimateConfirm(email_data.body)
-		}, callback );
+			html   : EM.composeEstimateConfirm(email_data.body)
+		});
+		callback();
 	});
 }
 
 EM.dispatchGetEstimate = function(data, questions, callback) {
-	EM.server.send({
+	EM.sgMail.send({
 		from         : 'Offshore Air Estimate <' + process.env.SMTP_USERNAME + '>' || 'Offshore Air Estimate <do-not-reply@' + process.env.SMTP_DOMAIN + '>',
 		to           : process.env.ADMIN_EMAIL,
 		subject      : 'Offshore Air Estimate',
 		text         : 'something went wrong... :(',
-		attachment   : EM.composeEstimateEmail(data, questions)
-	}, callback );
+		html   : EM.composeEstimateEmail(data, questions)
+	});
+	callback();
 }
 
 EM.dispatchNewHireStepHR = function(hr_emails, employee, next_task) {
-	EM.server.send({
+	EM.sgMail.send({
 		from         : 'Offshore Air <' + process.env.SMTP_USERNAME + '>' || 'Offshore Air <do-not-reply@' + process.env.SMTP_DOMAIN + '>',
 		to           : hr_emails,
 		subject      : 'Offshore Air New Hire Task',
 		text         : 'something went wrong... :(',
-		attachment   : EM.composeNewHireStepHR(employee, next_task)
+		html   : EM.composeNewHireStepHR(employee, next_task)
 	});
 }
 
 EM.dispatchNewHireStepEmployee = function(employee_email, next_task) {
-	EM.server.send({
+	EM.sgMail.send({
 		from         : 'Offshore Air <' + process.env.SMTP_USERNAME + '>' || 'Offshore Air <do-not-reply@' + process.env.SMTP_DOMAIN + '>',
 		to           : employee_email,
 		subject      : 'Offshore Air New Hire Task',
 		text         : 'something went wrong... :(',
-		attachment   : EM.composeNewHireStepEmployee(next_task)
+		html   : EM.composeNewHireStepEmployee(next_task)
 	});
 }
 
@@ -87,7 +102,7 @@ EM.composeEmail = function(account){
 		html += "Hi " + account.name + ",<br><br>";
 		html += "<a href='" + link + "'>Click here to reset your password</a><br><br>";
 		html += "</body></html>";
-	return  [{data:html, alternative:true}];
+	return html;
 }
 
 EM.composeRequestEmail = function(name, email, body){
@@ -100,7 +115,7 @@ EM.composeRequestEmail = function(name, email, body){
 	var html = "<html><body>";
 		html += body;
 		html += "</body></html>";
-	return  [{data:html, alternative:true}];
+	return html;
 }
 
 EM.composeEstimateConfirm = function(body){
@@ -108,7 +123,7 @@ EM.composeEstimateConfirm = function(body){
 		html += body;
 		html += "</body></html>";
 	console.log(body);
-	return  [{data:html, alternative:true}];
+	return html;
 }
 
 EM.composeEstimateEmail = function(data, questions) {
@@ -124,7 +139,7 @@ EM.composeEstimateEmail = function(data, questions) {
 		html += question.question + ":<br><strong>" + data[id] + "</strong><br><br>";
 	}
 	html += "</body></html>";
-	return  [{data:html, alternative:true}];
+	return html;
 }
 
 EM.composeNewHireStepHR = function(employee, next_task){
@@ -134,7 +149,7 @@ EM.composeNewHireStepHR = function(employee, next_task){
 		html += "Next Task: <strong>" + next_task.task + ".</strong><br>";
 		html += "<a href='" + link + "'>Click here</a> to view the New Hire Task page for " + employee.name + ".<br><br>";
 		html += "</body></html>";
-	return  [{data:html, alternative:true}];
+	return html;
 }
 
 EM.composeNewHireStepEmployee = function(next_task){
@@ -144,5 +159,15 @@ EM.composeNewHireStepEmployee = function(next_task){
 		html += "Next Task: <strong>" + next_task.task + ".</strong><br>";
 		html += "<a href='" + link + "'>Click here</a> to view the New Hire Task page.<br><br>";
 		html += "</body></html>";
-	return  [{data:html, alternative:true}];
+	return html;
 }
+
+// EM.composeNewHireStepEmployee = function(next_task){
+// 	var link = process.env.BASE_URL + 'employee/hire';
+// 	var html = "<html><body>";
+// 		html += "Your next task is available in the new hire process.<br>";
+// 		html += "Next Task: <strong>" + next_task.task + ".</strong><br>";
+// 		html += "<a href='" + link + "'>Click here</a> to view the New Hire Task page.<br><br>";
+// 		html += "</body></html>";
+// 	return  [{data:html, alternative:true}];
+// }

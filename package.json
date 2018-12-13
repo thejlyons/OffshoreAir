@@ -12,6 +12,7 @@
     "test": "node test.js"
   },
   "dependencies": {
+    "@sendgrid/mail": "^6.3.1",
     "aws-sdk": "^2.165.0",
     "bluebird": "^3.5.1",
     "body-parser": "^1.17.2",
