@@ -7,7 +7,9 @@ var PV = require('../modules/page-view-manager');
 
 module.exports = function(app){
   app.get('/story', function(req, res){
-    PV.count('story');
+    if (req.query.canary == undefined) {
+      PV.count('story');
+    }
     JM.isVisible(function(is_visible) {
       res.render('pages/story', {
         this_title: "Our Story",
@@ -17,7 +19,9 @@ module.exports = function(app){
   });
 
   app.get('/services', function(req, res){
-    PV.count('services');
+    if (req.query.canary == undefined) {
+      PV.count('services');
+    }
     JM.isVisible(function(is_visible) {
       res.render('pages/services', {
         this_title: "Our Services",
@@ -27,7 +31,9 @@ module.exports = function(app){
   });
 
   app.get('/contact', function(req, res){
-    PV.count('contact');
+    if (req.query.canary == undefined) {
+      PV.count('contact');
+    }
     JM.isVisible(function(is_visible) {
       res.render('pages/contact', {
         this_title : "Contact Us",
@@ -37,7 +43,9 @@ module.exports = function(app){
   });
 
   app.get('/sample-work', function(req, res) {
-    PV.count('sample-work');
+    if (req.query.canary == undefined) {
+      PV.count('sample-work');
+    }
     JM.getJobs(function(err, jobs) {
       JM.isVisible(function(is_visible) {
         res.render('pages/sample-work', {

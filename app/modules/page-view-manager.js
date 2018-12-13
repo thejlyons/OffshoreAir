@@ -6,7 +6,7 @@ INSERT INTO pages (name, route) VALUES
     ('Home', 'index'),
     ('Our Story', 'story'),
     ('Services', 'services'),
-    ('contact', 'contact'),
+    ('Contact', 'contact'),
     ('Sample Work', 'sample-work'),
     ('Estimate', 'estimate'),
     ('Estimate Attempts', 'estimate-attempts');

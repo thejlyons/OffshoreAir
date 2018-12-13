@@ -576,10 +576,7 @@
               width: '25px',
               render: function(data, type, row) {
                 if(row.route != 'estimate-attempts' && row.route != 'estimate-post') {
-                  var point = '/' + ((row.route == 'estimate') ? 'estimate?canary' : row.route);
-                  if (row.route == 'index') {
-                    point = '/';
-                  }
+                  var point = '/' + row.route + '?canary';
                   $.get(point)
                     .fail(function() {
                       $(".status[data-route='" + row.route + "']").removeClass('fa-check');
