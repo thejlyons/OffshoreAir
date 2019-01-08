@@ -4,12 +4,12 @@ from datetime import datetime
 from urllib.request import Request, urlopen
 from email.mime.text import MIMEText
 
-SITE = os.environ.get('SITE', 'http://localhost:5000/estimate?ping')
-SMTP_DOMAIN = os.environ.get('SMPT_DOMAIN', 'mg.offshoreair.com')
-SMTP_PASSWORD = os.environ.get('SMTP_PASSWORD', 'VKh!#9fNFMhXR$/X')
-SMTP_SERVER = os.environ.get('SMTP_SERVER', 'smtp.mailgun.org')
-SMTP_USERNAME = os.environ.get('SMTP_USERNAME', 'no-reply@mg.offshoreair.com')
-REPORT_EMAIL = os.environ.get('REPORT_EMAIL', 'j@jlyons.me')
+SITE = os.environ['SITE']
+SMTP_DOMAIN = os.environ['SMPT_DOMAIN']
+SMTP_PASSWORD = os.environ['SMTP_PASSWORD']
+SMTP_SERVER = os.environ['SMTP_SERVER']
+SMTP_USERNAME = os.environ['SMTP_USERNAME']
+REPORT_EMAIL = os.environ['REPORT_EMAIL']
 
 
 def send_error():

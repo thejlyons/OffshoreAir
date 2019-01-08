@@ -42,7 +42,8 @@ exports.count = function(page) {
 }
 
 exports.getViews = function(callback) {
-	db.one('SELECT json_object_agg(route, json_build_object(year, (SELECT json_object_agg(month, data) FROM page_views WHERE year = year AND page_id = pages.id))) AS json FROM pages, page_views WHERE page_id = pages.id')
+	db.one('SELECT json_object_agg(route, (SELECT json_object_agg(year, joa) FROM (SELECT year, json_object_agg(month, data) AS joa FROM page_views WHERE page_id = pages.id GROUP BY year) s)) AS json FROM pages')
+	// db.one('SELECT json_object_agg(route, json_build_object(year, (SELECT json_object_agg(month, data) FROM page_views WHERE year = year AND page_id = pages.id))) AS json FROM pages, page_views WHERE page_id = pages.id')
     .then(views => {
 			db.any('SELECT * FROM pages')
 		    .then(pages => {
