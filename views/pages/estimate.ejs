@@ -109,7 +109,8 @@
             <% } %>
           <% } %>
           <div class="g-recaptcha" data-sitekey="6LfI_PIUAAAAAF7OCpUkJBsoFDP3OFry1gTl-8Sg"></div>
-          <div class="form-group"> <!-- Submit Button -->
+          <div class="invalid-recaptcha invalid-feedback">Please complete reCAPTCHA</div>
+          <div class="form-group mt-3"> <!-- Submit Button -->
             <button type="submit" class="btn btn-primary btn-success btn-lg">Submit</button>
           </div>
         </div>
@@ -140,6 +141,13 @@
   <script>
     $(document).ready(function() {
       $("#old-inputs").remove();
+      $("form").submit(function(event) {
+        var recaptcha = $("#g-recaptcha-response").val();
+        if (recaptcha === "") {
+          event.preventDefault();
+          $(".invalid-recaptcha").show();
+        }
+      });
     });
   </script>
 </body>
