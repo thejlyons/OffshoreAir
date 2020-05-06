@@ -150,7 +150,7 @@ module.exports = function(app){
                   FM.insertSubmission(process.env.ESTIMATE_ID, function(err, submission) {
                     for (id in responses) {
                       if (id === 'g-recaptcha-response' || id === 'cha-response') continue;
-                      
+
                       var question;
                       for (i in questions) {
                         if (parseInt(id, 10) === parseInt(questions[i].id, 10)) {
@@ -233,7 +233,7 @@ module.exports = function(app){
         JM.isVisible(function(is_visible) {
           var errors = [];
           for (id in responses) {
-            if (id === 'g-recaptcha-response') continue;
+            if (id === 'g-recaptcha-response' || id === 'cha-response') continue;
 
             var question;
             for (i in questions) {
@@ -262,6 +262,8 @@ module.exports = function(app){
           } else {
             FM.insertSubmission(req.query.formid, function(err, submission) {
               for (id in responses) {
+                if (id === 'g-recaptcha-response' || id === 'cha-response') continue;
+
                 var question;
                 for (i in questions) {
                   if (parseInt(id, 10) === parseInt(questions[i].id, 10)) {

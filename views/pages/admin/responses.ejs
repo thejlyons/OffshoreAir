@@ -907,61 +907,70 @@
           ])
         });
 
-        $(`#response-table-${form_id}_length *, #response-table-${form_id}_paginate *, #response-table-${form_id}_filter *`).on({
-          'click': function() {
-            setClicks();
+        setClicks(form_id);
+      }
+
+      function setClicks() {
+        $('#example tbody').on('click', 'tr', function () {
+                var data = table.row( this ).data();
+                alert( 'You clicked on '+data[0]+'\'s row' );
+            } );
+
+        $('#response-table-' + form_id).off('click').on('click', '.fa-eye, .fa-archive, .fa-window-restore, .fa-trash-alt', function() {
+          if ($(this).hasClass('.fa-eye')) {
+            rowView($(this))
+          } else if ($(this).hasClass('.fa-archive')) {
+            rowArchive($(this))
+          } else if ($(this).hasClass('.fa-window-restore')) {
+            rowRestore($(this))
+          } else if ($(this).hasClass('.fa-trash-alt')) {
+            rowDelete($(this))
           }
         });
       }
 
-      function setClicks() {
-        $('.fa-eye').off('click');
-        $('.fa-eye').on('click', function() {
-          $('#modal_view .modal-body').addClass('center-body');
-          $('#modal_view .modal-body').html('<i class="fas fa-spin fa-circle-notch"></i>');
-          $('#modal_view .modal-title').html(all_forms[current_form].name + " responses from " + all_forms[current_form]["submissions"][$(this).data('submission-id')].user_name)
-          $('#modal_view').modal('show');
-          $.post("/admin/manage/response/view/" + $(this).data('submission-id'), function(result) {
-            $('#modal_view .modal-body').removeClass('center-body');
-            if(result.responses != undefined) {
-              $('#modal_view .modal-body').html("");
-              $.each(result.responses, function(i, response) {
-                $('#modal_view .modal-body').append(`
-                  <div class="response">
-                    <div class="response-question">` + response.question + `</div>
-                    <div class="response-response">` + response.response + `</div>
-                  </div>
-                `);
-              });
-            } else {
-              $('#modal_view .modal-body').html("Responses could not be found.");
-            }
-          });
+      function rowView(e) {
+        $('#modal_view .modal-body').addClass('center-body');
+        $('#modal_view .modal-body').html('<i class="fas fa-spin fa-circle-notch"></i>');
+        $('#modal_view .modal-title').html(all_forms[current_form].name + " responses from " + all_forms[current_form]["submissions"][e.data('submission-id')].user_name)
+        $('#modal_view').modal('show');
+        $.post("/admin/manage/response/view/" + e.data('submission-id'), function(result) {
+          $('#modal_view .modal-body').removeClass('center-body');
+          if(result.responses != undefined) {
+            $('#modal_view .modal-body').html("");
+            $.each(result.responses, function(i, response) {
+              $('#modal_view .modal-body').append(`
+                <div class="response">
+                  <div class="response-question">` + response.question + `</div>
+                  <div class="response-response">` + response.response + `</div>
+                </div>
+              `);
+            });
+          } else {
+            $('#modal_view .modal-body').html("Responses could not be found.");
+          }
         });
+      }
 
-        $('.fa-archive').off('click');
-        $('.fa-archive').on('click', function() {
-          $('#modal_archive .modal-body').html("You will still have the option of viewing the responses in the table. However, they will not be visible by default.");
-          $('#modal_archive .modal-title').html("Are you sure you want to archive this submission?");
-          $("#btn-archive-submit").data('submission-id', $(this).data('submission-id'));
-          $('#modal_archive').modal('show');
-        });
+      function rowArchive(e) {
+        $('#modal_archive .modal-body').html("You will still have the option of viewing the responses in the table. However, they will not be visible by default.");
+        $('#modal_archive .modal-title').html("Are you sure you want to archive this submission?");
+        $("#btn-archive-submit").data('submission-id', e.data('submission-id'));
+        $('#modal_archive').modal('show');
+      }
 
-        $('.fa-window-restore').off('click');
-        $('.fa-window-restore').on('click', function() {
-          $('#modal_restore .modal-body').html("The responses will once again be available in the table by default.");
-          $('#modal_restore .modal-title').html("Are you sure you want to restore this submission?");
-          $("#btn-restore-submit").data('submission-id', $(this).data('submission-id'));
-          $('#modal_restore').modal('show');
-        });
+      function rowRestore(e) {
+        $('#modal_restore .modal-body').html("The responses will once again be available in the table by default.");
+        $('#modal_restore .modal-title').html("Are you sure you want to restore this submission?");
+        $("#btn-restore-submit").data('submission-id', e.data('submission-id'));
+        $('#modal_restore').modal('show');
+      }
 
-        $('.fa-trash-alt').off('click');
-        $('.fa-trash-alt').on('click', function() {
-          $('#modal_delete .modal-body').html("None of the responses associated with this submission will be available if deleted.");
-          $('#modal_delete .modal-title').html("Are you sure you want to delete this submission?");
-          $("#btn-delete-submit").data('submission-id', $(this).data('submission-id'));
-          $('#modal_delete').modal('show');
-        });
+      function rowDelete(e) {
+        $('#modal_delete .modal-body').html("None of the responses associated with this submission will be available if deleted.");
+        $('#modal_delete .modal-title').html("Are you sure you want to delete this submission?");
+        $("#btn-delete-submit").data('submission-id', e.data('submission-id'));
+        $('#modal_delete').modal('show');
       }
 
       function toggleArchived() {
@@ -987,7 +996,6 @@
         $.each(all_forms, function(i, form) {
           form.datatable.draw();
         });
-        setClicks();
       }
 
       function showArchived() {
@@ -1000,7 +1008,6 @@
         $.each(all_forms, function(i, form) {
           form.datatable.draw();
         });
-        setClicks();
       }
     </script>
   </body>

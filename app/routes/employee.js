@@ -330,6 +330,8 @@ module.exports = function(app) {
             FOM.getQuestions(form.id, function(err, questions) {
               var errors = [];
               for (id in responses) {
+                if (id === 'g-recaptcha-response' || id === 'cha-response') continue;
+
                 var question;
                 for (i in questions) {
                   if (parseInt(id, 10) === parseInt(questions[i].id, 10)) {
@@ -364,6 +366,8 @@ module.exports = function(app) {
                   if(err) console.log(err);
 
                   for (id in responses) {
+                    if (id === 'g-recaptcha-response' || id === 'cha-response') continue;
+                    
                     var question;
                     for (i in questions) {
                       if (parseInt(id, 10) === parseInt(questions[i].id, 10)) {
