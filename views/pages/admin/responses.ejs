@@ -910,12 +910,7 @@
         setClicks(form_id);
       }
 
-      function setClicks() {
-        $('#example tbody').on('click', 'tr', function () {
-                var data = table.row( this ).data();
-                alert( 'You clicked on '+data[0]+'\'s row' );
-            } );
-
+      function setClicks(form_id) {
         $('#response-table-' + form_id).off('click').on('click', '.fa-eye, .fa-archive, .fa-window-restore, .fa-trash-alt', function() {
           if ($(this).hasClass('.fa-eye')) {
             rowView($(this))
