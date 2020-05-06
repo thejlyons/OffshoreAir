@@ -104,6 +104,8 @@ module.exports = function(app){
           var errors = [];
           var submission_email;
           for (id in responses) {
+            if (id === 'g-recaptcha-response') continue;
+            
             var question;
             for (i in questions) {
               if (parseInt(id, 10) === parseInt(questions[i].id, 10)) {
@@ -113,14 +115,16 @@ module.exports = function(app){
             }
             if(question.is_email) {
               if((question.required || responses[id]) && !validator.isEmail(responses[id])) {
-                errors.push("Invalid email address.");
+                // errors.push("Invalid email address.");
+                errors.push(`Invalid email address (${question.is_email}, ${!validator.isEmail(responses[id])}, ${responses[id]}, ${id})`);
               } else {
                 submission_email = responses[id];
               }
             }
             if(question.is_phone) {
               if((question.required || responses[id]) && !validator.isMobilePhone(responses[id], 'en-US')) {
-                errors.push("Invalid phone number.");
+                // errors.push("Invalid phone number.");
+                errors.push(`Invalid phone number (${question.is_phone}, ${!validator.isMobilePhone(responses[id], 'en-US')}, ${responses[id]}, ${id})`);
               }
             }
           }
@@ -237,12 +241,10 @@ module.exports = function(app){
               }
             }
             if(question.is_email && !validator.isEmail(responses[id])) {
-              // errors.push("Invalid email address.");
-              errors.push(`Invalid email address (${question.is_email}, ${!validator.isEmail(responses[id])}, ${responses[id]}, ${id})`);
+              errors.push("Invalid email address.");
             }
             if(question.is_phone && !validator.isMobilePhone(responses[id], 'en-US')) {
-              // errors.push("Invalid phone number.");
-              errors.push(`Invalid phone number (${question.is_phone}, ${!validator.isMobilePhone(responses[id], 'en-US')}, ${responses[id]}, ${id})`);
+              errors.push("Invalid phone number.");
             }
           }
 
