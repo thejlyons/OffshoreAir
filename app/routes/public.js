@@ -227,6 +227,8 @@ module.exports = function(app){
         JM.isVisible(function(is_visible) {
           var errors = [];
           for (id in responses) {
+            if (id === 'g-recaptcha-response') continue;
+            
             var question;
             for (i in questions) {
               if (parseInt(id, 10) === parseInt(questions[i].id, 10)) {
