@@ -913,15 +913,15 @@
       function setClicks() {
         $('#table-wrapper').off('click').on('click', '.fa-eye, .fa-archive, .fa-window-restore, .fa-trash-alt', function() {
           console.log("Clicked");
-          console.log($(this))
+          console.log($(this));
 
-          if ($(this).hasClass('.fa-eye')) {
+          if ($(this).hasClass('fa-eye')) {
             rowView($(this))
-          } else if ($(this).hasClass('.fa-archive')) {
+          } else if ($(this).hasClass('fa-archive')) {
             rowArchive($(this))
-          } else if ($(this).hasClass('.fa-window-restore')) {
+          } else if ($(this).hasClass('fa-window-restore')) {
             rowRestore($(this))
-          } else if ($(this).hasClass('.fa-trash-alt')) {
+          } else if ($(this).hasClass('fa-trash-alt')) {
             rowDelete($(this))
           }
         });
