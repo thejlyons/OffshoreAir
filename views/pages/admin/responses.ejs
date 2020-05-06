@@ -906,6 +906,12 @@
             }
           ])
         });
+
+        $(`#response-table-${form_id}_length *, #response-table-${form_id}_paginate *, #response-table-${form_id}_filter *`).on({
+          'click': function() {
+            setClicks();
+          }
+        });
       }
 
       function setClicks() {

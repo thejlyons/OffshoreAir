@@ -149,6 +149,8 @@ module.exports = function(app){
                   }
                   FM.insertSubmission(process.env.ESTIMATE_ID, function(err, submission) {
                     for (id in responses) {
+                      if (id === 'g-recaptcha-response' || id === 'cha-response') continue;
+                      
                       var question;
                       for (i in questions) {
                         if (parseInt(id, 10) === parseInt(questions[i].id, 10)) {
