@@ -853,9 +853,9 @@
               data: 'submitted_at',
               render: function(data, type, row) {
                 var sa = new Date(row.submitted_at);
-                var dt = (sa.getMonth()+1)  + "/"
-                            + sa.getDate() + "/"
-                            + sa.getFullYear() + " "
+                var dt = sa.getFullYear() + "/"
+                            + (sa.getMonth()+1) + "/"
+                            + sa.getDate() + " "
                             + (sa.getHours()<12?sa.getHours():sa.getHours()-12) + ":"
                             + (sa.getMinutes()<10?'0':'') + sa.getMinutes() + " "
                             + (sa.getHours()<12?"AM":"PM");
@@ -907,11 +907,14 @@
           ])
         });
 
-        setClicks(form_id);
+        setClicks();
       }
 
-      function setClicks(form_id) {
-        $('#response-table-' + form_id).off('click').on('click', '.fa-eye, .fa-archive, .fa-window-restore, .fa-trash-alt', function() {
+      function setClicks() {
+        $('#table-wrapper').off('click').on('click', '.fa-eye, .fa-archive, .fa-window-restore, .fa-trash-alt', function() {
+          console.log("Clicked");
+          console.log($(this))
+
           if ($(this).hasClass('.fa-eye')) {
             rowView($(this))
           } else if ($(this).hasClass('.fa-archive')) {
