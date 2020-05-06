@@ -7,7 +7,7 @@ A nodejs web application running on Heroku for [Offshore Air Inc.](http://offsho
 Make sure you have [Node.js](http://nodejs.org/) and [PostgresSQL](https://www.postgresql.org/) installed.
 
 ```sh
-$ git clone https://github.com/balancingact/OffshoreAir # or clone your own fork
+$ git clone https://github.com/thejlyons/OffshoreAir # or clone your own fork
 $ cd OffshoreAir
 $ npm install
 $ npm start

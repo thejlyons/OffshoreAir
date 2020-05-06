@@ -120,7 +120,7 @@ module.exports = function(app){
             }
             if(question.is_phone) {
               if((question.required || responses[id]) && !validator.isMobilePhone(responses[id], 'en-US')) {
-                errors.push("Invalid email address.");
+                errors.push("Invalid phone number.");
               }
             }
           }
