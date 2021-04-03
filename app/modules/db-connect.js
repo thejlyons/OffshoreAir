@@ -5,6 +5,15 @@ const pgp = require('pg-promise')();
 */
 
 var db_url = process.env.DATABASE_URL || "postgres://postgres:killerfly@localhost:5432/postgres";
-const db = pgp(db_url + '?sslmode=require');
+db_url = db_url + '?sslmode=require';
+
+var conf = {
+    connectionString: db_url,
+    ssl: {
+      require: true,
+      rejectUnauthorized: false
+    },
+}
+const db = pgp(conf);
 
 module.exports = db;
