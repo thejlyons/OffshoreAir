@@ -25,14 +25,14 @@ app.set('view engine', 'ejs');
 var db_url = process.env.DATABASE_URL || "postgres://postgres:killerfly@localhost:5432/postgres";
 db_url = db_url + '?sslmode=no-verify';
 
-app.use(session({
-  	secret: process.env.SECRET || 'fadb4443e5d14fe6f7d04637f78077c75c73d1b4',
-  	proxy: true,
-  	resave: true,
-  	saveUninitialized: true,
-    store: new PostgreSqlStore({conString: db_url})
-	})
-);
+// app.use(session({
+//   	secret: process.env.SECRET || 'fadb4443e5d14fe6f7d04637f78077c75c73d1b4',
+//   	proxy: true,
+//   	resave: true,
+//   	saveUninitialized: true,
+//     store: new PostgreSqlStore({conString: db_url})
+// 	})
+// );
 // Postgres for session table
 // CREATE TABLE "session" ("sid" varchar NOT NULL COLLATE "default", "sess" json NOT NULL, "expire" timestamp(6) NOT NULL) WITH (OIDS=FALSE);
 // ALTER TABLE "session" ADD CONSTRAINT "session_pkey" PRIMARY KEY ("sid") NOT DEFERRABLE INITIALLY IMMEDIATE;
