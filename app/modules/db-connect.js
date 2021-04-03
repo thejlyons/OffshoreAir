@@ -10,8 +10,8 @@ var db_url = process.env.DATABASE_URL || "postgres://postgres:killerfly@localhos
 var conf = {
     connectionString: db_url,
     ssl: {
-      // require: true,
-      rejectUnauthorized: false
+      require: true,
+      // rejectUnauthorized: false
     },
 }
 const db = pgp(conf);
