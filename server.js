@@ -6,7 +6,7 @@ var sslRedirect = require('heroku-ssl-redirect');
 var express = require('express');
 var session = require('express-session');
 var cookieParser = require('cookie-parser')
-// var PostgreSqlStore = require('connect-pg-simple')(session);
+var PostgreSqlStore = require('connect-pg-simple')(session);
 var app = express();
 
 const bodyParser = require('body-parser');
@@ -23,7 +23,6 @@ app.set('views', __dirname + '/views');
 app.set('view engine', 'ejs');
 
 var db_url = process.env.DATABASE_URL || "postgres://postgres:killerfly@localhost:5432/postgres";
-db_url = db_url + '?sslmode=require';
 
 const conObject = {
   user: process.env.DATABASE_USER || "postgres",
@@ -34,26 +33,14 @@ const conObject = {
   ssl: true
 }
 
-const pgSession = require('connect-pg-simple')(session);
-const pgStoreConfig = {
-  pgPromise: require('pg-promise')({ promiseLib: require('bluebird') })({ conObject })
-}
-
-// app.use(session({
-//   store: new pgSession(pgStoreConfig),
-//   secret: 'jW8aor76jpPX', // session secret
-//   resave: true,
-//   saveUninitialized: true,
-//   cookie: { maxAge: 30 * 24 * 60 * 60 * 1000 } // 30 days
-// }));
-
-
 app.use(session({
   	secret: process.env.SECRET || 'fadb4443e5d14fe6f7d04637f78077c75c73d1b4',
   	proxy: true,
   	resave: true,
   	saveUninitialized: true,
-    store: new pgSession(pgStoreConfig)
+    store: new PostgreSqlStore({
+      conObject: conObject,
+    }),
 	})
 );
 // Postgres for session table
