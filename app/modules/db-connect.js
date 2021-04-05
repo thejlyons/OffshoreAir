@@ -4,16 +4,15 @@ const pgp = require('pg-promise')();
 	ESTABLISH DATABASE CONNECTION
 */
 
-var db_url = process.env.DATABASE_URL || "postgres://postgres:killerfly@localhost:5432/postgres";
-// db_url = db_url + '?sslmode=require';
-
 var conf = {
-    connectionString: db_url,
-    ssl: {
-      require: true,
-      // rejectUnauthorized: false
-    },
-}
+  user: process.env.DATABASE_USER || "postgres",
+  password: process.env.DATABASE_PASS || "killerfly",
+  database: process.env.DATABASE_DB || "postgres",
+  port: 5432,
+  host: process.env.DATABASE_HOST || "localhost",
+  ssl: true
+};
+
 const db = pgp(conf);
 
 module.exports = db;
